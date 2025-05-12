@@ -1,0 +1,45 @@
+
+export type OptionValue = 'high' | 'medium' | 'low';
+
+export interface DiagnosticOption {
+  label: string;
+  value: OptionValue;
+  feedback: string;
+  score: number;
+}
+
+export interface DiagnosticQuestion {
+  id: string;
+  text: string;
+  options: DiagnosticOption[];
+  pillar: DiagnosticPillar;
+}
+
+export type DiagnosticPillar = 
+  | 'revenue-strategy'
+  | 'value-proposition'
+  | 'commercial-intelligence'
+  | 'prospecting'
+  | 'conversion'
+  | 'retention'
+  | 'tools';
+
+export interface PillarScore {
+  pillar: DiagnosticPillar;
+  score: number;
+  totalQuestions: number;
+  evaluation: OptionValue;
+}
+
+export interface DiagnosticResult {
+  pillarScores: Record<DiagnosticPillar, PillarScore>;
+  totalScore: number;
+  totalPossibleScore: number;
+  overallEvaluation: OptionValue;
+  recommendations: string[];
+}
+
+export interface UserAnswer {
+  questionId: string;
+  selectedOption: OptionValue;
+}
