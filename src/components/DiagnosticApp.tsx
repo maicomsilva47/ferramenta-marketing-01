@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import DiagnosticIntro from './DiagnosticIntro';
 import DiagnosticQuestion from './DiagnosticQuestion';
@@ -51,7 +52,7 @@ const DiagnosticApp: React.FC = () => {
       
       // Save the answer
       setUserAnswers(prev => [
-        ...prev, 
+        ...prev.filter(answer => answer.questionId !== currentQuestion.id), // Remove previous answer if exists
         { questionId: currentQuestion.id, selectedOption: value }
       ]);
       
@@ -68,6 +69,13 @@ const DiagnosticApp: React.FC = () => {
       // Calculate and show final results
       calculateResults();
       setCurrentState(DiagnosticState.RESULTS);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setCurrentState(DiagnosticState.QUESTION);
     }
   };
 
@@ -153,6 +161,40 @@ const DiagnosticApp: React.FC = () => {
     return '';
   };
 
+  // Get total questions per pillar to show "Step X of Y" for current pillar
+  const getPillarInfo = () => {
+    if (currentQuestionIndex < diagnosticQuestions.length) {
+      const currentPillar = diagnosticQuestions[currentQuestionIndex].pillar;
+      
+      const pillarQuestions = diagnosticQuestions.filter(q => q.pillar === currentPillar);
+      const pillarQuestionIndices = pillarQuestions.map(q => 
+        diagnosticQuestions.findIndex(dq => dq.id === q.id)
+      );
+      
+      const currentPillarQuestionIndex = pillarQuestionIndices.indexOf(currentQuestionIndex);
+      
+      return {
+        pillarName: pillarNames[currentPillar],
+        currentPillarQuestion: currentPillarQuestionIndex + 1,
+        totalPillarQuestions: pillarQuestions.length,
+        isNewPillar: currentPillarQuestionIndex === 0 && currentQuestionIndex > 0,
+        pillarIndex: Object.keys(pillarNames).indexOf(currentPillar) + 1,
+        totalPillars: Object.keys(pillarNames).length
+      };
+    }
+    
+    return {
+      pillarName: '',
+      currentPillarQuestion: 1,
+      totalPillarQuestions: 1,
+      isNewPillar: false,
+      pillarIndex: 1,
+      totalPillars: Object.keys(pillarNames).length
+    };
+  };
+
+  const pillarInfo = getPillarInfo();
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="container mx-auto">
@@ -166,12 +208,20 @@ const DiagnosticApp: React.FC = () => {
               currentQuestion={currentQuestionIndex + 1} 
               totalQuestions={diagnosticQuestions.length} 
               currentPillar={getCurrentPillarName()}
+              pillarStep={pillarInfo.pillarIndex}
+              totalPillars={pillarInfo.totalPillars}
+              pillarProgress={{
+                current: pillarInfo.currentPillarQuestion,
+                total: pillarInfo.totalPillarQuestions
+              }}
             />
             <DiagnosticQuestion 
               question={diagnosticQuestions[currentQuestionIndex]} 
               currentQuestion={currentQuestionIndex + 1}
               totalQuestions={diagnosticQuestions.length}
-              onSelectAnswer={handleSelectAnswer} 
+              onSelectAnswer={handleSelectAnswer}
+              onGoBack={currentQuestionIndex > 0 ? handleGoBack : undefined}
+              previousAnswer={userAnswers.find(a => a.questionId === diagnosticQuestions[currentQuestionIndex].id)?.selectedOption}
             />
           </>
         )}

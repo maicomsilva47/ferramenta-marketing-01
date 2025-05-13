@@ -1,26 +1,364 @@
+import { 
+  DiagnosticQuestion, 
+  DiagnosticPillar,
+  OptionValue,
+  PillarFeedbacks
+} from '@/types/diagnostic';
 
-import { DiagnosticOption, DiagnosticQuestion, DiagnosticPillar, OptionValue } from "../types/diagnostic";
-
+// Pillar names in Portuguese
 export const pillarNames: Record<DiagnosticPillar, string> = {
-  'revenue-strategy': '🚀 Estratégia de Receita',
-  'value-proposition': '🎯 Aderência da Proposta de Valor',
-  'commercial-intelligence': '📊 Inteligência Comercial',
-  'prospecting': '📞 Operação de Prospecção',
-  'conversion': '🤝 Conversão e Follow-up',
-  'retention': '🔄 Pós-venda e Retenção',
-  'tools': '🛠️ Ferramentas e Stack Comercial'
+  'revenue-strategy': 'Estratégia de Receita',
+  'value-proposition': 'Proposta de Valor',
+  'commercial-intelligence': 'Inteligência Comercial',
+  'prospecting': 'Prospecção',
+  'conversion': 'Conversão',
+  'retention': 'Retenção',
+  'tools': 'Ferramentas'
 };
 
-export const pillarDescriptions: Record<DiagnosticPillar, string> = {
-  'revenue-strategy': 'Planejamento e previsibilidade do crescimento.',
-  'value-proposition': 'Clareza do ICP (cliente ideal) e do problema que você resolve.',
-  'commercial-intelligence': 'Uso de dados, métricas e insights para guiar decisões.',
-  'prospecting': 'Processos e pessoas dedicados à geração de novas oportunidades.',
-  'conversion': 'Abordagem para converter leads em clientes e persistência no acompanhamento.',
-  'retention': 'Estratégias para fidelizar clientes, upsell/cross-sell e evitar churn.',
-  'tools': 'Tecnologias e ferramentas (CRM, automação, IA) suportando o time de vendas.'
+// Icons for each pillar
+export const pillarIcons: Record<DiagnosticPillar, string> = {
+  'revenue-strategy': '🚀',
+  'value-proposition': '💎',
+  'commercial-intelligence': '🧠',
+  'prospecting': '🔍',
+  'conversion': '⚡',
+  'retention': '🔄',
+  'tools': '🔧'
 };
 
+// Labels for each evaluation level
+export const evaluationLabels: Record<OptionValue, string> = {
+  'high': 'Alto',
+  'medium': 'Médio',
+  'low': 'Baixo'
+};
+
+// Feedback texts for each pillar based on evaluation level
+export const pillarFeedbacks: PillarFeedbacks = {
+  'revenue-strategy': {
+    high: {
+      title: 'Estratégia de Receita Avançada',
+      paragraphs: [
+        'Sua empresa demonstra uma excelente estruturação da estratégia de receita. Você provavelmente possui metas claras, segmentação eficiente e um processo de vendas bem definido que gera resultados consistentes.',
+        'Os times de Marketing e Vendas estão alinhados em torno de objetivos comuns e KPIs bem estruturados, o que permite a previsibilidade de resultados e o crescimento sustentável do negócio.',
+        'Empresas com este nível de maturidade conseguem não apenas atingir as metas comerciais, mas também planejar crescimento com base em dados sólidos e prever tendências de mercado.'
+      ],
+      actions: [
+        'Estabeleça mecanismos avançados de forecast para melhorar ainda mais a previsibilidade',
+        'Implemente revisões trimestrais de estratégia para adaptar-se rapidamente às mudanças de mercado',
+        'Desenvolva um sistema de compensação que incentive comportamentos alinhados com os objetivos estratégicos'
+      ]
+    },
+    medium: {
+      title: 'Estratégia de Receita em Desenvolvimento',
+      paragraphs: [
+        'Sua empresa já possui elementos importantes de uma estratégia de receita, como algumas metas definidas e um processo de vendas básico, mas ainda falta consistência e integração total entre as áreas.',
+        'O alinhamento entre Marketing e Vendas ocorre de forma pontual, e nem sempre há clareza sobre como as ações táticas contribuem para os objetivos estratégicos maiores da empresa.',
+        'Empresas neste estágio geralmente enfrentam desafios de previsibilidade e podem ter ciclos de altos e baixos nos resultados comerciais.'
+      ],
+      actions: [
+        'Estabeleça um processo formal de definição e cascateamento de metas comerciais',
+        'Implemente reuniões regulares de alinhamento entre Marketing e Vendas',
+        'Desenvolva um dashboard unificado de indicadores-chave que todos acompanhem',
+        'Documente seu processo comercial do início ao fim com etapas claras'
+      ]
+    },
+    low: {
+      title: 'Estratégia de Receita Incipiente',
+      paragraphs: [
+        'Sua empresa opera com uma estratégia de receita pouco estruturada ou inexistente. As metas, quando existem, são genéricas e não há um processo comercial claramente definido e seguido por todos.',
+        'Marketing e Vendas trabalham de forma isolada, com objetivos diferentes e pouca comunicação, o que gera ineficiência e resulta em oportunidades perdidas.',
+        'Empresas neste estágio geralmente dependem de esforços heroicos individuais para fechar negócios e têm grande dificuldade em prever resultados, o que compromete o planejamento financeiro e de crescimento.'
+      ],
+      actions: [
+        'Estabeleça metas claras e específicas para as equipes comerciais',
+        'Defina um processo de vendas básico com etapas bem delimitadas',
+        'Crie um calendário de reuniões recorrentes entre Marketing e Vendas',
+        'Implemente métricas básicas de acompanhamento comercial (leads, conversões, ticket médio)'
+      ]
+    }
+  },
+  'value-proposition': {
+    high: {
+      title: 'Proposta de Valor Diferenciada',
+      paragraphs: [
+        'Sua empresa possui uma proposta de valor clara, convincente e baseada em diferenciais reais de mercado. Você conhece profundamente seus clientes ideais e entende suas dores, contextos e objetivos.',
+        'O posicionamento de mercado é bem definido e todos na empresa conseguem comunicar o valor de forma consistente e persuasiva, facilitando a venda e reduzindo a objeção de preço.',
+        'Empresas com este nível de clareza na proposta de valor conseguem atrair clientes mais qualificados, têm ciclos de venda mais curtos e margens mais saudáveis.'
+      ],
+      actions: [
+        'Revisite sua proposta de valor periodicamente para garantir que continua relevante',
+        'Expande o conhecimento sobre personas para segmentos adjacentes com potencial',
+        'Treine continuamente as equipes para que a comunicação de valor seja consistente em todos os pontos de contato'
+      ]
+    },
+    medium: {
+      title: 'Proposta de Valor em Evolução',
+      paragraphs: [
+        'Sua empresa tem uma compreensão básica de sua proposta de valor, mas pode não estar comunicando-a de forma consistente ou impactante. Você conhece alguns aspectos de seus clientes, mas faltam insights mais profundos sobre suas reais necessidades.',
+        'O posicionamento existe, mas pode não estar totalmente diferenciado dos concorrentes, o que dificulta a justificativa de preço e leva a negociações mais centradas em desconto do que em valor.',
+        'Empresas neste estágio geralmente conseguem vender, mas poderiam ter resultados muito melhores com uma proposta de valor mais afiada e internalizada por todos.'
+      ],
+      actions: [
+        'Realize entrevistas aprofundadas com clientes atuais para entender melhor o valor percebido',
+        'Mapeie detalhadamente as personas de clientes ideais com suas motivações e objeções',
+        'Crie scripts de comunicação de valor padronizados para todos os vendedores',
+        'Desenvolva materiais de vendas centrados em valor, não em recursos'
+      ]
+    },
+    low: {
+      title: 'Proposta de Valor Indefinida',
+      paragraphs: [
+        'Sua empresa ainda não definiu claramente sua proposta de valor ou está baseando-a principalmente em características técnicas dos produtos/serviços, sem conexão com benefícios reais para os clientes.',
+        'Há pouco conhecimento estruturado sobre os clientes ideais, seus desafios e objetivos, o que resulta em abordagens comerciais genéricas que não ressoam com os prospects.',
+        'Empresas neste estágio frequentemente enfrentam dificuldades para se diferenciar da concorrência, sofrem grande pressão por desconto e têm ciclos de vendas longos com taxas de conversão baixas.'
+      ],
+      actions: [
+        'Defina quem é seu cliente ideal e por que seu produto/serviço é relevante para ele',
+        'Documente as principais dores e ganhos que sua solução proporciona',
+        'Crie um pitch comercial básico que todos na empresa possam usar',
+        'Compare sua oferta com concorrentes para identificar diferenciais reais'
+      ]
+    }
+  },
+  'commercial-intelligence': {
+    high: {
+      title: 'Inteligência Comercial Avançada',
+      paragraphs: [
+        'Sua empresa opera com base em dados comerciais completos e confiáveis. Você monitora sistematicamente métricas-chave e utiliza análises avançadas para identificar tendências, prever resultados e tomar decisões estratégicas.',
+        'Existe um processo estruturado de coleta, análise e distribuição de insights para todas as áreas envolvidas no processo comercial, permitindo ajustes rápidos e informados na estratégia.',
+        'Empresas com este nível de maturidade em inteligência comercial conseguem antecipar problemas, otimizar continuamente seus processos e manter vantagem competitiva no mercado.'
+      ],
+      actions: [
+        'Implemente análises preditivas para antecipar tendências e comportamentos de clientes',
+        'Desenvolva um programa de testes A/B contínuos para otimização de abordagens comerciais',
+        'Crie dashboards personalizados por nível hierárquico e função'
+      ]
+    },
+    medium: {
+      title: 'Inteligência Comercial em Desenvolvimento',
+      paragraphs: [
+        'Sua empresa já coleta alguns dados comerciais importantes, mas ainda há lacunas significativas na qualidade, completude ou utilização dessas informações para tomada de decisões.',
+        'Existem métricas básicas sendo monitoradas, mas falta análise mais profunda e sistemática que transforme dados em insights acionáveis para direcionar a estratégia comercial.',
+        'Empresas neste estágio geralmente conseguem identificar problemas após eles ocorrerem, mas têm dificuldade em antecipar tendências ou oportunidades com base em dados.'
+      ],
+      actions: [
+        'Estabeleça um conjunto mínimo de KPIs comerciais que todos devem acompanhar',
+        'Implemente um processo regular de análise de dados e compartilhamento de insights',
+        'Padronize a coleta de dados em todos os pontos do funil de vendas',
+        'Treine as equipes para utilizar dados na tomada de decisões cotidianas'
+      ]
+    },
+    low: {
+      title: 'Inteligência Comercial Incipiente',
+      paragraphs: [
+        'Sua empresa opera com pouca ou nenhuma utilização de dados para guiar decisões comerciais. As informações existentes são fragmentadas, inconsistentes ou simplesmente não são utilizadas de forma estratégica.',
+        'Não há métricas claras sendo acompanhadas sistematicamente, e as decisões são tomadas principalmente com base em intuição ou experiências pessoais.',
+        'Empresas neste estágio frequentemente têm dificuldade em entender as causas reais de seus sucessos ou fracassos comerciais, o que impede aprendizado sistemático e melhoria contínua.'
+      ],
+      actions: [
+        'Defina 3-5 métricas fundamentais para começar a acompanhar imediatamente',
+        'Implemente um CRM básico para registro consistente de todas as interações comerciais',
+        'Estabeleça uma reunião mensal de análise de resultados comerciais',
+        'Crie um relatório simples de fechamento mensal com principais indicadores'
+      ]
+    }
+  },
+  'prospecting': {
+    high: {
+      title: 'Prospecção Estratégica',
+      paragraphs: [
+        'Sua empresa possui um sistema de prospecção robusto e multicanal que gera um fluxo consistente e previsível de leads qualificados. Os esforços de geração de demanda são baseados em dados e otimizados continuamente.',
+        'Há uma clara segmentação de mercado e personalização de abordagens por perfil de cliente, além de integração eficiente entre marketing inbound e ações outbound.',
+        'Empresas com este nível de maturidade em prospecção conseguem escalar seu crescimento de forma previsível e raramente enfrentam "secas" no pipeline de vendas.'
+      ],
+      actions: [
+        'Implemente testes contínuos de novas abordagens de prospecção',
+        'Desenvolva modelos preditivos para identificar leads com maior propensão de compra',
+        'Estabeleça processos de aprendizado contínuo entre as equipes de geração e qualificação'
+      ]
+    },
+    medium: {
+      title: 'Prospecção em Evolução',
+      paragraphs: [
+        'Sua empresa realiza atividades de prospecção com alguma regularidade, mas ainda enfrenta inconsistências na qualidade e quantidade de leads gerados, resultando em um pipeline irregular.',
+        'Alguns canais de aquisição funcionam razoavelmente bem, mas falta diversificação estratégica e processos sistemáticos para otimizar resultados.',
+        'Empresas neste estágio geralmente têm períodos bons alternados com momentos de escassez de oportunidades, o que dificulta o planejamento e crescimento sustentável.'
+      ],
+      actions: [
+        'Estabeleça metas claras de geração de leads por canal',
+        'Defina critérios objetivos de qualificação de leads (lead scoring)',
+        'Implemente um calendário regular de ações de prospecção',
+        'Diversifique seus canais de aquisição para reduzir dependência de fontes únicas'
+      ]
+    },
+    low: {
+      title: 'Prospecção Reativa',
+      paragraphs: [
+        'Sua empresa não possui um processo estruturado de prospecção, dependendo principalmente de indicações espontâneas ou esforços pontuais e não sistemáticos para gerar novas oportunidades.',
+        'As atividades de captação são inconsistentes, sem métricas claras de acompanhamento, e geralmente há confusão sobre quais canais ou abordagens funcionam melhor.',
+        'Empresas neste estágio frequentemente enfrentam ciclos de "montanha-russa" nas vendas, com períodos de falta aguda de leads seguidos por sobrecarga quando esforços emergenciais são realizados.'
+      ],
+      actions: [
+        'Defina um processo básico de prospecção com atividades diárias',
+        'Estabeleça uma meta mínima de novos contatos/leads por semana',
+        'Escolha 2-3 canais iniciais de aquisição e foque neles',
+        'Crie um script básico para abordagem inicial e qualificação'
+      ]
+    }
+  },
+  'conversion': {
+    high: {
+      title: 'Conversão Otimizada',
+      paragraphs: [
+        'Sua empresa possui um processo de vendas bem definido, documentado e seguido consistentemente por toda a equipe comercial. As etapas do funil são claras, com critérios objetivos de avanço e ações específicas em cada fase.',
+        'Existe um sistema eficiente de acompanhamento de oportunidades, com previsões de fechamento precisas e análises regulares de conversão que permitem melhorias contínuas.',
+        'Empresas com este nível de maturidade em conversão conseguem maximizar o valor de cada lead, têm ciclos de venda otimizados e taxas de fechamento significativamente acima da média do mercado.'
+      ],
+      actions: [
+        'Implemente técnicas avançadas de sales enablement para elevar ainda mais as taxas de conversão',
+        'Desenvolva playbooks específicos para diferentes segmentos e perfis de decisores',
+        'Estabeleça programa formal de mentoria entre vendedores de alto e médio desempenho'
+      ]
+    },
+    medium: {
+      title: 'Conversão em Desenvolvimento',
+      paragraphs: [
+        'Sua empresa tem um processo de vendas básico estabelecido, mas nem sempre ele é seguido consistentemente ou existem lacunas importantes em alguma das etapas do funil.',
+        'Há algum acompanhamento de oportunidades, mas previsões de fechamento são apenas moderadamente precisas e a análise de conversão acontece de forma reativa.',
+        'Empresas neste estágio geralmente têm taxas de conversão razoáveis, mas deixam valor significativo na mesa devido a inconsistências no processo e falhas de acompanhamento.'
+      ],
+      actions: [
+        'Documente seu processo de vendas atual, identificando gargalos e pontos de abandono',
+        'Estabeleça critérios claros para cada estágio do funil',
+        'Implemente reuniões semanais de pipeline review com toda a equipe',
+        'Desenvolva materiais de apoio às vendas para as objeções mais comuns'
+      ]
+    },
+    low: {
+      title: 'Conversão Inconsistente',
+      paragraphs: [
+        'Sua empresa não tem um processo de vendas estruturado. Cada vendedor segue sua própria abordagem, resultando em experiências inconsistentes para o cliente e dificuldade em analisar ou melhorar resultados.',
+        'O acompanhamento de oportunidades é precário ou inexistente, com pouca visibilidade sobre o status real do funil e previsões de fechamento altamente imprecisas.',
+        'Empresas neste estágio frequentemente perdem leads valiosos por falta de acompanhamento adequado, têm ciclos de venda desnecessariamente longos e taxas de conversão significativamente abaixo do potencial.'
+      ],
+      actions: [
+        'Defina um processo de vendas simples com 3-5 etapas principais',
+        'Implemente um sistema básico de registro e acompanhamento de oportunidades',
+        'Estabeleça prazos máximos para follow-up de leads e oportunidades',
+        'Crie um script básico de qualificação e descoberta para todos usarem'
+      ]
+    }
+  },
+  'retention': {
+    high: {
+      title: 'Retenção Estratégica',
+      paragraphs: [
+        'Sua empresa possui uma estratégia abrangente de retenção e expansão de clientes, com processos estruturados de onboarding, sucesso do cliente e identificação de oportunidades de upsell/cross-sell.',
+        'Existe monitoramento sistemático de satisfação e saúde dos clientes, com intervenções proativas para resolver problemas antes que levem à evasão.',
+        'Empresas com este nível de maturidade em retenção conseguem maximizar o valor do ciclo de vida do cliente (LTV), têm taxas de renovação/continuidade elevadas e grande parte da receita vem de clientes existentes.'
+      ],
+      actions: [
+        'Implemente modelos preditivos de propensão a cancelamento para intervenção antecipada',
+        'Desenvolva programas de fidelidade ou benefícios para clientes de longo prazo',
+        'Estabeleça uma verdadeira estratégia de growth através de clientes existentes'
+      ]
+    },
+    medium: {
+      title: 'Retenção em Desenvolvimento',
+      paragraphs: [
+        'Sua empresa realiza alguns esforços para retenção de clientes, mas nem sempre de forma sistemática ou proativa. O processo de onboarding existe, mas pode ter lacunas importantes.',
+        'Há algum monitoramento de satisfação, mas intervenções tendem a ser reativas, após sinais claros de insatisfação já terem surgido.',
+        'Empresas neste estágio geralmente conseguem manter uma taxa de retenção razoável, mas perdem oportunidades significativas de expansão de receita em clientes existentes.'
+      ],
+      actions: [
+        'Estabeleça um processo estruturado de onboarding para novos clientes',
+        'Implemente check-ins regulares de "saúde do cliente" em momentos estratégicos',
+        'Desenvolva um programa básico de identificação de oportunidades de upsell',
+        'Crie alertas para sinais de alerta de possível cancelamento'
+      ]
+    },
+    low: {
+      title: 'Retenção Reativa',
+      paragraphs: [
+        'Sua empresa não possui uma estratégia deliberada de retenção de clientes. O foco está principalmente na aquisição, com pouca atenção estruturada ao que acontece após a venda inicial.',
+        'Não há processos consistentes de onboarding, monitoramento de satisfação ou identificação sistemática de riscos de cancelamento e oportunidades de expansão.',
+        'Empresas neste estágio frequentemente enfrentam altas taxas de rotatividade de clientes (churn), desperdiçando recursos significativos na constante reposição da base e limitando seu potencial de crescimento sustentável.'
+      ],
+      actions: [
+        'Comece a medir e acompanhar sua taxa de retenção atual',
+        'Implemente pelo menos um contato estruturado pós-venda',
+        'Crie um processo simples para coletar feedback de clientes',
+        'Estabeleça um alerta básico para clientes sem interação recente'
+      ]
+    }
+  },
+  'tools': {
+    high: {
+      title: 'Stack Tecnológico Avançado',
+      paragraphs: [
+        'Sua empresa utiliza um conjunto integrado e bem implementado de ferramentas comerciais que automatizam processos, fornecem insights valiosos e aumentam significativamente a produtividade da equipe.',
+        'As tecnologias são adotadas estrategicamente e existe um alto nível de proficiência em seu uso, com dados fluindo sem problemas entre sistemas diferentes.',
+        'Empresas com este nível de maturidade tecnológica conseguem escalar operações comerciais eficientemente, tomar decisões baseadas em dados em tempo real e oferecer experiências superiores aos clientes.'
+      ],
+      actions: [
+        'Explore soluções de IA e automação avançadas para elevar ainda mais a produtividade',
+        'Implemente integrações mais profundas entre suas ferramentas atuais',
+        'Estabeleça um programa contínuo de otimização e inovação tecnológica'
+      ]
+    },
+    medium: {
+      title: 'Stack Tecnológico em Evolução',
+      paragraphs: [
+        'Sua empresa utiliza algumas ferramentas comerciais importantes, mas pode haver lacunas significativas na integração entre elas ou na forma como são utilizadas pela equipe.',
+        'As tecnologias cobrem funções básicas, mas nem sempre são exploradas em todo seu potencial ou há inconsistência na adoção por diferentes membros da equipe.',
+        'Empresas neste estágio geralmente conseguem benefícios parciais da tecnologia, mas ainda enfrentam ineficiências, duplicação de esforços e perda de insights devido à fragmentação de dados e processos.'
+      ],
+      actions: [
+        'Revise a utilização atual das ferramentas existentes para identificar recursos subutilizados',
+        'Estabeleça treinamentos regulares para aumentar a adoção e proficiência',
+        'Priorize a integração entre sistemas existentes antes de adicionar novas ferramentas',
+        'Desenvolva processos padronizados de uso das ferramentas atuais'
+      ]
+    },
+    low: {
+      title: 'Stack Tecnológico Básico',
+      paragraphs: [
+        'Sua empresa utiliza poucas ou nenhuma ferramenta especializada para apoiar processos comerciais. Os sistemas existentes são básicos, fragmentados ou subutilizados.',
+        'Há grande dependência de processos manuais, planilhas isoladas e comunicação não estruturada, resultando em perda de eficiência e informações importantes.',
+        'Empresas neste estágio frequentemente enfrentam desafios significativos de escalabilidade, têm visibilidade limitada sobre seu pipeline e performance, e perdem oportunidades por falta de acompanhamento sistemático.'
+      ],
+      actions: [
+        'Implemente um CRM básico como fundação para sua pilha tecnológica',
+        'Identifique os 2-3 processos mais manuais que poderiam ser facilmente automatizados',
+        'Estabeleça regras básicas de registro de informações para toda a equipe',
+        'Escolha ferramentas com boa relação custo-benefício para começar'
+      ]
+    }
+  }
+};
+
+// Get evaluation level based on score and number of questions
+export const getPillarEvaluation = (score: number, totalQuestions: number): OptionValue => {
+  const maxScore = totalQuestions * 3; // 3 is the max score per question
+  const percentage = (score / maxScore) * 100;
+  
+  if (percentage >= 75) return 'high';
+  if (percentage >= 50) return 'medium';
+  return 'low';
+};
+
+// Get overall evaluation based on total score and possible score
+export const getOverallEvaluation = (score: number, possibleScore: number): OptionValue => {
+  const percentage = (score / possibleScore) * 100;
+  
+  if (percentage >= 75) return 'high';
+  if (percentage >= 50) return 'medium';
+  return 'low';
+};
+
+// Sample diagnostic questions
 export const diagnosticQuestions: DiagnosticQuestion[] = [
   {
     id: "q1",
@@ -444,21 +782,24 @@ export const resources = [
 ];
 
 export const evaluationLabels: Record<OptionValue, string> = {
-  high: 'Alta',
-  medium: 'Intermediária',
-  low: 'Baixa'
+  'high': 'Alto',
+  'medium': 'Médio',
+  'low': 'Baixo'
 };
 
 export const getPillarEvaluation = (score: number, totalQuestions: number): OptionValue => {
-  const percentage = score / (totalQuestions * 3);
-  if (percentage > 0.7) return "high";
-  if (percentage > 0.4) return "medium";
-  return "low";
+  const maxScore = totalQuestions * 3; // 3 is the max score per question
+  const percentage = (score / maxScore) * 100;
+  
+  if (percentage >= 75) return 'high';
+  if (percentage >= 50) return 'medium';
+  return 'low';
 };
 
-export const getOverallEvaluation = (totalScore: number, totalPossible: number): OptionValue => {
-  const percentage = totalScore / totalPossible;
-  if (percentage > 0.7) return "high";
-  if (percentage > 0.4) return "medium";
-  return "low";
+export const getOverallEvaluation = (score: number, possibleScore: number): OptionValue => {
+  const percentage = (score / possibleScore) * 100;
+  
+  if (percentage >= 75) return 'high';
+  if (percentage >= 50) return 'medium';
+  return 'low';
 };

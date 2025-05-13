@@ -43,3 +43,17 @@ export interface UserAnswer {
   questionId: string;
   selectedOption: OptionValue;
 }
+
+export interface PillarFeedback {
+  title: string;
+  paragraphs: string[];
+  actions?: string[];
+}
+
+export interface PillarFeedbacks {
+  [key: string]: {
+    high: PillarFeedback;
+    medium: PillarFeedback;
+    low: PillarFeedback;
+  };
+}
