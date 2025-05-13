@@ -212,7 +212,7 @@ export const pillarFeedbacks: PillarFeedbacks = {
     high: {
       title: 'Conversão Otimizada',
       paragraphs: [
-        'Sua empresa possui um processo de vendas bem definido, documentado e seguido consistentemente por toda a equipe comercial. As etapas do funil são claras, com critérios objetivos de avanço e ações específicas em cada fase.',
+        'Sua empresa possui um processo de vendas bem definido, documentado e seguido consistente por toda a equipe comercial. As etapas do funil são claras, com critérios objetivos de avanço e ações específicas em cada fase.',
         'Existe um sistema eficiente de acompanhamento de oportunidades, com previsões de fechamento precisas e análises regulares de conversão que permitem melhorias contínuas.',
         'Empresas com este nível de maturidade em conversão conseguem maximizar o valor de cada lead, têm ciclos de venda otimizados e taxas de fechamento significativamente acima da média do mercado.'
       ],
@@ -225,7 +225,7 @@ export const pillarFeedbacks: PillarFeedbacks = {
     medium: {
       title: 'Conversão em Desenvolvimento',
       paragraphs: [
-        'Sua empresa tem um processo de vendas básico estabelecido, mas nem sempre ele é seguido consistentemente ou existem lacunas importantes em alguma das etapas do funil.',
+        'Sua empresa tem um processo de vendas básico estabelecido, mas nem sempre ele é seguido consistente ou existem lacunas importantes em alguma das etapas do funil.',
         'Há algum acompanhamento de oportunidades, mas previsões de fechamento são apenas moderadamente precisas e a análise de conversão acontece de forma reativa.',
         'Empresas neste estágio geralmente têm taxas de conversão razoáveis, mas deixam valor significativo na mesa devido a inconsistências no processo e falhas de acompanhamento.'
       ],
@@ -341,7 +341,7 @@ export const pillarFeedbacks: PillarFeedbacks = {
 
 export const recommendations: Record<DiagnosticPillar, string[]> = {
   'revenue-strategy': [
-    "Formalize seu Plano de Receita: Estabeleça metas mensais/trimestais realistas e um plano tático para alcançá-las.",
+    "Formalize seu Plano de Receita: Estabeleça metas mensais/trimestrais realistas e um plano tático para alcançá-las.",
     "Diversifique suas fontes de receita para reduzir dependência de canais únicos."
   ],
   'value-proposition': [
@@ -535,4 +535,10 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Acompanhamos apenas o básico (por ex: número de vendas fechadas no mês versus meta) e talvez alguma métrica pontual, mas não analisamos a fundo todo o funil com regularidade.",
         value: "medium",
-        feedback: "Você tem alguma visibilidade, mas pode estar perdendo insights importantes. Apenas olhar o resultado final (vendas) é como ver o placar sem assistir ao jogo. ⚠️ Sem analisar as taxas de conversão, duração de ciclo e afins, fica difícil saber por que a meta foi ou não atingida. Aprofunde-se nas métricas de cada etapa – pode descobrir pontos ocultos a
+        feedback: "Você tem alguma visibilidade, mas pode estar perdendo insights importantes. Apenas olhar o resultado final (vendas) é como ver o placar sem assistir ao jogo. ⚠️ Sem analisar as taxas de conversão, duração de ciclo e afins, fica difícil saber por que a meta foi ou não atingida. Aprofunde-se nas métricas de cada etapa – pode descobrir pontos ocultos a tempo de agir e reverter resultados.",
+        score: 2
+      },
+      // ... keep existing code (the rest of the diagnosticQuestions array)
+    ]
+  }
+];
