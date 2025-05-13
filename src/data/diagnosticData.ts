@@ -535,4 +535,4 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Acompanhamos apenas o básico (por ex: número de vendas fechadas no mês versus meta) e talvez alguma métrica pontual, mas não analisamos a fundo todo o funil com regularidade.",
         value: "medium",
-        feedback: "Você tem alguma visibilidade, mas pode estar perdendo insights importantes. Apenas olhar o resultado final (vendas) é como ver o placar sem assistir ao jogo. ⚠️ Sem analisar as taxas de conversão, duração de ciclo e afins, fica difícil saber por que a meta foi ou não atingida. Aprofunde-se nas métricas de cada etapa – pode descobrir pontos ocultos a tempo de agir e reverter resultados.",
+        feedback: "Você tem alguma visibilidade, mas pode estar perdendo insights importantes. Apenas olhar o resultado final (vendas) é como ver o placar sem assistir ao jogo. ⚠️ Sem analisar as taxas de conversão, duração de ciclo e afins, fica difícil saber por que a meta foi ou não atingida. Aprofunde-se nas métricas de cada etapa – pode descobrir pontos ocultos a
