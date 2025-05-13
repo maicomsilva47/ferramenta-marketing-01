@@ -14,8 +14,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation })
   const [shareableLink, setShareableLink] = useState<string>('');
 
   const handleShareResults = () => {
-    // Em um cenário real, isso seria uma API de encurtamento de URL ou um endpoint 
-    // específico para compartilhamento com ID único
+    // Generate link for the /resultados page
     const baseUrl = window.location.origin;
     const generatedLink = `${baseUrl}/resultados?diagnostico=${encodeURIComponent(JSON.stringify({
       overall: overallScore.toFixed(0),
@@ -36,6 +35,12 @@ const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation })
       });
   };
 
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareableLink)
+      .then(() => toast.success("Link copiado!"))
+      .catch(() => toast.error("Erro ao copiar link"));
+  };
+
   return (
     <div className="bg-gray-50 p-4 rounded-md mb-6">
       <h3 className="font-bold mb-2">Compartilhar Resultados</h3>
@@ -49,21 +54,17 @@ const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation })
         <div className="flex gap-2">
           <Button 
             onClick={handleShareResults}
-            className="bg-growth-orange hover:bg-orange-700 text-white font-bold"
+            className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12"
             size="sm"
           >
             <Share2 size={16} className="mr-1" /> Gerar Link
           </Button>
           {shareableLink && (
             <Button
-              onClick={() => {
-                navigator.clipboard.writeText(shareableLink)
-                  .then(() => toast.success("Link copiado!"))
-                  .catch(() => toast.error("Erro ao copiar link"));
-              }}
+              onClick={handleCopyLink}
               variant="outline"
               size="sm"
-              className="border-growth-orange text-growth-orange hover:bg-orange-50"
+              className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12"
             >
               <Copy size={16} className="mr-1" /> Copiar
             </Button>
