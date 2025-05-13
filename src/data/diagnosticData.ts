@@ -1,3 +1,4 @@
+
 import { 
   DiagnosticQuestion, 
   DiagnosticPillar,
@@ -546,4 +547,121 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Sim, monitoramos ativamente nossos KPIs de vendas em cada etapa. Temos dashboards ou relatórios frequentes e as decisões estratégicas são baseadas nesses dados concretos.",
         value: "high",
-        feedback: "Excelente – gerir por dados é fundamental para escalar com segurança. Você sabe onde ajustar o leme, pois tem inteligência para identificar gargalos e oportunidades rapidamente. Continue assim
+        feedback: "Excelente – gerir por dados é fundamental para escalar com segurança. Você sabe onde ajustar o leme, pois tem inteligência para identificar gargalos e oportunidades rapidamente. Continue assim.",
+        score: 3
+      },
+      {
+        label: "Monitoramos algumas métricas básicas, mas a análise não é sistemática ou frequente. Às vezes as decisões são mais baseadas em percepção do que em dados.",
+        value: "medium",
+        feedback: "Você está no caminho certo ao coletar dados, mas sem uma análise disciplinada, pode estar deixando oportunidades importantes na mesa. Transformar dados em insights acionáveis é a diferença entre empresas que crescem acidentalmente e as que crescem por design. 📊 Invista tempo para entender realmente o que seus números dizem.",
+        score: 2
+      },
+      {
+        label: "Não acompanhamos métricas de forma sistemática. Temos uma visão geral de fechamentos, mas pouca ou nenhuma análise do funil, conversão ou eficiência.",
+        value: "low",
+        feedback: "Você está vendando no escuro. Como otimizar o que não é medido? 📏 Sem métricas claras, você está condenado a repetir erros e deixar passar oportunidades. Se os números te assustam, comece com o básico: quantos leads entram, quantos avançam e quantos fecham, e quanto tempo leva cada etapa. Só isso já seria um salto quântico para orientar suas decisões.",
+        score: 1
+      }
+    ]
+  },
+  {
+    id: "q6",
+    text: "Como é o processo de prospecção da sua empresa?",
+    pillar: "prospecting",
+    options: [
+      {
+        label: "Temos um processo estruturado, multicanal e consistente de prospecção. Nossa equipe executa ações planejadas diariamente e geramos um fluxo previsível de leads qualificados.",
+        value: "high",
+        feedback: "Parabéns! Um motor de prospecção bem azeitado é a base do crescimento sustentável. Você não depende da sorte para gerar oportunidades – seu sistema cria resultados previsíveis. Continue refinando e testando novos canais e abordagens para manter a máquina evoluindo. 🔍",
+        score: 3
+      },
+      {
+        label: "Fazemos algumas ações de prospecção com alguma regularidade, mas não de forma totalmente sistemática ou consistente. O fluxo de leads tem altos e baixos.",
+        value: "medium",
+        feedback: "Você está no meio do caminho – já reconhece a importância da prospecção ativa, mas ainda falta consistência. Lembre-se: prospecção é como exercício físico, precisa ser regular para dar resultados. Transforme ações pontuais em processos diários, e você verá seu pipeline se estabilizar. 📅",
+        score: 2
+      },
+      {
+        label: "Nossa geração de leads é principalmente reativa/passiva. Dependemos muito de indicações ou contatos espontâneos, sem um processo estruturado de busca ativa por novos clientes.",
+        value: "low",
+        feedback: "Atenção! Depender apenas de leads passivos é arriscar o futuro do negócio. É como um agricultor que só espera a chuva, sem sistema de irrigação. Quando a fonte secar (e em algum momento vai), você estará vulnerável. Estabeleça urgentemente um processo mínimo de prospecção ativa diária – mesmo que simples no início – para garantir um fluxo constante de oportunidades. 🚰",
+        score: 1
+      }
+    ]
+  },
+  {
+    id: "q7",
+    text: "Como funciona o processo de follow-up na sua empresa após o primeiro contato com um potencial cliente?",
+    pillar: "conversion",
+    options: [
+      {
+        label: "Temos um processo sistemático de follow-up, com cadências de contato bem definidas e utilizamos diversas formas de abordar (e-mail, telefone, mensagens). Raramente perdemos uma oportunidade por falta de acompanhamento.",
+        value: "high",
+        feedback: "Excelente! O follow-up persistente e sistemático é um grande diferencial competitivo. A maioria das vendas acontece após a quinta tentativa de contato, mas poucos vendedores chegam até lá. Continue com essa disciplina de acompanhamento e você continuará convertendo oportunidades que seus concorrentes deixariam escapar. 🏆",
+        score: 3
+      },
+      {
+        label: "Fazemos follow-up, mas sem um processo muito estruturado. Dependemos do vendedor lembrar de retomar contato, e às vezes demoramos para dar sequência ou acabamos abandonando leads potencialmente viáveis.",
+        value: "medium",
+        feedback: "Você reconhece a importância do follow-up, mas a falta de processo estruturado está certamente deixando dinheiro na mesa. A memória humana é falível – vendedores ocupados inevitavelmente deixarão leads cair no esquecimento sem um sistema robusto. Implemente uma cadência formal de follow-up e veja sua taxa de conversão subir significativamente. 📈",
+        score: 2
+      },
+      {
+        label: "Nosso follow-up é frágil ou quase inexistente. Frequentemente esperamos o cliente retomar contato após a primeira interação, e muitos leads acabam esfriando por falta de acompanhamento adequado.",
+        value: "low",
+        feedback: "Alerta crítico! Sem follow-up adequado, você está literalmente jogando dinheiro no lixo. Leads que você já pagou para adquirir estão escapando por entre os dedos. Estudos mostram que 80% das vendas requerem pelo menos 5 contatos, mas 44% dos vendedores desistem após apenas 1 tentativa. Implemente imediatamente um processo básico de acompanhamento – é provavelmente o ajuste de menor esforço e maior retorno que você pode fazer no seu processo comercial hoje. 🚨",
+        score: 1
+      }
+    ]
+  },
+  {
+    id: "q8",
+    text: "Como é o processo de pós-venda e retenção de clientes na sua empresa?",
+    pillar: "retention",
+    options: [
+      {
+        label: "Temos um processo estruturado de onboarding, sucesso do cliente e relacionamento contínuo. Monitoramos ativamente a satisfação e identificamos riscos de cancelamento e oportunidades de expansão.",
+        value: "high",
+        feedback: "Parabéns por valorizar a retenção! Empresas que mantêm alto foco em pós-venda crescem mais rápido e de forma mais sustentável. Com clientes satisfeitos e bem atendidos, você provavelmente já colhe os frutos em forma de menor CAC (via indicações), maior LTV e receita mais previsível. Continue investindo no relacionamento de longo prazo. 🌱",
+        score: 3
+      },
+      {
+        label: "Temos alguns pontos de contato pós-venda, mas o processo não é totalmente estruturado. Oferecemos algum suporte e atenção, mas poderia ser mais sistemático e proativo.",
+        value: "medium",
+        feedback: "Você está no caminho certo ao dedicar alguma atenção ao pós-venda, mas há espaço para melhorias significativas. Lembre-se que é 5 a 25 vezes mais caro adquirir um novo cliente do que manter um existente. Estruture melhor seu processo de sucesso do cliente, com pontos de contato programados em momentos estratégicos do ciclo de vida – o retorno sobre esse investimento tende a ser extraordinário. ⏱️",
+        score: 2
+      },
+      {
+        label: "Não temos um processo formal de pós-venda ou retenção. Após a compra, o contato é principalmente reativo (quando há problemas) ou para tentar renovar/vender mais apenas próximo ao fim do contrato.",
+        value: "low",
+        feedback: "Atenção! Negligenciar o pós-venda é como encher um balde com um grande furo – por mais que você venda, a água escapa. Alto churn exige muito mais esforço de aquisição apenas para manter o negócio estável. Estabeleça urgentemente ao menos um processo básico de onboarding e check-in periódico com clientes – isso já reduziria significativamente sua taxa de cancelamento e abriria oportunidades de expansão que você provavelmente está perdendo. 🚽",
+        score: 1
+      }
+    ]
+  },
+  {
+    id: "q9",
+    text: "Qual o nível de suporte tecnológico para seus processos comerciais?",
+    pillar: "tools",
+    options: [
+      {
+        label: "Utilizamos tecnologias integradas que automatizam grande parte do nosso processo comercial. Temos CRM bem implementado, automação de marketing, ferramentas de comunicação e análise que aumentam significativamente nossa produtividade.",
+        value: "high",
+        feedback: "Excelente! Um stack tecnológico robusto é um multiplicador de força para equipes comerciais. Com as ferramentas certas, sua equipe consegue focar no que realmente importa: relacionamentos e conversões, enquanto o trabalho manual fica com os robôs. Continue investindo em tecnologia e avaliando regularmente se as ferramentas estão realmente sendo utilizadas em seu potencial máximo. 🤖",
+        score: 3
+      },
+      {
+        label: "Usamos algumas ferramentas básicas (como um CRM simples), mas muitos processos ainda são manuais. Falta integração entre sistemas ou utilizamos apenas parcialmente as funcionalidades disponíveis.",
+        value: "medium",
+        feedback: "Você deu os primeiros passos com tecnologia comercial, mas ainda está deixando muito valor na mesa. Sistemas fragmentados ou subutilizados criam ineficiências e fazem sua equipe perder tempo com tarefas que poderiam ser automatizadas. Avalie se está aproveitando completamente as ferramentas que já possui antes de adicionar novas, e busque integrar melhor seus sistemas para eliminar trabalho manual desnecessário. 🔄",
+        score: 2
+      },
+      {
+        label: "Temos pouca ou nenhuma tecnologia de apoio comercial. Usamos principalmente planilhas, e-mails e métodos manuais para gerenciar nosso pipeline e processos de vendas.",
+        value: "low",
+        feedback: "Alerta! Operar processos comerciais sem tecnologia adequada hoje é como tentar competir em uma corrida de Fórmula 1 com um carro de passeio. Por mais talentosa que seja sua equipe, há um teto de eficiência que só será superado com ferramentas adequadas. Comece implementando um CRM básico e gradualmente adicione automações para os processos mais repetitivos e demorados. O investimento se paga rapidamente em produtividade e leads que não caem mais nas rachaduras do processo manual. 🔧",
+        score: 1
+      }
+    ]
+  }
+];
