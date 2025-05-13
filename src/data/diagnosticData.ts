@@ -1,3 +1,4 @@
+
 import { 
   DiagnosticQuestion, 
   DiagnosticPillar,
@@ -339,24 +340,74 @@ export const pillarFeedbacks: PillarFeedbacks = {
   }
 };
 
-// Get evaluation level based on score and number of questions
-export const getPillarEvaluation = (score: number, totalQuestions: number): OptionValue => {
-  const maxScore = totalQuestions * 3; // 3 is the max score per question
-  const percentage = (score / maxScore) * 100;
-  
-  if (percentage >= 75) return 'high';
-  if (percentage >= 50) return 'medium';
-  return 'low';
+export const recommendations: Record<DiagnosticPillar, string[]> = {
+  'revenue-strategy': [
+    "Formalize seu Plano de Receita: Estabeleça metas mensais/trimensais realistas e um plano tático para alcançá-las.",
+    "Diversifique suas fontes de receita para reduzir dependência de canais únicos."
+  ],
+  'value-proposition': [
+    "Defina seu ICP e Qualifique Rigorosamente: Desenhe com clareza o perfil do cliente dos sonhos.",
+    "Refine sua proposta de valor para falar diretamente das dores específicas do seu cliente ideal."
+  ],
+  'commercial-intelligence': [
+    "Implemente análise de métricas básicas do funil para identificar gargalos de conversão.",
+    "Invista em ferramentas de inteligência comercial para orientar decisões baseadas em dados."
+  ],
+  'prospecting': [
+    "Implemente um Processo de Prospecção Ativa com cadências de contato definidas.",
+    "Estruture um time de vendas autônomo que não dependa dos sócios para fechar."
+  ],
+  'conversion': [
+    "Melhore seu Follow-up de Vendas com um playbook estruturado e persistente.",
+    "Analise a taxa de conversão em cada etapa do funil para identificar e corrigir pontos fracos."
+  ],
+  'retention': [
+    "Fortaleça Pós-venda/Customer Success com check-ins regulares e onboarding estruturado.",
+    "Monitore indicadores de retenção como churn e LTV para agir preventivamente."
+  ],
+  'tools': [
+    "Evolua seu Stack Comercial com um CRM de verdade e ferramentas de automação.",
+    "Experimente soluções de IA como o Prospct para prospecção automática e qualificação de leads."
+  ]
 };
 
-// Get overall evaluation based on total score and possible score
-export const getOverallEvaluation = (score: number, possibleScore: number): OptionValue => {
-  const percentage = (score / possibleScore) * 100;
-  
-  if (percentage >= 75) return 'high';
-  if (percentage >= 50) return 'medium';
-  return 'low';
-};
+export const resources = [
+  {
+    id: "guide1",
+    title: "Guia Essencial da Prospecção",
+    description: "E-book passo a passo para estruturar seu processo de prospecção do zero, gerando leads quentes consistentemente.",
+    pillars: ["prospecting", "conversion"],
+    image: "prospection-guide.png"
+  },
+  {
+    id: "template1",
+    title: "Template Kanban Prospect",
+    description: "Modelo pronto para organizar sua prospecção em formato Kanban, visualizando o fluxo de leads do primeiro contato até o fechamento.",
+    pillars: ["prospecting", "conversion"],
+    image: "kanban-template.png"
+  },
+  {
+    id: "template2",
+    title: "Template de Cold Mail",
+    description: "Exemplos de e-mails frios de alto impacto, prontos para uso em suas campanhas de prospecção, para gerar oportunidades qualificadas todos os dias.",
+    pillars: ["prospecting"],
+    image: "cold-mail-template.png"
+  },
+  {
+    id: "guide2",
+    title: "Bíblia do Social Selling",
+    description: "E-book com 20+ estratégias de Social Selling para gerar mais oportunidades usando o LinkedIn.",
+    pillars: ["prospecting", "revenue-strategy"],
+    image: "social-selling-bible.png"
+  },
+  {
+    id: "canvas",
+    title: "Sales Model Canvas",
+    description: "Ferramenta em formato canvas para prototipar seu processo de vendas completo.",
+    pillars: ["revenue-strategy", "value-proposition", "commercial-intelligence", "conversion"],
+    image: "sales-canvas.png"
+  }
+];
 
 // Sample diagnostic questions
 export const diagnosticQuestions: DiagnosticQuestion[] = [
@@ -712,81 +763,7 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
   }
 ];
 
-export const recommendations: Record<DiagnosticPillar, string[]> = {
-  'revenue-strategy': [
-    "Formalize seu Plano de Receita: Estabeleça metas mensais/trimensais realistas e um plano tático para alcançá-las.",
-    "Diversifique suas fontes de receita para reduzir dependência de canais únicos."
-  ],
-  'value-proposition': [
-    "Defina seu ICP e Qualifique Rigorosamente: Desenhe com clareza o perfil do cliente dos sonhos.",
-    "Refine sua proposta de valor para falar diretamente das dores específicas do seu cliente ideal."
-  ],
-  'commercial-intelligence': [
-    "Implemente análise de métricas básicas do funil para identificar gargalos de conversão.",
-    "Invista em ferramentas de inteligência comercial para orientar decisões baseadas em dados."
-  ],
-  'prospecting': [
-    "Implemente um Processo de Prospecção Ativa com cadências de contato definidas.",
-    "Estruture um time de vendas autônomo que não dependa dos sócios para fechar."
-  ],
-  'conversion': [
-    "Melhore seu Follow-up de Vendas com um playbook estruturado e persistente.",
-    "Analise a taxa de conversão em cada etapa do funil para identificar e corrigir pontos fracos."
-  ],
-  'retention': [
-    "Fortaleça Pós-venda/Customer Success com check-ins regulares e onboarding estruturado.",
-    "Monitore indicadores de retenção como churn e LTV para agir preventivamente."
-  ],
-  'tools': [
-    "Evolua seu Stack Comercial com um CRM de verdade e ferramentas de automação.",
-    "Experimente soluções de IA como o Prospct para prospecção automática e qualificação de leads."
-  ]
-};
-
-export const resources = [
-  {
-    id: "guide1",
-    title: "Guia Essencial da Prospecção",
-    description: "E-book passo a passo para estruturar seu processo de prospecção do zero, gerando leads quentes consistentemente.",
-    pillars: ["prospecting", "conversion"],
-    image: "prospection-guide.png"
-  },
-  {
-    id: "template1",
-    title: "Template Kanban Prospect",
-    description: "Modelo pronto para organizar sua prospecção em formato Kanban, visualizando o fluxo de leads do primeiro contato até o fechamento.",
-    pillars: ["prospecting", "conversion"],
-    image: "kanban-template.png"
-  },
-  {
-    id: "template2",
-    title: "Template de Cold Mail",
-    description: "Exemplos de e-mails frios de alto impacto, prontos para uso em suas campanhas de prospecção, para gerar oportunidades qualificadas todos os dias.",
-    pillars: ["prospecting"],
-    image: "cold-mail-template.png"
-  },
-  {
-    id: "guide2",
-    title: "Bíblia do Social Selling",
-    description: "E-book com 20+ estratégias de Social Selling para gerar mais oportunidades usando o LinkedIn.",
-    pillars: ["prospecting", "revenue-strategy"],
-    image: "social-selling-bible.png"
-  },
-  {
-    id: "canvas",
-    title: "Sales Model Canvas",
-    description: "Ferramenta em formato canvas para prototipar seu processo de vendas completo.",
-    pillars: ["revenue-strategy", "value-proposition", "commercial-intelligence", "conversion"],
-    image: "sales-canvas.png"
-  }
-];
-
-export const evaluationLabels: Record<OptionValue, string> = {
-  'high': 'Alto',
-  'medium': 'Médio',
-  'low': 'Baixo'
-};
-
+// Get evaluation level based on score and number of questions
 export const getPillarEvaluation = (score: number, totalQuestions: number): OptionValue => {
   const maxScore = totalQuestions * 3; // 3 is the max score per question
   const percentage = (score / maxScore) * 100;
@@ -796,6 +773,7 @@ export const getPillarEvaluation = (score: number, totalQuestions: number): Opti
   return 'low';
 };
 
+// Get overall evaluation based on total score and possible score
 export const getOverallEvaluation = (score: number, possibleScore: number): OptionValue => {
   const percentage = (score / possibleScore) * 100;
   
@@ -803,3 +781,4 @@ export const getOverallEvaluation = (score: number, possibleScore: number): Opti
   if (percentage >= 50) return 'medium';
   return 'low';
 };
+
