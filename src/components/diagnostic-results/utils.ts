@@ -1,4 +1,3 @@
-
 import { DiagnosticPillar, OptionValue, PillarScore } from '@/types/diagnostic';
 import { Resource } from './ResourcesList';
 
@@ -28,7 +27,7 @@ export const getTotalScore = (totalScore: number, totalPossibleScore: number): n
   return (totalScore / totalPossibleScore) * 100;
 };
 
-// Função para retornar diretamente as URLs externas fixas
+// Updated function to ensure consistent mapping between resource IDs and URLs
 export const getResourceUrl = (resourceId: string): string => {
   switch(resourceId) {
     case "sales-model-canvas":
@@ -42,6 +41,7 @@ export const getResourceUrl = (resourceId: string): string => {
     case "cold-mail-template":
       return "https://lp.growthmachine.com.br/templates-de-cold-mail";
     default:
+      // As a fallback, return the main site with the resource ID as a path segment
       return `https://growthmachine.com.br/resources/${resourceId}`;
   }
 };
@@ -90,4 +90,3 @@ export const generateStrategicInsights = (pillarScores: Record<DiagnosticPillar,
   // Limita a 5 insights no máximo
   return insights.slice(0, 5);
 };
-
