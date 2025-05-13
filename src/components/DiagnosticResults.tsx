@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import {
 import { pillarNames, evaluationLabels, resources, pillarFeedbacks, pillarIcons } from '@/data/diagnosticData';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { RefreshCw, Share2, ExternalLink } from 'lucide-react';
+import { RefreshCw, Share2, ExternalLink, Copy, Info, Lightbulb } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface DiagnosticResultsProps {
@@ -66,11 +67,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
   };
 
   const handleShareResults = () => {
-    // Generate shareable link with results information 
-    // In a real app, this would encode the results or use a unique ID
-    const generatedLink = `${window.location.origin}?share=true&results=${encodeURIComponent(JSON.stringify({
-      overallScore: getTotalScore(),
-      evaluation: results.overallEvaluation
+    // Em um cenário real, isso seria uma API de encurtamento de URL ou um endpoint 
+    // específico para compartilhamento com ID único
+    const baseUrl = window.location.origin;
+    const generatedLink = `${baseUrl}/resultados?diagnostico=${encodeURIComponent(JSON.stringify({
+      overall: getTotalScore().toFixed(0),
+      evaluation: results.overallEvaluation,
+      date: new Date().toISOString().split('T')[0]
     }))}`;
     
     setShareableLink(generatedLink);
@@ -86,6 +89,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
       });
   };
   
+  // Função corrigida para retornar diretamente as URLs externas fixas
   const getResourceUrl = (resourceId: string): string => {
     switch(resourceId) {
       case "sales-model-canvas":
@@ -102,6 +106,54 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
         return "#";
     }
   };
+
+  // Nova função para gerar insights estratégicos baseados nos resultados
+  const generateStrategicInsights = (): string[] => {
+    const insights: string[] = [];
+    
+    // Verifica os pilares problemáticos (low e medium) e gera insights específicos
+    if (results.pillarScores.prospecting?.evaluation === 'low') {
+      insights.push("Sua empresa está à mercê do acaso. Sem um processo estruturado de prospecção, você depende da sorte para conquistar novos clientes.");
+    }
+    
+    if (results.pillarScores['value-proposition']?.evaluation === 'low' || results.pillarScores['value-proposition']?.evaluation === 'medium') {
+      insights.push("Seu time comercial está desperdiçando tempo e recursos vendendo para quem nunca vai comprar. A falta de clareza na proposta de valor está minando sua taxa de conversão.");
+    }
+    
+    if (results.pillarScores.conversion?.evaluation === 'low') {
+      insights.push("Você está queimando leads valiosos sem perceber. Oportunidades estão escorrendo pelos dedos por falta de processo de vendas estruturado e follow-up adequado.");
+    }
+    
+    if (results.pillarScores.retention?.evaluation === 'low') {
+      insights.push("Sua empresa tem um 'balde furado': entra cliente pela frente e sai pela torneira de trás sem que você perceba o impacto no crescimento sustentável.");
+    }
+    
+    if (results.pillarScores['commercial-intelligence']?.evaluation === 'low' || results.pillarScores['commercial-intelligence']?.evaluation === 'medium') {
+      insights.push("Enquanto seus concorrentes usam dados para tomar decisões, você ainda opera no feeling. A falta de inteligência comercial está impedindo seu crescimento escalável.");
+    }
+    
+    if (results.pillarScores.tools?.evaluation === 'low' || results.pillarScores.tools?.evaluation === 'medium') {
+      insights.push("Seus competidores estão usando ferramentas e IA que multiplicam a produtividade comercial enquanto você perde tempo com processos manuais e ineficientes.");
+    }
+    
+    if (results.pillarScores['revenue-strategy']?.evaluation === 'low' || results.pillarScores['revenue-strategy']?.evaluation === 'medium') {
+      insights.push("Sua estratégia de receita está vulnerável a oscilações do mercado. A ausência de previsibilidade comercial coloca em risco o fluxo de caixa e o crescimento do negócio.");
+    }
+
+    // Se houver poucos insights, adiciona alguns genéricos
+    if (insights.length < 3) {
+      if (getTotalScore() < 60) {
+        insights.push("Sua operação comercial precisa de uma reestruturação profunda para alcançar resultados consistentes e escaláveis.");
+      }
+      insights.push("A falta de processos claros está limitando seu crescimento. Estruturar a operação comercial é essencial para escalar seu negócio.");
+    }
+    
+    // Limita a 5 insights no máximo
+    return insights.slice(0, 5);
+  };
+
+  // Gera os insights estratégicos
+  const strategicInsights = generateStrategicInsights();
 
   return (
     <div className="flex flex-col items-center max-w-4xl mx-auto animate-fade-in">
@@ -212,29 +264,23 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           </div>
           
           <Separator className="my-6" />
+
+          {/* Novo bloco com insights estratégicos melhorados */}
+          <div className="bg-orange-50 p-5 rounded-lg border border-orange-200 mb-6">
+            <div className="flex items-center mb-3">
+              <Lightbulb size={24} className="text-growth-orange mr-2" />
+              <h3 className="font-bold text-lg text-growth-black">📌 Principais Insights</h3>
+            </div>
+            <ul className="list-disc pl-5 space-y-3 text-gray-800">
+              {strategicInsights.map((insight, i) => (
+                <li key={i} className="font-medium">
+                  {insight}
+                </li>
+              ))}
+            </ul>
+          </div>
           
           <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-lg mb-2">Principais Insights</h3>
-              <ul className="list-disc pl-5 space-y-2">
-                {results.pillarScores.prospecting?.evaluation === 'low' && (
-                  <li>Você está à mercê do acaso. Sem prospecção ativa e estruturada, você depende da sorte para novos clientes.</li>
-                )}
-                {results.pillarScores['value-proposition']?.evaluation === 'low' && (
-                  <li>Seu time está vendendo para quem nunca vai comprar. A falta de foco no cliente ideal está gastando energia com leads sem potencial.</li>
-                )}
-                {results.pillarScores.conversion?.evaluation === 'low' && (
-                  <li>Você está queimando leads valiosos sem saber. Oportunidades estão escorrendo pelo ralo por falta de follow-up adequado.</li>
-                )}
-                {results.pillarScores.retention?.evaluation === 'low' && (
-                  <li>Você pode estar com um balde furado. Entra cliente pela frente e sai pela torneira de trás sem que você perceba.</li>
-                )}
-                {(results.pillarScores.tools?.evaluation === 'low' || results.pillarScores.tools?.evaluation === 'medium') && (
-                  <li>Seus competidores estão aproveitando ferramentas e IA que podem multiplicar a produtividade comercial enquanto você opera manualmente.</li>
-                )}
-              </ul>
-            </div>
-            
             <div>
               <h3 className="font-bold text-lg mb-2">Recomendações Estratégicas</h3>
               <ul className="list-disc pl-5 space-y-2">
@@ -247,6 +293,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           
           <Separator className="my-6" />
           
+          {/* Seção de compartilhamento atualizada */}
           <div className="bg-gray-50 p-4 rounded-md mb-6">
             <h3 className="font-bold mb-2">Compartilhar Resultados</h3>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -256,38 +303,60 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
                 placeholder="Link será gerado ao clicar no botão" 
                 className="flex-grow"
               />
-              <Button 
-                onClick={handleShareResults}
-                className="bg-growth-orange hover:bg-orange-700 text-white font-bold"
-                size="sm"
-              >
-                <Share2 size={16} className="mr-2" /> Gerar Link
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleShareResults}
+                  className="bg-growth-orange hover:bg-orange-700 text-white font-bold"
+                  size="sm"
+                >
+                  <Share2 size={16} className="mr-1" /> Gerar Link
+                </Button>
+                {shareableLink && (
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(shareableLink)
+                        .then(() => toast.success("Link copiado!"))
+                        .catch(() => toast.error("Erro ao copiar link"));
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="border-growth-orange text-growth-orange hover:bg-orange-50"
+                  >
+                    <Copy size={16} className="mr-1" /> Copiar
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
           
+          {/* Seção de materiais recomendados com URLs externas fixas */}
           {relevantResources.length > 0 && (
             <>
               <h3 className="font-bold text-lg mb-4">Materiais Recomendados</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                {relevantResources.map((resource) => (
-                  <Card key={resource.id} className="flex flex-col border border-gray-200 hover:border-growth-orange transition-colors">
-                    <CardContent className="p-4 flex flex-col h-full">
-                      <h4 className="font-bold text-growth-orange mb-1">{resource.title}</h4>
-                      <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
-                      <a 
-                        href={getResourceUrl(resource.id)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="mt-3"
-                      >
-                        <Button variant="outline" className="w-full text-growth-orange border-growth-orange hover:bg-orange-50">
-                          Saiba Mais <ExternalLink size={14} className="ml-1" />
-                        </Button>
-                      </a>
-                    </CardContent>
-                  </Card>
-                ))}
+                {relevantResources.map((resource) => {
+                  // Obtém a URL externa fixa para cada recurso
+                  const resourceUrl = getResourceUrl(resource.id);
+                  
+                  return (
+                    <Card key={resource.id} className="flex flex-col border border-gray-200 hover:border-growth-orange transition-colors">
+                      <CardContent className="p-4 flex flex-col h-full">
+                        <h4 className="font-bold text-growth-orange mb-1">{resource.title}</h4>
+                        <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
+                        <a 
+                          href={resourceUrl}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="mt-3"
+                        >
+                          <Button variant="outline" className="w-full text-growth-orange border-growth-orange hover:bg-orange-50">
+                            Saiba Mais <ExternalLink size={14} className="ml-1" />
+                          </Button>
+                        </a>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             </>
           )}
