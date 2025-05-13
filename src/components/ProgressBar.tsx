@@ -18,7 +18,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div className="w-full max-w-3xl mx-auto mb-6">
       <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-500 font-medium">
+        <span className="text-gray-600 font-medium">
           {currentPillar && (
             <span className="text-growth-orange mr-2">{currentPillar}</span>
           )}

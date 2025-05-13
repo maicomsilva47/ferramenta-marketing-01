@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DiagnosticIntro from './DiagnosticIntro';
 import DiagnosticQuestion from './DiagnosticQuestion';
@@ -145,6 +144,15 @@ const DiagnosticApp: React.FC = () => {
     setDiagnosticResults(results);
   };
 
+  // Get current question's pillar name
+  const getCurrentPillarName = () => {
+    if (currentQuestionIndex < diagnosticQuestions.length) {
+      const currentPillar = diagnosticQuestions[currentQuestionIndex].pillar;
+      return pillarNames[currentPillar];
+    }
+    return '';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="container mx-auto">
@@ -157,6 +165,7 @@ const DiagnosticApp: React.FC = () => {
             <ProgressBar 
               currentQuestion={currentQuestionIndex + 1} 
               totalQuestions={diagnosticQuestions.length} 
+              currentPillar={getCurrentPillarName()}
             />
             <DiagnosticQuestion 
               question={diagnosticQuestions[currentQuestionIndex]} 
