@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink } from 'lucide-react';
@@ -34,11 +33,6 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 w-full text-growth-orange border border-growth-orange hover:bg-orange-50"
-                onClick={(e) => {
-                  // Impedir comportamento padrão e abrir em nova aba para garantir
-                  e.preventDefault();
-                  window.open(resource.url, '_blank', 'noopener,noreferrer');
-                }}
               >
                 Saiba Mais <ExternalLink size={14} className="ml-1" />
               </a>
