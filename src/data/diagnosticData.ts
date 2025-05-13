@@ -377,6 +377,7 @@ export const resources = [
     title: "Guia Essencial da Prospecção",
     description: "E-book passo a passo para estruturar seu processo de prospecção do zero, gerando leads quentes consistentemente.",
     pillars: ["prospecting", "conversion"],
+    url: "https://lp.growthmachine.com.br/guia-da-prospeccao",
     image: "prospection-guide.png"
   },
   {
@@ -384,6 +385,7 @@ export const resources = [
     title: "Template Kanban Prospect",
     description: "Modelo pronto para organizar sua prospecção em formato Kanban, visualizando o fluxo de leads do primeiro contato até o fechamento.",
     pillars: ["prospecting", "conversion"],
+    url: "https://blog.growthmachine.com.br/o-que-e-kanban-prospect/",
     image: "kanban-template.png"
   },
   {
@@ -391,6 +393,7 @@ export const resources = [
     title: "Template de Cold Mail",
     description: "Exemplos de e-mails frios de alto impacto, prontos para uso em suas campanhas de prospecção, para gerar oportunidades qualificadas todos os dias.",
     pillars: ["prospecting"],
+    url: "https://lp.growthmachine.com.br/templates-de-cold-mail",
     image: "cold-mail-template.png"
   },
   {
@@ -398,6 +401,7 @@ export const resources = [
     title: "Bíblia do Social Selling",
     description: "E-book com 20+ estratégias de Social Selling para gerar mais oportunidades usando o LinkedIn.",
     pillars: ["prospecting", "revenue-strategy"],
+    url: "https://lp.growthmachine.com.br/biblia-do-social-selling",
     image: "social-selling-bible.png"
   },
   {
@@ -405,9 +409,11 @@ export const resources = [
     title: "Sales Model Canvas",
     description: "Ferramenta em formato canvas para prototipar seu processo de vendas completo.",
     pillars: ["revenue-strategy", "value-proposition", "commercial-intelligence", "conversion"],
+    url: "https://blog.growthmachine.com.br/o-que-e-sales-model-canvas",
     image: "sales-canvas.png"
   }
 ];
+
 
 // Sample diagnostic questions
 export const diagnosticQuestions: DiagnosticQuestion[] = [
