@@ -12,7 +12,7 @@ import {
 import { pillarNames, evaluationLabels, resources, pillarFeedbacks, pillarIcons } from '@/data/diagnosticData';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Download, Mail, RefreshCw, Share2 } from 'lucide-react';
+import { RefreshCw, Share2, ExternalLink } from 'lucide-react';
 
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
@@ -21,8 +21,6 @@ interface DiagnosticResultsProps {
 
 const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset }) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
-  const [emailInput, setEmailInput] = useState('');
-  const [showEmailInput, setShowEmailInput] = useState(false);
   
   const getEvaluationColor = (evaluation: OptionValue): string => {
     switch (evaluation) {
@@ -50,6 +48,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     return (results.totalScore / results.totalPossibleScore) * 100;
   };
 
+  // Filter and map resources with updated URLs
   const relevantResources = Object.keys(results.pillarScores)
     .filter(pillar => {
       const pillarScore = results.pillarScores[pillar as DiagnosticPillar];
@@ -66,61 +65,35 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
   };
 
   const handleShareResults = () => {
-    // Generate summary text
-    const summaryText = generateSummaryText();
+    // Generate shareable link (in a real app, this might be a shortened URL)
+    const shareableLink = window.location.origin + "?share=true";
     
     // Copy to clipboard
-    navigator.clipboard.writeText(summaryText)
+    navigator.clipboard.writeText(shareableLink)
       .then(() => {
-        toast.success("Resumo do diagnóstico copiado para a área de transferência!");
+        toast.success("Link do diagnóstico copiado para a área de transferência!");
       })
       .catch(err => {
         console.error('Erro ao copiar: ', err);
-        toast.error("Erro ao copiar texto. Tente novamente.");
+        toast.error("Erro ao copiar link. Tente novamente.");
       });
   };
   
-  const generateSummaryText = (): string => {
-    const totalScorePercent = Math.round(getTotalScore());
-    const evaluation = evaluationLabels[results.overallEvaluation];
-    
-    let summary = `📊 Diagnóstico Comercial Growth Machine\n\n`;
-    summary += `Pontuação geral: ${totalScorePercent}% (${evaluation})\n\n`;
-    
-    // Add top 3 pillars by score
-    const pillarEntries = Object.entries(results.pillarScores) as [DiagnosticPillar, PillarScore][];
-    const sortedPillars = pillarEntries.sort((a, b) => getPillarScore(b[1]) - getPillarScore(a[1]));
-    
-    summary += `Pontos fortes:\n`;
-    sortedPillars.slice(0, 3).forEach(([pillarKey, pillarScore]) => {
-      summary += `- ${pillarNames[pillarKey]}: ${Math.round(getPillarScore(pillarScore))}%\n`;
-    });
-    
-    summary += `\nFaça o seu diagnóstico completo em: https://growthmachine.com.br/diagnostico`;
-    
-    return summary;
-  };
-  
-  const handleSendByEmail = () => {
-    if (showEmailInput) {
-      if (emailInput && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
-        toast.success(`Relatório enviado para ${emailInput}!`);
-        setShowEmailInput(false);
-        setEmailInput('');
-      } else {
-        toast.error("Por favor, insira um e-mail válido.");
-      }
-    } else {
-      setShowEmailInput(true);
+  const getResourceUrl = (resourceId: string): string => {
+    switch(resourceId) {
+      case "sales-model-canvas":
+        return "https://blog.growthmachine.com.br/o-que-e-sales-model-canvas";
+      case "social-selling-bible":
+        return "https://lp.growthmachine.com.br/biblia-do-social-selling";
+      case "prospecting-guide":
+        return "https://lp.growthmachine.com.br/guia-da-prospeccao";
+      case "kanban-prospect":
+        return "https://blog.growthmachine.com.br/o-que-e-kanban-prospect/";
+      case "cold-mail-template":
+        return "https://lp.growthmachine.com.br/templates-de-cold-mail";
+      default:
+        return "#";
     }
-  };
-
-  const handleDownloadPDF = () => {
-    toast.success("Preparando download do relatório em PDF...");
-    // In a real implementation, this would generate and download a PDF
-    setTimeout(() => {
-      toast.success("Relatório baixado com sucesso!");
-    }, 1500);
   };
 
   return (
@@ -269,57 +242,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           
           <div className="bg-gray-50 p-4 rounded-md mb-6">
             <h3 className="font-bold mb-2">Compartilhar Resultados</h3>
-            <textarea
-              className="w-full p-3 border border-gray-300 rounded mb-3 h-24"
-              value={generateSummaryText()}
-              readOnly
-            ></textarea>
-            
-            {showEmailInput ? (
-              <div className="flex mb-3">
-                <input
-                  type="email"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  placeholder="Seu e-mail"
-                  className="flex-1 p-2 border border-gray-300 rounded-l"
-                />
-                <Button 
-                  onClick={handleSendByEmail}
-                  className="bg-growth-orange hover:bg-orange-700 rounded-l-none"
-                >
-                  Enviar
-                </Button>
-              </div>
-            ) : null}
-            
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
-                onClick={handleShareResults}
-                className="bg-growth-orange hover:bg-orange-700 text-white font-bold"
-                size="sm"
-              >
-                <Share2 size={16} className="mr-2" /> Copiar Resumo
-              </Button>
-              
-              <Button 
-                onClick={handleSendByEmail}
-                variant="outline"
-                className="border-growth-orange text-growth-orange hover:bg-orange-50 font-bold"
-                size="sm"
-              >
-                <Mail size={16} className="mr-2" /> {showEmailInput ? "Cancelar" : "Enviar por E-mail"}
-              </Button>
-              
-              <Button 
-                onClick={handleDownloadPDF}
-                variant="outline"
-                className="border-growth-orange text-growth-orange hover:bg-orange-50 font-bold"
-                size="sm"
-              >
-                <Download size={16} className="mr-2" /> Baixar PDF
-              </Button>
-            </div>
+            <Button 
+              onClick={handleShareResults}
+              className="bg-growth-orange hover:bg-orange-700 text-white font-bold w-full"
+              size="sm"
+            >
+              <Share2 size={16} className="mr-2" /> Gerar Link Compartilhável
+            </Button>
           </div>
           
           {relevantResources.length > 0 && (
@@ -331,9 +260,16 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
                     <CardContent className="p-4 flex flex-col h-full">
                       <h4 className="font-bold text-growth-orange mb-1">{resource.title}</h4>
                       <p className="text-sm text-gray-600 flex-grow">{resource.description}</p>
-                      <Button variant="outline" className="mt-3 text-growth-orange border-growth-orange hover:bg-orange-50">
-                        Baixar Material
-                      </Button>
+                      <a 
+                        href={getResourceUrl(resource.id)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="mt-3"
+                      >
+                        <Button variant="outline" className="w-full text-growth-orange border-growth-orange hover:bg-orange-50">
+                          Saiba Mais <ExternalLink size={14} className="ml-1" />
+                        </Button>
+                      </a>
                     </CardContent>
                   </Card>
                 ))}
@@ -350,12 +286,17 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               <RefreshCw size={16} className="mr-2" /> Refazer Diagnóstico
             </Button>
             
-            <Button 
-              className="bg-growth-orange hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full"
-              onClick={() => toast.success("Solicitação enviada! Um especialista entrará em contato em breve.")}
+            <a 
+              href="https://go.growthmachine.com.br/way/" 
+              target="_blank" 
+              rel="noopener noreferrer"
             >
-              Falar com Especialista
-            </Button>
+              <Button 
+                className="bg-growth-orange hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full"
+              >
+                Falar com Especialista
+              </Button>
+            </a>
           </div>
         </CardContent>
       </Card>
