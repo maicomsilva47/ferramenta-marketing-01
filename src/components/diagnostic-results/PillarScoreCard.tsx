@@ -21,7 +21,7 @@ interface PillarScoreCardProps {
 const getEvaluationColor = (evaluation: OptionValue): string => {
   switch (evaluation) {
     case 'high': return 'text-green-600';
-    case 'medium': return 'text-yellow-600';
+    case 'medium': return 'text-amber-600';
     case 'low': return 'text-red-600';
     default: return 'text-gray-600';
   }
@@ -30,7 +30,7 @@ const getEvaluationColor = (evaluation: OptionValue): string => {
 const getProgressColor = (evaluation: OptionValue): string => {
   switch (evaluation) {
     case 'high': return 'bg-green-500';
-    case 'medium': return 'bg-yellow-500';
+    case 'medium': return 'bg-amber-500';
     case 'low': return 'bg-red-500';
     default: return 'bg-gray-500';
   }
@@ -54,7 +54,7 @@ const PillarScoreCard: React.FC<PillarScoreCardProps> = ({
   return (
     <Card 
       className={`border transition-all duration-300 
-        ${expanded ? 'shadow-md border-growth-orange' : 'hover:border-growth-orange cursor-pointer'}`}
+        ${expanded ? 'shadow-md border-orange-500' : 'hover:border-orange-500 cursor-pointer'}`}
       onClick={onToggle}
     >
       <CardContent className="p-4">
@@ -78,7 +78,7 @@ const PillarScoreCard: React.FC<PillarScoreCardProps> = ({
         
         {expanded && (
           <div className="mt-4 animate-fade-in">
-            <h5 className="font-bold text-growth-orange mb-2">{feedback.title}</h5>
+            <h5 className="font-bold text-orange-500 mb-2">{feedback.title}</h5>
             {feedback.paragraphs.map((paragraph, idx) => (
               <p key={idx} className="text-gray-700 mb-3">
                 {paragraph}
@@ -96,7 +96,7 @@ const PillarScoreCard: React.FC<PillarScoreCardProps> = ({
           </div>
         )}
         
-        <div className="text-sm text-growth-orange mt-2 text-center">
+        <div className="text-sm text-orange-500 mt-2 text-center">
           {!expanded ? 'Clique para ver análise detalhada' : 'Clique para recolher'}
         </div>
       </CardContent>

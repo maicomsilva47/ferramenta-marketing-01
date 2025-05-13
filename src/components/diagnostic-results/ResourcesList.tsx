@@ -27,7 +27,7 @@ const ResourceIcon = ({ id }: { id: string }) => {
   switch(id) {
     case 'prospecting-guide':
     case 'social-selling-bible':
-      return <Book size={iconSize} className="text-blue-500" />;
+      return <Book size={iconSize} className="text-orange-500" />;
     case 'kanban-prospect':
       return <LayoutDashboard size={iconSize} className="text-emerald-500" />;
     case 'cold-mail-template':
@@ -57,21 +57,21 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
         {resources.map((resource) => (
           <Card 
             key={resource.id} 
-            className="group flex flex-col border border-gray-200 bg-white hover:border-blue-400 hover:shadow-md transition-all duration-300 rounded-lg overflow-hidden"
+            className="group flex flex-col border border-gray-200 bg-white hover:border-orange-500 hover:shadow-md transition-all duration-300 rounded-lg overflow-hidden"
             tabIndex={0}
             role="article"
             aria-labelledby={`resource-title-${resource.id}`}
           >
-            <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600" />
+            <div className="h-2 bg-gradient-to-r from-orange-500 to-orange-600" />
             <CardContent className="p-5 flex flex-col h-full">
               <div className="flex items-start mb-3">
-                <div className="mr-3 p-2 bg-blue-50 rounded-md">
+                <div className="mr-3 p-2 bg-orange-50 rounded-md">
                   <ResourceIcon id={resource.id} />
                 </div>
                 <div>
                   <h4 
                     id={`resource-title-${resource.id}`} 
-                    className="font-bold text-gray-900 mb-1 break-words group-hover:text-blue-600 transition-colors"
+                    className="font-bold text-gray-900 mb-1 break-words group-hover:text-orange-500 transition-colors"
                   >
                     {resource.title}
                   </h4>
@@ -95,7 +95,7 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
               
               <button 
                 onClick={(e) => handleExternalLink(e, resource.url)}
-                className="mt-auto inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 w-full text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                className="mt-auto inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 w-full text-white bg-orange-500 hover:bg-orange-600 transition-colors"
                 aria-label={`Saiba mais sobre ${resource.title}`}
               >
                 Acessar Material <ExternalLink size={14} className="ml-1" aria-hidden="true" />
