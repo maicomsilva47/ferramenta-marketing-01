@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -347,11 +346,9 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
                           href={resourceUrl}
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="mt-3"
+                          className="mt-3 inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 w-full text-growth-orange border border-growth-orange hover:bg-orange-50"
                         >
-                          <Button variant="outline" className="w-full text-growth-orange border-growth-orange hover:bg-orange-50">
-                            Saiba Mais <ExternalLink size={14} className="ml-1" />
-                          </Button>
+                          Saiba Mais <ExternalLink size={14} className="ml-1" />
                         </a>
                       </CardContent>
                     </Card>
