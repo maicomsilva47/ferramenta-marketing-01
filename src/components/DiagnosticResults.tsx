@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,8 +66,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
   };
 
   const handleShareResults = () => {
-    // Generate shareable link (in a real app, this might be a shortened URL)
-    const generatedLink = window.location.origin + "?share=true";
+    // Generate shareable link with results information 
+    // In a real app, this would encode the results or use a unique ID
+    const generatedLink = `${window.location.origin}?share=true&results=${encodeURIComponent(JSON.stringify({
+      overallScore: getTotalScore(),
+      evaluation: results.overallEvaluation
+    }))}`;
+    
     setShareableLink(generatedLink);
     
     // Copy to clipboard
