@@ -42,31 +42,34 @@ const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation })
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-md mb-6">
-      <h3 className="font-bold mb-2">Compartilhar Resultados</h3>
+    <div className="bg-gray-50 p-4 rounded-md mb-6" role="region" aria-labelledby="share-title">
+      <h3 className="font-bold mb-2" id="share-title">Compartilhar Resultados</h3>
       <div className="flex flex-col sm:flex-row gap-3">
         <Input 
           value={shareableLink} 
           readOnly 
           placeholder="Link será gerado ao clicar no botão" 
-          className="flex-grow"
+          className="flex-grow min-w-0"
+          aria-label="Link compartilhável"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button 
             onClick={handleShareResults}
-            className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12"
+            className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12 w-full sm:w-auto"
             size="sm"
+            aria-label="Gerar link para compartilhar"
           >
-            <Share2 size={16} className="mr-1" /> Gerar Link
+            <Share2 size={16} className="mr-1" aria-hidden="true" /> Gerar Link
           </Button>
           {shareableLink && (
             <Button
               onClick={handleCopyLink}
               variant="outline"
               size="sm"
-              className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12"
+              className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12 w-full sm:w-auto"
+              aria-label="Copiar link"
             >
-              <Copy size={16} className="mr-1" /> Copiar
+              <Copy size={16} className="mr-1" aria-hidden="true" /> Copiar
             </Button>
           )}
         </div>

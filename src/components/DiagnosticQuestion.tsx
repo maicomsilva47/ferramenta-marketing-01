@@ -25,7 +25,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
 }) => {
   return (
     <Card className="w-full max-w-3xl mx-auto shadow-md animate-fade-in">
-      <CardContent className="pt-6 pb-6">
+      <CardContent className="pt-6 pb-6 px-4 sm:px-6">
         <div className="mb-6">
           <div className="flex items-center mb-2">
             <span className="text-growth-orange font-semibold text-sm">
@@ -39,25 +39,29 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
         </div>
         
         <div className="space-y-3">
-          {question.options.map((option, index) => (
-            <button
-              key={index}
-              className={`w-full p-4 text-left border rounded-lg transition-colors duration-200 break-words overflow-hidden
-                ${previousAnswer === option.value 
-                  ? 'border-growth-orange bg-orange-50' 
-                  : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
-              onClick={() => onSelectAnswer(option.value)}
-            >
-              <div className="flex">
-                <span className="font-medium text-gray-500 mr-3 pt-0.5">
-                  {String.fromCharCode(65 + index)}
-                </span>
-                <span className="text-gray-700 whitespace-normal">
-                  {option.label}
-                </span>
-              </div>
-            </button>
-          ))}
+          {question.options.map((option, index) => {
+            const optionLetter = String.fromCharCode(65 + index);
+            return (
+              <button
+                key={index}
+                className={`w-full p-4 text-left border rounded-lg transition-colors duration-200 break-words overflow-hidden min-h-[60px]
+                  ${previousAnswer === option.value 
+                    ? 'border-growth-orange bg-orange-50' 
+                    : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
+                onClick={() => onSelectAnswer(option.value)}
+                aria-label={`Opção ${optionLetter}: ${option.label}`}
+              >
+                <div className="flex">
+                  <span className="font-medium text-gray-500 mr-3 pt-0.5" aria-hidden="true">
+                    {optionLetter}
+                  </span>
+                  <span className="text-gray-700 whitespace-normal">
+                    {option.label}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
         
         {/* Back button */}
@@ -66,9 +70,10 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
             <Button 
               variant="ghost"
               onClick={onGoBack}
-              className="text-gray-600 hover:text-growth-orange hover:bg-orange-50"
+              className="text-gray-600 hover:text-growth-orange hover:bg-orange-50 h-12"
+              aria-label="Voltar para a pergunta anterior"
             >
-              <ArrowLeft size={16} className="mr-2" /> Voltar
+              <ArrowLeft size={16} className="mr-2" aria-hidden="true" /> Voltar
             </Button>
           </div>
         )}

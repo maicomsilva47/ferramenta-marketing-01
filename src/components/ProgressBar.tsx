@@ -27,10 +27,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const progressPercentage = (currentQuestion / totalQuestions) * 100;
   
   return (
-    <div className="w-full max-w-3xl mx-auto mb-8">
+    <div className="w-full max-w-3xl mx-auto mb-6 sm:mb-8 px-2">
       {/* Main progress info */}
       <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2">
-        <div className="flex flex-col sm:flex-row sm:items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center mb-1 sm:mb-0 break-words overflow-hidden">
           {/* Overall progress */}
           {pillarStep && totalPillars && (
             <span className="font-semibold text-gray-700 mb-1 sm:mb-0 sm:mr-3">
@@ -41,8 +41,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           {/* Current pillar */}
           {currentPillar && (
             <>
-              {pillarStep && totalPillars && <span className="hidden sm:inline text-gray-400 mr-3">•</span>}
-              <span className="text-growth-orange font-medium mb-1 sm:mb-0">
+              {pillarStep && totalPillars && <span className="hidden sm:inline text-gray-400 mr-3" aria-hidden="true">•</span>}
+              <span className="text-growth-orange font-medium mb-1 sm:mb-0 break-words">
                 {currentPillar}
                 
                 {/* Pillar-specific question counter */}
@@ -57,7 +57,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
         </div>
         
         {/* Percentage */}
-        <span className="font-medium text-growth-orange">
+        <span className="font-medium text-growth-orange" aria-live="polite" aria-atomic="true">
           {Math.round(progressPercentage)}%
         </span>
       </div>
@@ -66,7 +66,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       <Progress 
         value={progressPercentage} 
         className="h-2 bg-gray-100" 
-        indicatorClassName="bg-growth-orange transition-all duration-500 ease-in-out" 
+        indicatorClassName="bg-growth-orange transition-all duration-500 ease-in-out"
+        aria-label={`Progresso: ${Math.round(progressPercentage)}%`}
       />
       
       {/* Start/End labels */}

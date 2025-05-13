@@ -7,17 +7,18 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto py-4 px-4 sm:px-6 flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             <img 
               src="/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png" 
               alt="Growth Machine" 
-              className="h-10" 
+              className="h-10 max-w-[120px] object-contain"
+              loading="lazy"
             />
           </div>
         </div>
       </header>
       
-      <main className="container mx-auto py-8 px-2 sm:px-4">
+      <main className="container mx-auto py-6 sm:py-8 px-4 sm:px-6">
         <DiagnosticApp />
       </main>
       
@@ -26,7 +27,8 @@ const Index = () => {
           <img 
             src="/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png" 
             alt="Growth Machine" 
-            className="h-8 mx-auto mb-3" 
+            className="h-8 max-w-[120px] mx-auto mb-3 object-contain"
+            loading="lazy"
           />
           <p>© {new Date().getFullYear()} Growth Machine. Todos os direitos reservados.</p>
         </div>
