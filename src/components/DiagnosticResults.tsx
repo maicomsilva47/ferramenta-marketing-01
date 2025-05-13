@@ -13,6 +13,7 @@ import { pillarNames, evaluationLabels, resources, pillarFeedbacks, pillarIcons 
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { RefreshCw, Share2, ExternalLink } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
@@ -21,6 +22,7 @@ interface DiagnosticResultsProps {
 
 const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset }) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
+  const [shareableLink, setShareableLink] = useState<string>('');
   
   const getEvaluationColor = (evaluation: OptionValue): string => {
     switch (evaluation) {
@@ -66,10 +68,11 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
 
   const handleShareResults = () => {
     // Generate shareable link (in a real app, this might be a shortened URL)
-    const shareableLink = window.location.origin + "?share=true";
+    const generatedLink = window.location.origin + "?share=true";
+    setShareableLink(generatedLink);
     
     // Copy to clipboard
-    navigator.clipboard.writeText(shareableLink)
+    navigator.clipboard.writeText(generatedLink)
       .then(() => {
         toast.success("Link do diagnóstico copiado para a área de transferência!");
       })
@@ -242,13 +245,21 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           
           <div className="bg-gray-50 p-4 rounded-md mb-6">
             <h3 className="font-bold mb-2">Compartilhar Resultados</h3>
-            <Button 
-              onClick={handleShareResults}
-              className="bg-growth-orange hover:bg-orange-700 text-white font-bold w-full"
-              size="sm"
-            >
-              <Share2 size={16} className="mr-2" /> Gerar Link Compartilhável
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input 
+                value={shareableLink} 
+                readOnly 
+                placeholder="Link será gerado ao clicar no botão" 
+                className="flex-grow"
+              />
+              <Button 
+                onClick={handleShareResults}
+                className="bg-growth-orange hover:bg-orange-700 text-white font-bold"
+                size="sm"
+              >
+                <Share2 size={16} className="mr-2" /> Gerar Link
+              </Button>
+            </div>
           </div>
           
           {relevantResources.length > 0 && (
