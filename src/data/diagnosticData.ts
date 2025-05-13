@@ -34,6 +34,23 @@ export const evaluationLabels: Record<OptionValue, string> = {
   'low': 'Baixo'
 };
 
+// Functions to evaluate pillar and overall scores
+export const getPillarEvaluation = (score: number, questionCount: number): OptionValue => {
+  const percentage = (score / (questionCount * 3)) * 100;
+  
+  if (percentage >= 70) return 'high';
+  if (percentage >= 40) return 'medium';
+  return 'low';
+};
+
+export const getOverallEvaluation = (totalScore: number, totalPossibleScore: number): OptionValue => {
+  const percentage = (totalScore / totalPossibleScore) * 100;
+  
+  if (percentage >= 70) return 'high';
+  if (percentage >= 40) return 'medium';
+  return 'low';
+};
+
 // Feedback texts for each pillar based on evaluation level
 export const pillarFeedbacks: PillarFeedbacks = {
   'revenue-strategy': {
