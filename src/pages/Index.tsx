@@ -17,7 +17,7 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="container mx-auto py-8 px-4">
+      <main className="container mx-auto py-8 px-2 sm:px-4">
         <DiagnosticApp />
       </main>
       

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -88,7 +89,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
       });
   };
   
-  // Função corrigida para retornar diretamente as URLs externas fixas
+  // Função para retornar diretamente as URLs externas fixas
   const getResourceUrl = (resourceId: string): string => {
     switch(resourceId) {
       case "sales-model-canvas":
@@ -106,7 +107,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     }
   };
 
-  // Nova função para gerar insights estratégicos baseados nos resultados
+  // Função para gerar insights estratégicos baseados nos resultados
   const generateStrategicInsights = (): string[] => {
     const insights: string[] = [];
     
@@ -155,7 +156,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
   const strategicInsights = generateStrategicInsights();
 
   return (
-    <div className="flex flex-col items-center max-w-4xl mx-auto animate-fade-in">
+    <div className="flex flex-col items-center w-full mx-auto animate-fade-in px-2 sm:px-4">
       <div className="w-full mb-4 text-center">
         <img 
           src="/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png" 
@@ -163,7 +164,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           className="h-16 inline-block mb-4" 
         />
       </div>
-      <Card className="w-full mb-6 shadow-lg border-t-4 border-t-growth-orange">
+      <Card className="w-full max-w-4xl mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center text-growth-black">
             Diagnóstico Estratégico Comercial
@@ -264,7 +265,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           
           <Separator className="my-6" />
 
-          {/* Novo bloco com insights estratégicos melhorados */}
+          {/* Bloco com insights estratégicos melhorados */}
           <div className="bg-orange-50 p-5 rounded-lg border border-orange-200 mb-6">
             <div className="flex items-center mb-3">
               <Lightbulb size={24} className="text-growth-orange mr-2" />
@@ -347,6 +348,11 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="mt-3 inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 w-full text-growth-orange border border-growth-orange hover:bg-orange-50"
+                          onClick={(e) => {
+                            // Impedir comportamento padrão e abrir em nova aba para garantir
+                            e.preventDefault();
+                            window.open(resourceUrl, '_blank', 'noopener,noreferrer');
+                          }}
                         >
                           Saiba Mais <ExternalLink size={14} className="ml-1" />
                         </a>
@@ -371,6 +377,11 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               href="https://go.growthmachine.com.br/way/" 
               target="_blank" 
               rel="noopener noreferrer"
+              onClick={(e) => {
+                // Impedir comportamento padrão e abrir em nova aba para garantir
+                e.preventDefault();
+                window.open("https://go.growthmachine.com.br/way/", '_blank', 'noopener,noreferrer');
+              }}
             >
               <Button 
                 className="bg-growth-orange hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-full"
