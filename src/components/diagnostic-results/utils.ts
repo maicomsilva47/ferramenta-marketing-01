@@ -42,7 +42,7 @@ export const getResourceUrl = (resourceId: string): string => {
     case "cold-mail-template":
       return "https://lp.growthmachine.com.br/templates-de-cold-mail";
     default:
-      return "#";
+      return `https://growthmachine.com.br/resources/${resourceId}`;
   }
 };
 
@@ -90,3 +90,4 @@ export const generateStrategicInsights = (pillarScores: Record<DiagnosticPillar,
   // Limita a 5 insights no máximo
   return insights.slice(0, 5);
 };
+

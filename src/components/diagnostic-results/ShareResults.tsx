@@ -4,23 +4,49 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Share2, Copy } from 'lucide-react';
 import { toast } from 'sonner';
+import { DiagnosticPillar, PillarScore } from '@/types/diagnostic';
 
 interface ShareResultsProps {
   overallScore: number;
   evaluation: string;
+  insights?: string[];
+  pillarScores?: Record<DiagnosticPillar, PillarScore>;
+  recommendations?: string[];
 }
 
-const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation }) => {
+const ShareResults: React.FC<ShareResultsProps> = ({ 
+  overallScore, 
+  evaluation, 
+  insights = [], 
+  pillarScores = {},
+  recommendations = []
+}) => {
   const [shareableLink, setShareableLink] = useState<string>('');
 
   const handleShareResults = () => {
     // Generate link for the /resultados page
     const baseUrl = window.location.origin;
-    const generatedLink = `${baseUrl}/resultados?diagnostico=${encodeURIComponent(JSON.stringify({
+    
+    // Create a simplified version of pillar scores to reduce URL size
+    const simplifiedPillarScores = Object.entries(pillarScores).reduce((acc: Record<string, any>, [pillar, data]) => {
+      acc[pillar] = {
+        evaluation: data.evaluation,
+        score: data.score,
+        totalQuestions: data.totalQuestions
+      };
+      return acc;
+    }, {});
+    
+    const shareData = {
       overall: overallScore.toFixed(0),
       evaluation: evaluation,
-      date: new Date().toISOString().split('T')[0]
-    }))}`;
+      date: new Date().toISOString().split('T')[0],
+      insights: insights,
+      pillarScores: simplifiedPillarScores,
+      recommendations: recommendations.slice(0, 5) // Limit to top 5 recommendations
+    };
+    
+    const generatedLink = `${baseUrl}/resultados?diagnostico=${encodeURIComponent(JSON.stringify(shareData))}`;
     
     setShareableLink(generatedLink);
     

@@ -7,13 +7,27 @@ import { ChevronLeft } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import StrategicInsights from '@/components/diagnostic-results/StrategicInsights';
+import { Separator } from '@/components/ui/separator';
+import { DiagnosticPillar, OptionValue, PillarScore } from '@/types/diagnostic';
+import { pillarNames } from '@/data/diagnosticData';
 
 const ResultadosPage = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const diagnosticoParam = searchParams.get('diagnostico');
 
-  let diagnosticoData: { overall: string; evaluation: string; date: string; insights?: string[] } | null = null;
+  let diagnosticoData: {
+    overall: string;
+    evaluation: string;
+    date: string;
+    insights?: string[];
+    pillarScores?: Record<DiagnosticPillar, {
+      evaluation: OptionValue;
+      score: number;
+      totalQuestions: number;
+    }>;
+    recommendations?: string[];
+  } | null = null;
   let error = false;
 
   try {
@@ -136,6 +150,56 @@ const ResultadosPage = () => {
 
                     {diagnosticoData.insights && diagnosticoData.insights.length > 0 && (
                       <StrategicInsights insights={diagnosticoData.insights} />
+                    )}
+                    
+                    {diagnosticoData.pillarScores && Object.keys(diagnosticoData.pillarScores).length > 0 && (
+                      <>
+                        <Separator className="my-6" />
+                        <h3 className="font-bold text-xl mb-4">Análise por Pilar</h3>
+                        <div className="space-y-4">
+                          {Object.entries(diagnosticoData.pillarScores).map(([pillar, data]) => {
+                            const pillarKey = pillar as DiagnosticPillar;
+                            const pillarName = pillarNames[pillarKey] || pillarKey;
+                            const score = (data.score / (data.totalQuestions * 3)) * 100;
+                            
+                            return (
+                              <div key={pillar} className="border rounded-lg p-4">
+                                <div className="flex justify-between items-center mb-2">
+                                  <h4 className="font-bold">{pillarName}</h4>
+                                  <span className={`font-bold ${getEvaluationColor(data.evaluation)}`}>
+                                    {getEvaluationLabel(data.evaluation)}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2 mb-1">
+                                  <div 
+                                    className={`${getProgressColor(data.evaluation)} h-2 rounded-full`}
+                                    style={{ width: `${score}%` }}
+                                  ></div>
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-500">
+                                  <span>0%</span>
+                                  <span>{score.toFixed(0)}%</span>
+                                  <span>100%</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                    
+                    {diagnosticoData.recommendations && diagnosticoData.recommendations.length > 0 && (
+                      <>
+                        <Separator className="my-6" />
+                        <div>
+                          <h3 className="font-bold text-lg mb-2">Recomendações Estratégicas</h3>
+                          <ul className="list-disc pl-5 space-y-2">
+                            {diagnosticoData.recommendations.map((recommendation, i) => (
+                              <li key={i}>{recommendation}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </>
                     )}
 
                     <div className="mt-8 text-center">

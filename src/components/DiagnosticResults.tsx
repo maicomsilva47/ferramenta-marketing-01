@@ -50,8 +50,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     )
     .slice(0, 5)
     .map(resource => ({
-      ...resource,
-      url: getResourceUrl(resource.id)
+      ...resource
     })) as Resource[];
 
   return (
@@ -119,6 +118,9 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           <ShareResults 
             overallScore={totalScorePercentage} 
             evaluation={results.overallEvaluation}
+            insights={strategicInsights}
+            pillarScores={results.pillarScores}
+            recommendations={results.recommendations}
           />
           
           <ResourcesList resources={relevantResources} />
