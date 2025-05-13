@@ -34,7 +34,7 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
         score: 3
       },
       {
-        label: "Temos metas definidas, mas o planejamento é básico ou nem sempre seguido – a previsibilidade sofre e acabamos "correndo atrás" mês a mês.",
+        label: "Temos metas definidas, mas o planejamento é básico ou nem sempre seguido – a previsibilidade sofre e acabamos \"correndo atrás\" mês a mês.",
         value: "medium",
         feedback: "Você tem alguma direção, porém falta previsibilidade. Sem um plano sólido e disciplinado, sua receita fica vulnerável a oscilações. Navegar sem mapa pode custar caro quando a maré virar. ⛵️ Ajuste o planejamento para tornar as metas mais alcançáveis.",
         score: 2
@@ -61,7 +61,7 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Possuímos mais de uma fonte de leads, mas ainda dependemos muito de um canal principal (ex: 80% dos leads vêm apenas de indicações ou apenas de mídia paga).",
         value: "medium",
-        feedback: "Atenção: alguma diversificação existe, mas a dependência de um canal ainda é grande. Se esse canal principal sofrer (por exemplo, se indicações diminuírem ou custo de marketing aumentar), seu crescimento trava. Pense em equilibrar o mix de geração de demanda para não ficar com "todos os ovos na mesma cesta". 🧺",
+        feedback: "Atenção: alguma diversificação existe, mas a dependência de um canal ainda é grande. Se esse canal principal sofrer (por exemplo, se indicações diminuírem ou custo de marketing aumentar), seu crescimento trava. Pense em equilibrar o mix de geração de demanda para não ficar com \"todos os ovos na mesma cesta\". 🧺",
         score: 2
       },
       {
@@ -86,11 +86,11 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Temos alguma noção de quem é nosso público-alvo e qual problema resolvemos, mas poderia ser mais bem definido. Às vezes ajustamos o discurso conforme o cliente, ainda buscando encaixar perfeitamente o valor.",
         value: "medium",
-        feedback: "Há algum alinhamento, mas falta nitidez. Se você não tem total clareza do nicho e do valor específico que entrega, sua mensagem pode estar difusa. Lembre: "quem mira em tudo, não acerta em nada". 🎯 Refine a definição do ICP e ajuste sua proposta de valor para falar diretamente com as dores dele – isso vai diferenciar você da concorrência.",
+        feedback: "Há algum alinhamento, mas falta nitidez. Se você não tem total clareza do nicho e do valor específico que entrega, sua mensagem pode estar difusa. Lembre: \"quem mira em tudo, não acerta em nada\". 🎯 Refine a definição do ICP e ajuste sua proposta de valor para falar diretamente com as dores dele – isso vai diferenciar você da concorrência.",
         score: 2
       },
       {
-        label: "Vendemos de forma genérica, tentando atender "todo mundo". Não temos um nicho ou dor específica claramente definida – acreditamos que nosso produto serve para qualquer um que apareça.",
+        label: "Vendemos de forma genérica, tentando atender \"todo mundo\". Não temos um nicho ou dor específica claramente definida – acreditamos que nosso produto serve para qualquer um que apareça.",
         value: "low",
         feedback: "Grave! Quem vende para todo mundo, na verdade não vende para ninguém. Sem ICP definido e proposta de valor específica, você vai continuar gastando energia com leads que nunca vão fechar. Provavelmente seu time está vendendo para quem nunca vai comprar – um desperdício enorme de esforços. Defina urgentemente quem é seu cliente certo e foque nele, ou você continuará dando tiro no escuro. 🔫",
         score: 1
@@ -105,11 +105,11 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Sim, temos critérios claros de qualificação (ex.: segmento, tamanho, necessidade, orçamento). Identificamos cedo se o lead tem fit com nosso produto e raramente perseguimos oportunidades sem potencial real.",
         value: "high",
-        feedback: "Muito bom – qualificação rigorosa evita perder tempo com curiosos ou "turistas". 📋 Saber dizer "não" para leads sem fit economiza energia para focar nos alvos certos. Seu time foca onde há chance real, aumentando eficiência e moral.",
+        feedback: "Muito bom – qualificação rigorosa evita perder tempo com curiosos ou \"turistas\". 📋 Saber dizer \"não\" para leads sem fit economiza energia para focar nos alvos certos. Seu time foca onde há chance real, aumentando eficiência e moral.",
         score: 3
       },
       {
-        label: "Em geral qualificamos os leads, mas às vezes acabamos insistindo em leads duvidosos (com baixo fit) na esperança de converter. Falta rigor para dizer "não" a quem não encaixa bem.",
+        label: "Em geral qualificamos os leads, mas às vezes acabamos insistindo em leads duvidosos (com baixo fit) na esperança de converter. Falta rigor para dizer \"não\" a quem não encaixa bem.",
         value: "medium",
         feedback: "Você procura qualificar, porém ainda há desperdício perseguindo quem não é tão aderente. Isso é queimar munição com pouco retorno. Muitos vendedores caem na armadilha de tentar salvar leads ruins – em vez disso, ajuste o processo para filtrar melhor. Um lead não qualificado deve sair do funil rapidamente, liberando espaço para oportunidades melhores.",
         score: 2
@@ -209,9 +209,9 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
         score: 3
       },
       {
-        label: "Temos equipe de vendas, porém a liderança (CEO/diretor) ainda precisa se envolver nos negócios importantes para conseguir fechar. Em vendas mais complexas, o cliente quer falar "com quem decide" e o dono acaba entrando em cena.",
+        label: "Temos equipe de vendas, porém a liderança (CEO/diretor) ainda precisa se envolver nos negócios importantes para conseguir fechar. Em vendas mais complexas, o cliente quer falar \"com quem decide\" e o dono acaba entrando em cena.",
         value: "medium",
-        feedback: "Entendo – é comum o líder fechar os maiores negócios. Mas isso mostra que o time ainda não consegue andar sem ajuda nos casos mais críticos. Para escalar de verdade, será preciso capacitar o time a fechar grandes contas sem a "babá do chefe". 🍼 Considere treinar porta-vozes ou vendedores sêniors que possam assumir esse papel, liberando você para pensar no estratégico.",
+        feedback: "Entendo – é comum o líder fechar os maiores negócios. Mas isso mostra que o time ainda não consegue andar sem ajuda nos casos mais críticos. Para escalar de verdade, será preciso capacitar o time a fechar grandes contas sem a \"babá do chefe\". 🍼 Considere treinar porta-vozes ou vendedores sêniors que possam assumir esse papel, liberando você para pensar no estratégico.",
         score: 2
       },
       {
@@ -240,7 +240,7 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
         score: 2
       },
       {
-        label: "Não há um acompanhamento estruturado. Se o lead não avançar logo após a proposta ou reunião, acabamos tirando o foco dele. Seguimos adiante e esse prospect "fica para trás" sem muita insistência. Na prática, muitos leads interessados acabam esfriando sem receber atenção.",
+        label: "Não há um acompanhamento estruturado. Se o lead não avançar logo após a proposta ou reunião, acabamos tirando o foco dele. Seguimos adiante e esse prospect \"fica para trás\" sem muita insistência. Na prática, muitos leads interessados acabam esfriando sem receber atenção.",
         value: "low",
         feedback: "Você está literalmente queimando leads valiosos sem saber. 🔥 Leads que demonstraram interesse e não receberam follow-up adequado são oportunidades escorrendo pelo ralo – e possivelmente indo fechar com um concorrente mais insistente. Esse gap de acompanhamento é um dos maiores assassinos de conversão. Implemente imediatamente um processo de follow-up pós-proposta (ex: contatos semanais, oferta de materiais ricos, entender objeções) para não perder vendas praticamente ganhas.",
         score: 1
@@ -280,7 +280,7 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
       {
         label: "Sim, temos um processo de pós-venda bem definido. Acompanhamos de perto cada novo cliente (onboarding suave, treinamento), medimos satisfação (NPS/CES) e buscamos ativamente upsells, renovações e indicações. O cliente recebe atenção contínua após a venda.",
         value: "high",
-        feedback: "Excelente – cuidar do cliente após a venda gera lealdade, evita cancelamentos e abre espaço para vendas adicionais. Clientes satisfeitos tendem a comprar mais e a indicar outros (virando promoters da sua empresa). 🎉 Você entende que vender não acaba no "sim" do cliente; isso certamente melhora seu LTV e reduz o custo de aquisição ao longo do tempo. Continue investindo no sucesso do cliente!",
+        feedback: "Excelente – cuidar do cliente após a venda gera lealdade, evita cancelamentos e abre espaço para vendas adicionais. Clientes satisfeitos tendem a comprar mais e a indicar outros (virando promoters da sua empresa). 🎉 Você entende que vender não acaba no \"sim\" do cliente; isso certamente melhora seu LTV e reduz o custo de aquisição ao longo do tempo. Continue investindo no sucesso do cliente!",
         score: 3
       },
       {
@@ -309,7 +309,7 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
         score: 3
       },
       {
-        label: "Sabemos quando um cliente importante cancela ou reclama, mas não monitoramos métricas de retenção formalmente. Não calculamos churn ou LTV com frequência – percebemos problemas de retenção meio que "no feeling" ou quando o faturamento cai.",
+        label: "Sabemos quando um cliente importante cancela ou reclama, mas não monitoramos métricas de retenção formalmente. Não calculamos churn ou LTV com frequência – percebemos problemas de retenção meio que \"no feeling\" ou quando o faturamento cai.",
         value: "medium",
         feedback: "Você acaba apagando incêndios em vez de prevenir. 🔥 Sem acompanhar métricas de retenção, problemas ficam ocultos até virarem grandes demais (quando um cliente grande cancela de surpresa, por exemplo). Considere começar a medir pelo menos o básico: quantos clientes cancelam por período, motivos de cancelamento, tempo médio de contrato. Esses dados vão permitir ações proativas para segurar a receita.",
         score: 2
@@ -340,9 +340,9 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
         score: 2
       },
       {
-        label: "Não usamos CRM (ou temos um que está "encostado"). O controle de oportunidades é informal (anotações individuais, planilhas pessoais) e não temos nenhuma ferramenta de automação comercial. Todo o acompanhamento de leads e clientes depende da memória e esforço individual.",
+        label: "Não usamos CRM (ou temos um que está \"encostado\"). O controle de oportunidades é informal (anotações individuais, planilhas pessoais) e não temos nenhuma ferramenta de automação comercial. Todo o acompanhamento de leads e clientes depende da memória e esforço individual.",
         value: "low",
-        feedback: "Hora de sair da Idade da Pedra do comércio! 🪨 Sem CRM e automação, você está voando no "papel e caneta" em plena era digital. Isso significa oportunidades caindo no esquecimento, falta de histórico, zero insight sobre o funil e muita ineficiência. A concorrência agradece cada dia que você continuar assim. Comece ao menos com uma ferramenta simples (existem CRMs gratuitos) para centralizar contatos e acompanhar o pipeline. A diferença será da água para o vinho. 🍷",
+        feedback: "Hora de sair da Idade da Pedra do comércio! 🪨 Sem CRM e automação, você está voando no \"papel e caneta\" em plena era digital. Isso significa oportunidades caindo no esquecimento, falta de histórico, zero insight sobre o funil e muita ineficiência. A concorrência agradece cada dia que você continuar assim. Comece ao menos com uma ferramenta simples (existem CRMs gratuitos) para centralizar contatos e acompanhar o pipeline. A diferença será da água para o vinho. 🍷",
         score: 1
       }
     ]
