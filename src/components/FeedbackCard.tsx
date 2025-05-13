@@ -73,11 +73,11 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
 
   return (
     <Card 
-      className={`w-full max-w-3xl mx-auto shadow-lg animate-fade-in border-l-4 ${feedbackClass}`}
+      className={`w-full mx-auto shadow-lg animate-fade-in border-l-4 ${feedbackClass}`}
       role="alert"
       aria-live="polite"
     >
-      <CardHeader className="pb-2 px-4 sm:px-6">
+      <CardHeader className="pb-2 px-4">
         <div className="flex items-center gap-3">
           {getFeedbackIcon(optionValue)}
           <h3 className="font-bold text-xl break-words">
@@ -85,10 +85,10 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({
           </h3>
         </div>
       </CardHeader>
-      <CardContent className="px-4 sm:px-6">
+      <CardContent className="px-4">
         <p className="text-gray-700 break-words" dangerouslySetInnerHTML={{ __html: feedback }}></p>
       </CardContent>
-      <CardFooter className="flex justify-end pt-2 px-4 sm:px-6">
+      <CardFooter className="flex justify-end pt-2 px-4">
         <Button 
           onClick={onContinue} 
           className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12 px-6 rounded-full"

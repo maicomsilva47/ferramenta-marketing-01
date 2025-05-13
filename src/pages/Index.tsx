@@ -6,7 +6,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto py-4 px-4 sm:px-6 flex justify-between items-center">
+        <div className="container py-4 flex justify-between items-center">
           <div className="flex items-center">
             <img 
               src="/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png" 
@@ -18,12 +18,12 @@ const Index = () => {
         </div>
       </header>
       
-      <main className="container mx-auto py-6 sm:py-8 px-4 sm:px-6">
+      <main className="w-full">
         <DiagnosticApp />
       </main>
       
       <footer className="bg-growth-black text-white py-6">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container text-center">
           <img 
             src="/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png" 
             alt="Growth Machine" 

@@ -27,7 +27,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const progressPercentage = (currentQuestion / totalQuestions) * 100;
   
   return (
-    <div className="w-full max-w-3xl mx-auto mb-6 sm:mb-8 px-2">
+    <div className="w-full mx-auto mb-6 sm:mb-8">
       {/* Main progress info */}
       <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2">
         <div className="flex flex-col sm:flex-row sm:items-center mb-1 sm:mb-0 break-words overflow-hidden">

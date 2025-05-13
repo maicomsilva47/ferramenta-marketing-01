@@ -55,13 +55,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     })) as Resource[];
 
   return (
-    <div className="flex flex-col items-center w-full mx-auto animate-fade-in px-2 sm:px-4">
+    <div className="w-full mx-auto animate-fade-in">
       <DiagnosticResultsHeader 
         totalScore={totalScorePercentage} 
         overallEvaluation={results.overallEvaluation}
       />
       
-      <Card className="w-full max-w-4xl mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange">
+      <Card className="w-full mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange">
         <CardContent className="pb-6">
           <OverallScore 
             totalScore={totalScorePercentage} 

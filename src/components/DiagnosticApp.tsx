@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DiagnosticIntro from './DiagnosticIntro';
 import DiagnosticQuestion from './DiagnosticQuestion';
@@ -196,8 +195,8 @@ const DiagnosticApp: React.FC = () => {
   const pillarInfo = getPillarInfo();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="container mx-auto">
+    <div className="w-full bg-gray-50 py-4">
+      <div className="container">
         {currentState === DiagnosticState.INTRO && (
           <DiagnosticIntro onStartDiagnostic={handleStartDiagnostic} />
         )}

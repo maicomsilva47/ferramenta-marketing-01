@@ -55,7 +55,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation })
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button 
             onClick={handleShareResults}
-            className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12 w-full sm:w-auto"
+            className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12 w-full"
             size="sm"
             aria-label="Gerar link para compartilhar"
           >
@@ -66,7 +66,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({ overallScore, evaluation })
               onClick={handleCopyLink}
               variant="outline"
               size="sm"
-              className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12 w-full sm:w-auto"
+              className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12 w-full"
               aria-label="Copiar link"
             >
               <Copy size={16} className="mr-1" aria-hidden="true" /> Copiar

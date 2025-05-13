@@ -12,12 +12,12 @@ const StrategicInsights: React.FC<StrategicInsightsProps> = ({ insights }) => {
   }
 
   return (
-    <div className="bg-orange-50 p-4 sm:p-5 rounded-lg border border-orange-200 mb-6 overflow-hidden">
+    <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 mb-6 overflow-hidden">
       <div className="flex items-center mb-3">
         <Lightbulb size={24} className="text-growth-orange mr-2" aria-hidden="true" />
         <h3 className="font-bold text-lg text-growth-black">📌 Principais Insights</h3>
       </div>
-      <ul className="list-disc pl-4 sm:pl-5 space-y-2 sm:space-y-3 text-gray-800 break-words">
+      <ul className="list-disc pl-4 space-y-2 text-gray-800 break-words">
         {insights.map((insight, i) => (
           <li key={i} className="font-medium">
             {insight}

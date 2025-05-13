@@ -24,8 +24,8 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   previousAnswer
 }) => {
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-md animate-fade-in">
-      <CardContent className="pt-6 pb-6 px-4 sm:px-6">
+    <Card className="w-full mx-auto shadow-md animate-fade-in">
+      <CardContent className="pt-6 pb-6 px-4">
         <div className="mb-6">
           <div className="flex items-center mb-2">
             <span className="text-growth-orange font-semibold text-sm">
