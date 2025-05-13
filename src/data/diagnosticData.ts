@@ -1,5 +1,5 @@
 
-import { DiagnosticOption, DiagnosticQuestion, DiagnosticPillar } from "../types/diagnostic";
+import { DiagnosticOption, DiagnosticQuestion, DiagnosticPillar, OptionValue } from "../types/diagnostic";
 
 export const pillarNames: Record<DiagnosticPillar, string> = {
   'revenue-strategy': '🚀 Estratégia de Receita',
