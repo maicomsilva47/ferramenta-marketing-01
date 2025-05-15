@@ -14,12 +14,34 @@ interface CoursesSectionProps {
 }
 
 const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
-  // Make sure all resources use the consultation URL
-  const enhancedResources = resources.map(resource => ({
-    ...resource,
-    url: "https://go.growthmachine.com.br/way/",
-    id: resource.id.replace("course-", "").replace("ebook-", "").replace("video-", "")
-  }));
+  // Map resources to their specific URLs based on title
+  const enhancedResources = resources.map(resource => {
+    let customUrl = "https://go.growthmachine.com.br/way/"; // fallback
+    
+    switch (resource.title.toLowerCase()) {
+      case 'sales model canvas':
+        customUrl = 'https://blog.growthmachine.com.br/o-que-e-sales-model-canvas';
+        break;
+      case 'a bíblia do social selling':
+        customUrl = 'https://lp.growthmachine.com.br/biblia-do-social-selling';
+        break;
+      case 'guia essencial de prospecção':
+        customUrl = 'https://lp.growthmachine.com.br/guia-da-prospeccao';
+        break;
+      case 'kanban prospect':
+        customUrl = 'https://blog.growthmachine.com.br/o-que-e-kanban-prospect/';
+        break;
+      case 'template de cold mail':
+        customUrl = 'https://lp.growthmachine.com.br/templates-de-cold-mail';
+        break;
+    }
+    
+    return {
+      ...resource,
+      url: customUrl,
+      id: resource.id.replace("course-", "").replace("ebook-", "").replace("video-", "")
+    };
+  });
   
   const getIconForResource = (id: string) => {
     if (id.includes('video')) {
