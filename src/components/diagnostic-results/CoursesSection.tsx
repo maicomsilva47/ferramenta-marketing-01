@@ -38,13 +38,13 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
       case 'sales model canvas':
         customUrl = 'https://blog.growthmachine.com.br/o-que-e-sales-model-canvas';
         break;
-      case 'a bíblia do social selling':
+      case 'bíblia do social selling':
         customUrl = 'https://lp.growthmachine.com.br/biblia-do-social-selling';
         break;
-      case 'guia essencial de prospecção':
+      case 'guia essencial da prospecção':
         customUrl = 'https://lp.growthmachine.com.br/guia-da-prospeccao';
         break;
-      case 'kanban prospect':
+      case 'template kanban prospect':
         customUrl = 'https://blog.growthmachine.com.br/o-que-e-kanban-prospect/';
         break;
       case 'template de cold mail':
