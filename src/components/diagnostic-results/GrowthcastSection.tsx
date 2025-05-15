@@ -92,7 +92,7 @@ const GrowthcastSection: React.FC = () => {
             
             {/* Player */}
             <div className="col-span-1 md:col-span-2 p-6 bg-gray-900 flex flex-col justify-between">
-              <div>
+              <div className="w-full max-w-xl mx-auto">
                 <h4 className="font-bold text-xl mb-4 text-white">{selectedEpisode.title}</h4>
                 <div className="rounded-lg overflow-hidden border border-gray-800 shadow-sm">
                   <AspectRatio ratio={16 / 9}>
@@ -110,7 +110,7 @@ const GrowthcastSection: React.FC = () => {
                 </div>
               </div>
               
-              <div className="mt-6 self-end">
+              <div className="mt-6 self-end max-w-xl w-full mx-auto flex justify-end">
                 <a 
                   href={selectedEpisode.spotifyUrl}
                   target="_blank"
