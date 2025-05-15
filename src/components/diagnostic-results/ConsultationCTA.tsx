@@ -12,7 +12,7 @@ const ConsultationCTA: React.FC = () => {
   };
 
   return (
-    <Card className="w-full mx-auto my-8 bg-gradient-to-r from-[#f8fafc] to-[#f1f5f9] shadow-lg border-none overflow-hidden">
+    <Card className="w-full mx-auto my-8 bg-gradient-to-r from-orange-50 to-orange-100 shadow-lg border-none overflow-hidden">
       <CardContent className="p-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

@@ -7,10 +7,15 @@ import {
   DiagnosticPillar 
 } from '@/types/diagnostic';
 import { pillarNames, pillarFeedbacks, pillarIcons, resources } from '@/data/diagnosticData';
-import { DiagnosticResultsHeader, OverallScore } from '@/components/diagnostic-results/DiagnosticResultsHeader';
+import { OverallScore } from '@/components/diagnostic-results/DiagnosticResultsHeader';
 import PillarScoreCard from '@/components/diagnostic-results/PillarScoreCard';
 import StrategicInsights from '@/components/diagnostic-results/StrategicInsights';
-import ResourcesList from '@/components/diagnostic-results/ResourcesList';
+import { Resource } from '@/components/diagnostic-results/ResourcesList';
+import RadarChart from '@/components/diagnostic-results/RadarChart';
+import GrowthcastSection from '@/components/diagnostic-results/GrowthcastSection';
+import CoursesSection from '@/components/diagnostic-results/CoursesSection';
+import ConsultationCTA from '@/components/diagnostic-results/ConsultationCTA';
+import { motion } from 'framer-motion';
 import ShareResults from '@/components/diagnostic-results/ShareResults';
 import ActionButtons from '@/components/diagnostic-results/ActionButtons';
 import { 
@@ -18,12 +23,6 @@ import {
   generateStrategicInsights,
   getResourceUrl 
 } from '@/components/diagnostic-results/utils';
-import { Resource } from '@/components/diagnostic-results/ResourcesList';
-import RadarChart from '@/components/diagnostic-results/RadarChart';
-import GrowthcastSection from '@/components/diagnostic-results/GrowthcastSection';
-import CoursesSection from '@/components/diagnostic-results/CoursesSection';
-import ConsultationCTA from '@/components/diagnostic-results/ConsultationCTA';
-import { motion } from 'framer-motion';
 
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
@@ -66,13 +65,8 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
   };
 
   return (
-    <div className="w-full mx-auto animate-fade-in">
-      <DiagnosticResultsHeader 
-        totalScore={totalScorePercentage} 
-        overallEvaluation={results.overallEvaluation}
-      />
-      
-      <Card className="w-full mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange">
+    <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
+      <Card className="w-full mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange bg-white">
         <CardContent className="pb-6">
           <motion.div 
             initial={{ opacity: 0 }}
@@ -100,7 +94,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               </div>
             </div>
             
-            <Separator className="my-8" />
+            <Separator className="my-6" />
             
             {/* Radar Chart */}
             <div className="my-6">
@@ -109,7 +103,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               <RadarChart pillarScores={results.pillarScores} />
             </div>
             
-            <Separator className="my-8" />
+            <Separator className="my-6" />
             
             <h3 className="font-bold text-xl mb-6">Análise Detalhada por Pilar</h3>
             
@@ -140,47 +134,53 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               })}
             </div>
             
-            <Separator className="my-8" />
+            <Separator className="my-6" />
 
             <StrategicInsights insights={strategicInsights} />
             
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-bold text-xl mb-4">Recomendações Estratégicas</h3>
-                <div className="bg-gray-50 p-5 rounded-lg">
-                  <ul className="list-disc pl-5 space-y-3">
-                    {results.recommendations.slice(0, 5).map((recommendation, i) => (
-                      <li key={i} className="text-gray-800">{recommendation}</li>
-                    ))}
-                  </ul>
-                </div>
+            <Separator className="my-6" />
+            
+            <div className="mb-6">
+              <h3 className="font-bold text-xl mb-4">Recomendações Estratégicas</h3>
+              <div className="bg-gray-50 p-5 rounded-lg border border-gray-100 shadow-sm">
+                <ul className="list-disc pl-5 space-y-3">
+                  {results.recommendations.slice(0, 5).map((recommendation, i) => (
+                    <li key={i} className="text-gray-800">{recommendation}</li>
+                  ))}
+                </ul>
               </div>
             </div>
             
-            <Separator className="my-8" />
-
-            {/* Growthcast Section */}
-            <GrowthcastSection />
-
-            {/* Courses Section */}
-            <CoursesSection />
+            <Separator className="my-6" />
 
             {/* Consultation CTA */}
             <ConsultationCTA />
             
-            <Separator className="my-8" />
+            <Separator className="my-6" />
             
-            <ShareResults 
-              overallScore={totalScorePercentage} 
-              evaluation={results.overallEvaluation}
-              insights={strategicInsights}
-              pillarScores={results.pillarScores}
-              recommendations={results.recommendations}
-            />
+            {/* Courses Section */}
+            <CoursesSection resources={relevantResources} />
+
+            <Separator className="my-6" />
+
+            {/* Growthcast Section */}
+            <GrowthcastSection />
             
-            <ResourcesList resources={relevantResources} />
+            <Separator className="my-6" />
             
-            <ActionButtons onReset={onReset} />
+            <div className="mt-8">
+              <ShareResults 
+                overallScore={totalScorePercentage} 
+                evaluation={results.overallEvaluation}
+                insights={strategicInsights}
+                pillarScores={results.pillarScores}
+                recommendations={results.recommendations}
+              />
+              
+              <div className="mt-6">
+                <ActionButtons onReset={onReset} />
+              </div>
+            </div>
           </motion.div>
         </CardContent>
       </Card>
