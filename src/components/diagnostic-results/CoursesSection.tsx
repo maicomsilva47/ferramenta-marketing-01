@@ -7,13 +7,14 @@ import { FileText, Video, ExternalLink } from 'lucide-react';
 import { Resource } from './ResourcesList';
 import { DiagnosticPillar } from '@/types/diagnostic';
 import { pillarNames } from '@/data/diagnosticData';
+import { toast } from 'sonner';
 
 interface CoursesSectionProps {
   resources: Resource[];
 }
 
 const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
-  // Modify resources to ensure they all use the same consultation URL
+  // Make sure all resources use the consultation URL
   const enhancedResources = resources.map(resource => ({
     ...resource,
     url: "https://go.growthmachine.com.br/way/",
@@ -37,6 +38,15 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
     ];
     
     return patterns[index % patterns.length];
+  };
+  
+  const handleAccessMaterial = (url: string) => {
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error opening URL:', error);
+      toast.error('Erro ao abrir o material. Tente novamente.');
+    }
   };
   
   return (
@@ -75,7 +85,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
                 <p className="text-gray-600 mb-4 flex-grow">{resource.description}</p>
                 <Button 
                   className="mt-auto bg-growth-orange hover:bg-orange-700 transition-all flex items-center text-white"
-                  onClick={() => window.open(resource.url, '_blank', 'noopener,noreferrer')}
+                  onClick={() => handleAccessMaterial(resource.url)}
                 >
                   Acessar Material
                   <ExternalLink className="ml-2 h-4 w-4" />

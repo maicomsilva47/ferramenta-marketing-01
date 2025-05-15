@@ -16,20 +16,20 @@ const episodes: PodcastEpisode[] = [
   {
     id: '1',
     title: 'Pedro Sobral revela qual é o pior erro dos empresários ao investir em TRÁFEGO PAGO',
-    spotifyEmbedId: '7lKcTLsJg6BOXta99u1FzW',
-    spotifyUrl: 'https://open.spotify.com/episode/7lKcTLsJg6BOXta99u1FzW',
+    spotifyEmbedId: '1XVNcXvNpcjrVSDeXL2rul',
+    spotifyUrl: 'https://open.spotify.com/episode/1XVNcXvNpcjrVSDeXL2rul',
   },
   {
     id: '2',
     title: 'Como MULTIPLICAR as suas vendas B2B vendendo MAIS CARO',
-    spotifyEmbedId: '1hkbuMtx6ROfAp6CduoVRK',
-    spotifyUrl: 'https://open.spotify.com/episode/1hkbuMtx6ROfAp6CduoVRK',
+    spotifyEmbedId: '4BkxwdEwGKRmDMnGsgY2Fh',
+    spotifyUrl: 'https://open.spotify.com/episode/4BkxwdEwGKRmDMnGsgY2Fh',
   },
   {
     id: '3',
     title: 'Como usar arquétipos para fazer sua marca faturar milhões',
-    spotifyEmbedId: '4aDIUmYN24AQEB93kTMdHu',
-    spotifyUrl: 'https://open.spotify.com/episode/4aDIUmYN24AQEB93kTMdHu',
+    spotifyEmbedId: '0mwq1nZ8bc0Q1Lnytozxx5',
+    spotifyUrl: 'https://open.spotify.com/episode/0mwq1nZ8bc0Q1Lnytozxx5',
   }
 ];
 

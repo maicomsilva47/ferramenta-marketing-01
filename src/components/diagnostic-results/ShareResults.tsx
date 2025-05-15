@@ -19,6 +19,9 @@ const generateUniqueId = () => {
   return `diag-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 };
 
+// Set expiration time for saved diagnostics (48 hours in milliseconds)
+const EXPIRATION_TIME = 48 * 60 * 60 * 1000;
+
 const ShareResults: React.FC<ShareResultsProps> = ({ 
   overallScore, 
   evaluation, 
@@ -28,31 +31,72 @@ const ShareResults: React.FC<ShareResultsProps> = ({
 }) => {
   const [shareableLink, setShareableLink] = useState<string>('');
   const [shareId, setShareId] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  // Clean up expired diagnostic data from localStorage
+  const cleanupExpiredData = () => {
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('diagnosticShare_')) {
+          const storedData = localStorage.getItem(key);
+          if (storedData) {
+            try {
+              const data = JSON.parse(storedData);
+              if (data.expiresAt && Date.now() > data.expiresAt) {
+                localStorage.removeItem(key);
+              }
+            } catch (err) {
+              // Invalid JSON, remove the entry
+              localStorage.removeItem(key);
+            }
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Error cleaning up expired data:', err);
+    }
+  };
 
   const handleShareResults = () => {
-    // Generate unique ID for this diagnostic
-    const uniqueId = generateUniqueId();
-    setShareId(uniqueId);
+    setIsGenerating(true);
     
-    // Generate link with ID parameter
-    const baseUrl = window.location.origin;
-    const generatedLink = `${baseUrl}/resultados?id=${uniqueId}`;
-    
-    // In a real implementation, we would store the data in a database
-    // using the uniqueId as the key
-    
-    // Create a simplified version of pillar scores to reduce URL size
-    const shareData = {
-      overall: overallScore.toFixed(0),
-      evaluation: evaluation,
-      date: new Date().toISOString().split('T')[0],
-      insights: insights,
-      pillarScores: pillarScores,
-      recommendations: recommendations.slice(0, 5) // Limit to top 5 recommendations
-    };
-    
-    // For now, we'll simulate storing in localStorage (in a real app this would go to a backend)
     try {
+      // Clean up expired data first
+      cleanupExpiredData();
+      
+      // Generate unique ID for this diagnostic
+      const uniqueId = generateUniqueId();
+      setShareId(uniqueId);
+      
+      // Generate link with ID parameter
+      const baseUrl = window.location.origin;
+      const generatedLink = `${baseUrl}/resultados?id=${uniqueId}`;
+      
+      // Create a simplified version of pillar scores to reduce storage size
+      const simplifiedPillarScores: Record<string, any> = {};
+      
+      Object.entries(pillarScores).forEach(([pillar, score]) => {
+        simplifiedPillarScores[pillar] = {
+          evaluation: score.evaluation,
+          score: score.score,
+          totalQuestions: score.totalQuestions
+        };
+      });
+      
+      // Set expiration date (48 hours from now)
+      const expiresAt = Date.now() + EXPIRATION_TIME;
+      
+      const shareData = {
+        overall: overallScore.toFixed(0),
+        evaluation: evaluation,
+        date: new Date().toISOString().split('T')[0],
+        insights: insights.slice(0, 5), // Limit insights to reduce size
+        pillarScores: simplifiedPillarScores,
+        recommendations: recommendations.slice(0, 5), // Limit to top 5 recommendations
+        expiresAt: expiresAt
+      };
+      
+      // Save in localStorage
       localStorage.setItem(`diagnosticShare_${uniqueId}`, JSON.stringify(shareData));
       setShareableLink(generatedLink);
       
@@ -64,10 +108,14 @@ const ShareResults: React.FC<ShareResultsProps> = ({
         .catch(err => {
           console.error('Erro ao copiar: ', err);
           toast.error("Erro ao copiar link. Tente novamente.");
+        })
+        .finally(() => {
+          setIsGenerating(false);
         });
     } catch (error) {
       console.error("Error storing diagnostic data:", error);
       toast.error("Erro ao gerar link. Tente novamente.");
+      setIsGenerating(false);
     }
   };
 
@@ -96,8 +144,10 @@ const ShareResults: React.FC<ShareResultsProps> = ({
             className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12 w-full"
             size="sm"
             aria-label="Gerar link para compartilhar"
+            disabled={isGenerating}
           >
-            <Share2 size={16} className="mr-2" aria-hidden="true" /> Gerar Link
+            <Share2 size={16} className="mr-2" aria-hidden="true" /> 
+            {isGenerating ? 'Gerando...' : 'Gerar Link'}
           </Button>
           {shareableLink && (
             <Button
@@ -112,6 +162,10 @@ const ShareResults: React.FC<ShareResultsProps> = ({
           )}
         </div>
       </div>
+      
+      <p className="text-xs text-gray-500 mt-3">
+        Nota: Os links compartilhados expiram após 48 horas.
+      </p>
     </div>
   );
 };
