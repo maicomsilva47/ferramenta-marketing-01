@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Headphones, ChevronRight } from 'lucide-react';
@@ -9,27 +8,31 @@ interface PodcastEpisode {
   id: string;
   title: string;
   spotifyEmbedId: string;
+  spotifyUrl: string;
   imageUrl: string;
 }
 
 const episodes: PodcastEpisode[] = [
   {
     id: '1',
-    title: 'Como criar uma máquina de vendas consistente',
-    spotifyEmbedId: '7lKcTLsJg6BOXta99u1FzW',
-    imageUrl: '/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png'
+    title: 'Pedro Sobral revela qual é o pior erro dos empresários ao investir em TRÁFEGO PAGO',
+    spotifyEmbedId: '1XVNcXvNpcjrVSDeXL2rul',
+    spotifyUrl: 'https://open.spotify.com/episode/1XVNcXvNpcjrVSDeXL2rul',
+    imageUrl: '/lovable-uploads/growthcast-cover.png'
   },
   {
     id: '2',
-    title: 'Estratégias de vendas B2B que funcionam',
-    spotifyEmbedId: '1hkbuMtx6ROfAp6CduoVRK',
-    imageUrl: '/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png'
+    title: 'Como MULTIPLICAR as suas vendas B2B vendendo MAIS CARO',
+    spotifyEmbedId: '4BkxwdEwGKRmDMnGsgY2Fh',
+    spotifyUrl: 'https://open.spotify.com/episode/4BkxwdEwGKRmDMnGsgY2Fh',
+    imageUrl: '/lovable-uploads/growthcast-cover.png'
   },
   {
     id: '3',
-    title: 'Growth Hacking para startups',
-    spotifyEmbedId: '4aDIUmYN24AQEB93kTMdHu',
-    imageUrl: '/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png'
+    title: 'Como usar arquétipos para fazer sua marca faturar milhões',
+    spotifyEmbedId: '0mwq1nZ8bc0Q1Lnytozxx5',
+    spotifyUrl: 'https://open.spotify.com/episode/0mwq1nZ8bc0Q1Lnytozxx5',
+    imageUrl: '/lovable-uploads/growthcast-cover.png'
   }
 ];
 
@@ -37,7 +40,7 @@ const GrowthcastSection: React.FC = () => {
   const [selectedEpisode, setSelectedEpisode] = useState<PodcastEpisode>(episodes[0]);
 
   return (
-    <div className="my-8">
+    <div className="my-12">
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-growth-orange p-2 rounded-full">
           <Headphones className="text-white h-5 w-5" />
@@ -48,17 +51,17 @@ const GrowthcastSection: React.FC = () => {
       <Card className="shadow-lg border-0 overflow-hidden bg-white">
         <CardContent className="p-0">
           <div className="grid grid-cols-1 md:grid-cols-3">
-            {/* Left side - Episode selection */}
+            {/* Episódios */}
             <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 border-r border-gray-100">
               <div className="mb-6 flex justify-center md:justify-start">
                 <img 
-                  src="/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png" 
+                  src="/lovable-uploads/growthcast-cover.png" 
                   alt="Growthcast Logo" 
                   className="h-16 object-contain"
                 />
               </div>
               <p className="text-gray-700 text-sm mb-6 text-center md:text-left">
-                Insights semanais sobre vendas, marketing e growth diretamente com especialistas de mercado.
+                Insights semanais sobre vendas, marketing e growth com especialistas de mercado.
               </p>
               
               <div className="space-y-3">
@@ -95,32 +98,34 @@ const GrowthcastSection: React.FC = () => {
               </div>
             </div>
             
-            {/* Right side - Player */}
-            <div className="col-span-1 md:col-span-2 p-6">
-              <h4 className="font-bold text-xl mb-4">{selectedEpisode.title}</h4>
-              <div className="rounded-lg overflow-hidden border border-gray-100 shadow-sm">
-                <AspectRatio ratio={16/9} className="md:h-auto">
-                  <iframe 
-                    src={`https://open.spotify.com/embed/episode/${selectedEpisode.spotifyEmbedId}`}
-                    width="100%" 
-                    height="152" 
-                    frameBorder="0" 
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                    loading="lazy"
-                    title="Growthcast Spotify Embed"
-                    className="rounded"
-                  ></iframe>
-                </AspectRatio>
+            {/* Player */}
+            <div className="col-span-1 md:col-span-2 p-6 flex flex-col justify-between">
+              <div>
+                <h4 className="font-bold text-xl mb-4">{selectedEpisode.title}</h4>
+                <div className="rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+                  <AspectRatio ratio={16 / 9}>
+                    <iframe 
+                      src={`https://open.spotify.com/embed/episode/${selectedEpisode.spotifyEmbedId}`}
+                      width="100%" 
+                      height="152" 
+                      frameBorder="0" 
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                      loading="lazy"
+                      title="Growthcast Spotify Embed"
+                      className="rounded"
+                    ></iframe>
+                  </AspectRatio>
+                </div>
               </div>
               
-              <div className="mt-6 flex justify-end">
+              <div className="mt-6 self-end">
                 <a 
-                  href="https://open.spotify.com/show/7lKcTLsJg6BOXta99u1FzW" 
+                  href={selectedEpisode.spotifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-growth-orange hover:text-orange-700 flex items-center font-medium"
                 >
-                  Ver todos os episódios
+                  Ouvir no Spotify
                   <ChevronRight className="h-5 w-5 ml-1" />
                 </a>
               </div>
