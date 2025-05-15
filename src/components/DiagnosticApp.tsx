@@ -94,9 +94,8 @@ const DiagnosticApp: React.FC = () => {
         >
           <div className="w-full max-w-3xl mb-6">
             <ProgressBar 
-              currentStep={currentQuestionIndex + 1}
-              totalSteps={diagnosticQuestions.length}
-              percentage={progressPercentage}
+              currentQuestion={currentQuestionIndex + 1}
+              totalQuestions={diagnosticQuestions.length}
             />
           </div>
           
