@@ -1,256 +1,121 @@
 
 import React, { useState } from 'react';
-import LandingPage from './LandingPage';
-import DiagnosticIntro from './DiagnosticIntro';
-import DiagnosticQuestion from './DiagnosticQuestion';
-import FeedbackCard from './FeedbackCard';
-import ProgressBar from './ProgressBar';
-import DiagnosticResults from './DiagnosticResults';
-import { 
-  diagnosticQuestions, 
-  pillarNames, 
-  evaluationLabels, 
-  getPillarEvaluation,
-  getOverallEvaluation,
-  recommendations
-} from '@/data/diagnosticData';
-import { 
-  DiagnosticQuestion as QuestionType, 
-  DiagnosticOption, 
-  OptionValue, 
-  DiagnosticPillar,
-  UserAnswer,
-  DiagnosticResult,
-  PillarScore
-} from '@/types/diagnostic';
+import { motion } from 'framer-motion';
+import LandingPage from '@/components/LandingPage';
+import DiagnosticQuestion from '@/components/DiagnosticQuestion';
+import DiagnosticResults from '@/components/DiagnosticResults';
+import ProgressBar from '@/components/ProgressBar';
+import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult } from '@/types/diagnostic';
+import { diagnosticQuestions } from '@/data/diagnosticData';
+import { calculateResults } from '@/utils/diagnosticCalculations';
 
 enum DiagnosticState {
-  LANDING = 'landing',
-  INTRO = 'intro',
-  QUESTION = 'question',
-  FEEDBACK = 'feedback',
-  RESULTS = 'results'
+  LANDING,
+  QUESTIONS,
+  RESULTS
 }
 
 const DiagnosticApp: React.FC = () => {
-  const [currentState, setCurrentState] = useState<DiagnosticState>(DiagnosticState.LANDING);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
-  const [currentFeedback, setCurrentFeedback] = useState<string>('');
-  const [currentOptionValue, setCurrentOptionValue] = useState<OptionValue>('medium');
-  const [diagnosticResults, setDiagnosticResults] = useState<DiagnosticResult | null>(null);
-
-  const handleStartFromLanding = () => {
-    setCurrentState(DiagnosticState.INTRO);
-  };
+  const [diagnosticState, setDiagnosticState] = useState<DiagnosticState>(DiagnosticState.LANDING);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<UserAnswer[]>([]);
+  const [results, setResults] = useState<DiagnosticResult | null>(null);
 
   const handleStartDiagnostic = () => {
-    setCurrentState(DiagnosticState.QUESTION);
+    setDiagnosticState(DiagnosticState.QUESTIONS);
   };
 
-  const handleSelectAnswer = (value: OptionValue) => {
+  const handleSelectAnswer = (value: 'high' | 'medium' | 'low') => {
     const currentQuestion = diagnosticQuestions[currentQuestionIndex];
-    const selectedOption = currentQuestion.options.find(option => option.value === value);
     
-    if (selectedOption) {
-      setCurrentFeedback(selectedOption.feedback);
-      setCurrentOptionValue(value);
-      
-      // Save the answer
-      setUserAnswers(prev => [
-        ...prev.filter(answer => answer.questionId !== currentQuestion.id), // Remove previous answer if exists
-        { questionId: currentQuestion.id, selectedOption: value }
-      ]);
-      
-      setCurrentState(DiagnosticState.FEEDBACK);
-    }
-  };
-
-  const handleContinueAfterFeedback = () => {
-    if (currentQuestionIndex < diagnosticQuestions.length - 1) {
-      // Move to next question
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setCurrentState(DiagnosticState.QUESTION);
+    // Record the answer
+    const answer: UserAnswer = {
+      questionId: currentQuestion.id,
+      selectedOption: value
+    };
+    
+    const updatedAnswers = [...answers];
+    const existingAnswerIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
+    
+    if (existingAnswerIndex !== -1) {
+      updatedAnswers[existingAnswerIndex] = answer;
     } else {
-      // Calculate and show final results
-      calculateResults();
-      setCurrentState(DiagnosticState.RESULTS);
+      updatedAnswers.push(answer);
     }
+    
+    setAnswers(updatedAnswers);
+    
+    // Automatically advance to the next question after a short delay
+    setTimeout(() => {
+      if (currentQuestionIndex < diagnosticQuestions.length - 1) {
+        setCurrentQuestionIndex(prev => prev + 1);
+      } else {
+        const calculatedResults = calculateResults(updatedAnswers, diagnosticQuestions);
+        setResults(calculatedResults);
+        setDiagnosticState(DiagnosticState.RESULTS);
+      }
+    }, 400); // Short delay for visual feedback
   };
 
   const handleGoBack = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setCurrentState(DiagnosticState.QUESTION);
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
 
-  const handleReset = () => {
-    setCurrentState(DiagnosticState.LANDING);
+  const handleResetDiagnostic = () => {
     setCurrentQuestionIndex(0);
-    setUserAnswers([]);
-    setDiagnosticResults(null);
+    setAnswers([]);
+    setResults(null);
+    setDiagnosticState(DiagnosticState.LANDING);
   };
 
-  const calculateResults = () => {
-    // Group questions by pillar
-    const pillarQuestions: Record<DiagnosticPillar, QuestionType[]> = {} as Record<DiagnosticPillar, QuestionType[]>;
-    
-    diagnosticQuestions.forEach(question => {
-      if (!pillarQuestions[question.pillar]) {
-        pillarQuestions[question.pillar] = [];
-      }
-      pillarQuestions[question.pillar].push(question);
-    });
-
-    // Calculate score for each pillar
-    const pillarScores: Record<DiagnosticPillar, PillarScore> = {} as Record<DiagnosticPillar, PillarScore>;
-    let totalScore = 0;
-    let totalPossibleScore = 0;
-
-    Object.entries(pillarQuestions).forEach(([pillar, questions]) => {
-      const pillarAnswers = userAnswers.filter(answer => 
-        questions.some(q => q.id === answer.questionId)
-      );
-
-      let score = 0;
-      pillarAnswers.forEach(answer => {
-        const question = questions.find(q => q.id === answer.questionId);
-        if (question) {
-          const option = question.options.find(o => o.value === answer.selectedOption);
-          if (option) {
-            score += option.score;
-          }
-        }
-      });
-
-      const pillarPossibleScore = questions.length * 3; // 3 is the max score per question
-      const evaluation = getPillarEvaluation(score, questions.length);
-
-      pillarScores[pillar as DiagnosticPillar] = {
-        pillar: pillar as DiagnosticPillar,
-        score,
-        totalQuestions: questions.length,
-        evaluation
-      };
-
-      totalScore += score;
-      totalPossibleScore += pillarPossibleScore;
-    });
-
-    // Get overall evaluation
-    const overallEvaluation = getOverallEvaluation(totalScore, totalPossibleScore);
-
-    // Get recommendations based on low/medium scores
-    const relevantRecommendations = Object.entries(pillarScores)
-      .filter(([_, score]) => score.evaluation === 'low' || score.evaluation === 'medium')
-      .flatMap(([pillar, _]) => recommendations[pillar as DiagnosticPillar])
-      .slice(0, 6); // Limit to top 6 recommendations
-
-    const results: DiagnosticResult = {
-      pillarScores,
-      totalScore,
-      totalPossibleScore,
-      overallEvaluation,
-      recommendations: relevantRecommendations
-    };
-
-    setDiagnosticResults(results);
+  // Determine if there's a previous answer for the current question
+  const getPreviousAnswer = () => {
+    const currentQuestion = diagnosticQuestions[currentQuestionIndex];
+    const previousAnswer = answers.find(a => a.questionId === currentQuestion.id);
+    return previousAnswer?.selectedOption;
   };
 
-  // Get current question's pillar name
-  const getCurrentPillarName = () => {
-    if (currentQuestionIndex < diagnosticQuestions.length) {
-      const currentPillar = diagnosticQuestions[currentQuestionIndex].pillar;
-      return pillarNames[currentPillar];
-    }
-    return '';
-  };
-
-  // Get total questions per pillar to show "Step X of Y" for current pillar
-  const getPillarInfo = () => {
-    if (currentQuestionIndex < diagnosticQuestions.length) {
-      const currentPillar = diagnosticQuestions[currentQuestionIndex].pillar;
-      
-      const pillarQuestions = diagnosticQuestions.filter(q => q.pillar === currentPillar);
-      const pillarQuestionIndices = pillarQuestions.map(q => 
-        diagnosticQuestions.findIndex(dq => dq.id === q.id)
-      );
-      
-      const currentPillarQuestionIndex = pillarQuestionIndices.indexOf(currentQuestionIndex);
-      
-      return {
-        pillarName: pillarNames[currentPillar],
-        currentPillarQuestion: currentPillarQuestionIndex + 1,
-        totalPillarQuestions: pillarQuestions.length,
-        isNewPillar: currentPillarQuestionIndex === 0 && currentQuestionIndex > 0,
-        pillarIndex: Object.keys(pillarNames).indexOf(currentPillar) + 1,
-        totalPillars: Object.keys(pillarNames).length
-      };
-    }
-    
-    return {
-      pillarName: '',
-      currentPillarQuestion: 1,
-      totalPillarQuestions: 1,
-      isNewPillar: false,
-      pillarIndex: 1,
-      totalPillars: Object.keys(pillarNames).length
-    };
-  };
-
-  const pillarInfo = getPillarInfo();
+  const progressPercentage = ((currentQuestionIndex + 1) / diagnosticQuestions.length) * 100;
 
   return (
-    <div className="w-full bg-gray-50 py-4">
-      <div className="container">
-        {currentState === DiagnosticState.LANDING && (
-          <LandingPage onStartDiagnostic={handleStartFromLanding} />
-        )}
-
-        {currentState === DiagnosticState.INTRO && (
-          <DiagnosticIntro onStartDiagnostic={handleStartDiagnostic} />
-        )}
-
-        {currentState === DiagnosticState.QUESTION && (
-          <>
+    <div className="container max-w-6xl mx-auto px-4 py-6 sm:py-12">
+      {diagnosticState === DiagnosticState.LANDING && (
+        <LandingPage onStartDiagnostic={handleStartDiagnostic} />
+      )}
+      
+      {diagnosticState === DiagnosticState.QUESTIONS && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center"
+        >
+          <div className="w-full max-w-3xl mb-6">
             <ProgressBar 
-              currentQuestion={currentQuestionIndex + 1} 
-              totalQuestions={diagnosticQuestions.length} 
-              currentPillar={getCurrentPillarName()}
-              pillarStep={pillarInfo.pillarIndex}
-              totalPillars={pillarInfo.totalPillars}
-              pillarProgress={{
-                current: pillarInfo.currentPillarQuestion,
-                total: pillarInfo.totalPillarQuestions
-              }}
+              currentStep={currentQuestionIndex + 1}
+              totalSteps={diagnosticQuestions.length}
+              percentage={progressPercentage}
             />
-            <DiagnosticQuestion 
-              question={diagnosticQuestions[currentQuestionIndex]} 
+          </div>
+          
+          <div className="w-full max-w-3xl">
+            <DiagnosticQuestion
+              question={diagnosticQuestions[currentQuestionIndex]}
               currentQuestion={currentQuestionIndex + 1}
               totalQuestions={diagnosticQuestions.length}
               onSelectAnswer={handleSelectAnswer}
               onGoBack={currentQuestionIndex > 0 ? handleGoBack : undefined}
-              previousAnswer={userAnswers.find(a => a.questionId === diagnosticQuestions[currentQuestionIndex].id)?.selectedOption}
+              previousAnswer={getPreviousAnswer()}
             />
-          </>
-        )}
-
-        {currentState === DiagnosticState.FEEDBACK && (
-          <FeedbackCard 
-            feedback={currentFeedback} 
-            optionValue={currentOptionValue}
-            onContinue={handleContinueAfterFeedback} 
-          />
-        )}
-
-        {currentState === DiagnosticState.RESULTS && diagnosticResults && (
-          <DiagnosticResults 
-            results={diagnosticResults} 
-            onReset={handleReset}
-          />
-        )}
-      </div>
+          </div>
+        </motion.div>
+      )}
+      
+      {diagnosticState === DiagnosticState.RESULTS && results && (
+        <DiagnosticResults results={results} onReset={handleResetDiagnostic} />
+      )}
     </div>
   );
 };

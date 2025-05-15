@@ -54,7 +54,8 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     )
     .slice(0, 5)
     .map(resource => ({
-      ...resource
+      ...resource,
+      url: "https://go.growthmachine.com.br/way/" // Ensure all resources point to the consultation page
     })) as Resource[];
 
   // Count evaluations
@@ -67,12 +68,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
   return (
     <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
       <Card className="w-full mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange bg-white">
-        <CardContent className="pb-6">
+        <CardContent className="p-6 sm:p-8">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
+            {/* Overall Score */}
             <OverallScore 
               totalScore={totalScorePercentage} 
               overallEvaluation={results.overallEvaluation}
@@ -94,18 +96,19 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               </div>
             </div>
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
             
-            {/* Radar Chart */}
-            <div className="my-6">
-              <h3 className="font-bold text-xl text-center mb-2">Visão Geral dos Pilares</h3>
-              <p className="text-center text-gray-600 mb-4">Análise de maturidade por pilar estratégico</p>
+            {/* Radar Chart - Visão Geral dos Pilares */}
+            <div className="my-8">
+              <h3 className="font-bold text-2xl text-center mb-4">Visão Geral dos Pilares</h3>
+              <p className="text-center text-gray-600 mb-6">Análise de maturidade por pilar estratégico</p>
               <RadarChart pillarScores={results.pillarScores} />
             </div>
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
             
-            <h3 className="font-bold text-xl mb-6">Análise Detalhada por Pilar</h3>
+            {/* Análise Detalhada por Pilar */}
+            <h3 className="font-bold text-2xl mb-6">Análise Detalhada por Pilar</h3>
             
             <div className="space-y-6">
               {Object.entries(results.pillarScores).map(([pillar, score]) => {
@@ -134,15 +137,17 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               })}
             </div>
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
 
+            {/* Principais Insights */}
             <StrategicInsights insights={strategicInsights} />
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
             
-            <div className="mb-6">
-              <h3 className="font-bold text-xl mb-4">Recomendações Estratégicas</h3>
-              <div className="bg-gray-50 p-5 rounded-lg border border-gray-100 shadow-sm">
+            {/* Recomendações Estratégicas */}
+            <div className="mb-8">
+              <h3 className="font-bold text-2xl mb-4">Recomendações Estratégicas</h3>
+              <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 shadow-sm">
                 <ul className="list-disc pl-5 space-y-3">
                   {results.recommendations.slice(0, 5).map((recommendation, i) => (
                     <li key={i} className="text-gray-800">{recommendation}</li>
@@ -151,22 +156,22 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
               </div>
             </div>
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
 
-            {/* Consultation CTA */}
+            {/* Consultation CTA - Quer um diagnóstico mais preciso? */}
             <ConsultationCTA />
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
             
-            {/* Courses Section */}
+            {/* Courses Section - Aprofunde seus conhecimentos */}
             <CoursesSection resources={relevantResources} />
 
-            <Separator className="my-6" />
+            <Separator className="my-8" />
 
             {/* Growthcast Section */}
             <GrowthcastSection />
             
-            <Separator className="my-6" />
+            <Separator className="my-8" />
             
             <div className="mt-8">
               <ShareResults 
@@ -184,10 +189,6 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
           </motion.div>
         </CardContent>
       </Card>
-      
-      <div className="w-full text-center text-sm text-gray-500 mb-6">
-        <p>© {new Date().getFullYear()} Growth Machine. Todos os direitos reservados.</p>
-      </div>
     </div>
   );
 };

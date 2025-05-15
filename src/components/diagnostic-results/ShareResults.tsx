@@ -14,6 +14,11 @@ interface ShareResultsProps {
   recommendations?: string[];
 }
 
+// Generate a unique ID based on timestamp and random string
+const generateUniqueId = () => {
+  return `diag-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
+
 const ShareResults: React.FC<ShareResultsProps> = ({ 
   overallScore, 
   evaluation, 
@@ -22,43 +27,48 @@ const ShareResults: React.FC<ShareResultsProps> = ({
   recommendations = []
 }) => {
   const [shareableLink, setShareableLink] = useState<string>('');
+  const [shareId, setShareId] = useState<string>('');
 
   const handleShareResults = () => {
-    // Generate link for the /resultados page
+    // Generate unique ID for this diagnostic
+    const uniqueId = generateUniqueId();
+    setShareId(uniqueId);
+    
+    // Generate link with ID parameter
     const baseUrl = window.location.origin;
+    const generatedLink = `${baseUrl}/resultados?id=${uniqueId}`;
+    
+    // In a real implementation, we would store the data in a database
+    // using the uniqueId as the key
     
     // Create a simplified version of pillar scores to reduce URL size
-    const simplifiedPillarScores = Object.entries(pillarScores).reduce((acc: Record<string, any>, [pillar, data]) => {
-      acc[pillar] = {
-        evaluation: data.evaluation,
-        score: data.score,
-        totalQuestions: data.totalQuestions
-      };
-      return acc;
-    }, {});
-    
     const shareData = {
       overall: overallScore.toFixed(0),
       evaluation: evaluation,
       date: new Date().toISOString().split('T')[0],
       insights: insights,
-      pillarScores: simplifiedPillarScores,
+      pillarScores: pillarScores,
       recommendations: recommendations.slice(0, 5) // Limit to top 5 recommendations
     };
     
-    const generatedLink = `${baseUrl}/resultados?diagnostico=${encodeURIComponent(JSON.stringify(shareData))}`;
-    
-    setShareableLink(generatedLink);
-    
-    // Copy to clipboard
-    navigator.clipboard.writeText(generatedLink)
-      .then(() => {
-        toast.success("Link do diagnóstico copiado para a área de transferência!");
-      })
-      .catch(err => {
-        console.error('Erro ao copiar: ', err);
-        toast.error("Erro ao copiar link. Tente novamente.");
-      });
+    // For now, we'll simulate storing in localStorage (in a real app this would go to a backend)
+    try {
+      localStorage.setItem(`diagnosticShare_${uniqueId}`, JSON.stringify(shareData));
+      setShareableLink(generatedLink);
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(generatedLink)
+        .then(() => {
+          toast.success("Link do diagnóstico copiado para a área de transferência!");
+        })
+        .catch(err => {
+          console.error('Erro ao copiar: ', err);
+          toast.error("Erro ao copiar link. Tente novamente.");
+        });
+    } catch (error) {
+      console.error("Error storing diagnostic data:", error);
+      toast.error("Erro ao gerar link. Tente novamente.");
+    }
   };
 
   const handleCopyLink = () => {
@@ -68,8 +78,10 @@ const ShareResults: React.FC<ShareResultsProps> = ({
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-md mb-6" role="region" aria-labelledby="share-title">
-      <h3 className="font-bold mb-2" id="share-title">Compartilhar Resultados</h3>
+    <div className="bg-orange-50 p-6 rounded-lg shadow-sm border border-orange-100 mb-6" role="region" aria-labelledby="share-title">
+      <h3 className="font-bold text-xl mb-3" id="share-title">Compartilhar Resultados</h3>
+      <p className="text-gray-600 mb-4">Compartilhe este diagnóstico com sua equipe ou consultores para discutir as próximas ações.</p>
+      
       <div className="flex flex-col sm:flex-row gap-3">
         <Input 
           value={shareableLink} 
@@ -85,7 +97,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
             size="sm"
             aria-label="Gerar link para compartilhar"
           >
-            <Share2 size={16} className="mr-1" aria-hidden="true" /> Gerar Link
+            <Share2 size={16} className="mr-2" aria-hidden="true" /> Gerar Link
           </Button>
           {shareableLink && (
             <Button
@@ -95,7 +107,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
               className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12 w-full"
               aria-label="Copiar link"
             >
-              <Copy size={16} className="mr-1" aria-hidden="true" /> Copiar
+              <Copy size={16} className="mr-2" aria-hidden="true" /> Copiar
             </Button>
           )}
         </div>

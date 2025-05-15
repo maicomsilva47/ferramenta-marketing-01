@@ -78,48 +78,51 @@ const PillarScoreCard: React.FC<PillarScoreCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
+      whileHover={{ scale: 1.005 }}
+      className="transform transition-all duration-300"
     >
       <Card 
-        className={`overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 ${expanded ? getBorderColor(evaluation) : 'border-l-growth-orange'}`}
+        className={`overflow-hidden transition-all duration-300 hover:shadow-lg border-0 shadow ${expanded ? 'scale-[1.01]' : ''}`}
       >
         <div 
-          className={`cursor-pointer ${expanded ? getBackgroundGradient(evaluation) : 'bg-white hover:bg-gray-50'}`}
+          className={`cursor-pointer bg-white relative overflow-hidden transition-all duration-300`}
           onClick={onToggle}
         >
-          <CardContent className="p-4">
+          {/* Colored accent bars - decoration only */}
+          <div className={`absolute top-0 left-0 w-full h-1 ${getProgressColor(evaluation)}`}></div>
+          
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="flex items-center justify-center bg-white w-10 h-10 rounded-full shadow-sm mr-3">
-                  <span className="text-2xl" aria-hidden="true">{icon}</span>
+                <div className={`flex items-center justify-center w-14 h-14 rounded-full shadow-inner ${getBackgroundGradient(evaluation)} mr-4`}>
+                  <span className="text-3xl" aria-hidden="true">{icon}</span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-800">{pillarName}</h4>
+                  <h4 className="font-bold text-xl text-gray-800">{pillarName}</h4>
+                  <div className="flex items-center mt-1">
+                    <div className="flex-1 mr-4 w-32">
+                      <Progress 
+                        value={pillarScore} 
+                        className="h-2" 
+                        indicatorClassName={getProgressColor(evaluation)} 
+                      />
+                    </div>
+                    <span className="text-sm font-semibold">{pillarScore.toFixed(0)}%</span>
+                  </div>
                 </div>
               </div>
               
               <div className="flex items-center">
-                <span className={`font-bold px-3 py-1 rounded-full text-sm ${getEvaluationColor(evaluation)} bg-opacity-10 ${evaluation === 'high' ? 'bg-green-100' : evaluation === 'medium' ? 'bg-amber-100' : 'bg-red-100'}`}>
+                <div className={`mr-3 py-1 px-3 rounded-full text-sm font-semibold ${getEvaluationColor(evaluation)} ${evaluation === 'high' ? 'bg-green-100' : evaluation === 'medium' ? 'bg-amber-100' : 'bg-red-100'}`}>
                   {evaluationLabels[evaluation]}
-                </span>
-                <span className="ml-2">
+                </div>
+                <div className={`w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 ${expanded ? 'bg-gray-200' : ''}`}>
                   {expanded ? 
-                    <ChevronUp className="h-5 w-5 text-gray-500" /> : 
-                    <ChevronDown className="h-5 w-5 text-gray-500" />
+                    <ChevronUp className="h-5 w-5 text-gray-600" /> : 
+                    <ChevronDown className="h-5 w-5 text-gray-600" />
                   }
-                </span>
+                </div>
               </div>
-            </div>
-            
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-1 text-sm">
-                <span className="text-gray-600">Pontuação</span>
-                <span className="font-semibold">{pillarScore.toFixed(0)}%</span>
-              </div>
-              <Progress 
-                value={pillarScore} 
-                className="h-2" 
-                indicatorClassName={getProgressColor(evaluation)} 
-              />
             </div>
             
             {expanded && (
@@ -128,19 +131,22 @@ const PillarScoreCard: React.FC<PillarScoreCardProps> = ({
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mt-4 animate-fade-in"
+                className="mt-6 animate-fade-in"
               >
-                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                  <h5 className="font-bold text-growth-orange mb-3">{feedback.title}</h5>
-                  {feedback.paragraphs.map((paragraph, idx) => (
-                    <p key={idx} className="text-gray-700 mb-3">
-                      {paragraph}
-                    </p>
-                  ))}
+                <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+                  <h5 className="font-bold text-growth-orange text-lg mb-4">{feedback.title}</h5>
                   
-                  <div className="bg-gray-50 p-4 rounded-md mt-4 border-l-2 border-growth-orange">
-                    <h6 className="font-semibold text-sm text-gray-700 mb-2">Ações recomendadas:</h6>
-                    <ul className="list-disc pl-5 space-y-2 text-sm text-gray-600">
+                  <div className="space-y-4">
+                    {feedback.paragraphs.map((paragraph, idx) => (
+                      <p key={idx} className="text-gray-700">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                  
+                  <div className={`mt-6 p-4 rounded-md ${getBackgroundGradient(evaluation)}`}>
+                    <h6 className="font-bold text-gray-800 mb-3">Ações recomendadas:</h6>
+                    <ul className="list-disc pl-5 space-y-2 text-gray-700">
                       {feedback.actions?.map((action, idx) => (
                         <li key={idx}>{action}</li>
                       ))}

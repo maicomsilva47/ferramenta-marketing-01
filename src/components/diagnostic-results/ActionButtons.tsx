@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 interface ActionButtonsProps {
   onReset: () => void;
@@ -9,13 +9,15 @@ interface ActionButtonsProps {
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({ onReset }) => {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-      <Button 
+    <div className="flex justify-center">
+      <Button
         onClick={onReset}
         variant="outline"
-        className="border-growth-orange text-growth-orange hover:bg-orange-50 font-bold py-2 px-6 rounded-full"
+        size="lg"
+        className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12 px-6"
       >
-        <RefreshCw size={16} className="mr-2" /> Refazer Diagnóstico
+        <ChevronLeft size={16} className="mr-2" />
+        Refazer Diagnóstico
       </Button>
     </div>
   );

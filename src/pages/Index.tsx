@@ -5,25 +5,12 @@ import DiagnosticApp from '@/components/DiagnosticApp';
 const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png" 
-              alt="Growth Machine" 
-              className="h-10 max-w-[120px] object-contain"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </header>
-      
       <main className="w-full">
         <DiagnosticApp />
       </main>
       
       <footer className="bg-growth-black text-white py-6">
-        <div className="container text-center">
+        <div className="container max-w-6xl mx-auto px-4 text-center">
           <img 
             src="/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png" 
             alt="Growth Machine" 
