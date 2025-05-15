@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,9 +26,10 @@ import {
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
   onReset: () => void;
+  resultsId: string | null;
 }
 
-const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset }) => {
+const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset, resultsId }) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
   
   const totalScorePercentage = getTotalScore(results.totalScore, results.totalPossibleScore);
@@ -188,6 +188,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
                 insights={strategicInsights}
                 pillarScores={results.pillarScores}
                 recommendations={results.recommendations}
+                resultsId={resultsId}
               />
               
               <div className="mt-6">

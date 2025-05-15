@@ -1,8 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Share2, Copy } from 'lucide-react';
+import { Share2, Copy, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { DiagnosticPillar, PillarScore } from '@/types/diagnostic';
 
@@ -12,116 +12,41 @@ interface ShareResultsProps {
   insights?: string[];
   pillarScores?: Record<DiagnosticPillar, PillarScore>;
   recommendations?: string[];
+  resultsId: string | null;
 }
-
-// Generate a unique ID based on timestamp and random string
-const generateUniqueId = () => {
-  return `diag-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
-
-// Set expiration time for saved diagnostics (48 hours in milliseconds)
-const EXPIRATION_TIME = 48 * 60 * 60 * 1000;
 
 const ShareResults: React.FC<ShareResultsProps> = ({ 
   overallScore, 
   evaluation, 
   insights = [], 
   pillarScores = {},
-  recommendations = []
+  recommendations = [],
+  resultsId
 }) => {
   const [shareableLink, setShareableLink] = useState<string>('');
-  const [shareId, setShareId] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
-  // Clean up expired diagnostic data from localStorage
-  const cleanupExpiredData = () => {
-    try {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('diagnosticShare_')) {
-          const storedData = localStorage.getItem(key);
-          if (storedData) {
-            try {
-              const data = JSON.parse(storedData);
-              if (data.expiresAt && Date.now() > data.expiresAt) {
-                localStorage.removeItem(key);
-              }
-            } catch (err) {
-              // Invalid JSON, remove the entry
-              localStorage.removeItem(key);
-            }
-          }
-        }
-      });
-    } catch (err) {
-      console.error('Error cleaning up expired data:', err);
-    }
-  };
-
-  const handleShareResults = () => {
-    setIsGenerating(true);
-    
-    try {
-      // Clean up expired data first
-      cleanupExpiredData();
-      
-      // Generate unique ID for this diagnostic
-      const uniqueId = generateUniqueId();
-      setShareId(uniqueId);
-      
-      // Generate link with ID parameter
+  // Generate the shareable link automatically when component mounts or resultsId changes
+  useEffect(() => {
+    if (resultsId) {
       const baseUrl = window.location.origin;
-      const generatedLink = `${baseUrl}/resultados?id=${uniqueId}`;
-      
-      // Create a simplified version of pillar scores to reduce storage size
-      const simplifiedPillarScores: Record<string, any> = {};
-      
-      Object.entries(pillarScores).forEach(([pillar, score]) => {
-        simplifiedPillarScores[pillar] = {
-          evaluation: score.evaluation,
-          score: score.score,
-          totalQuestions: score.totalQuestions
-        };
-      });
-      
-      // Set expiration date (48 hours from now)
-      const expiresAt = Date.now() + EXPIRATION_TIME;
-      
-      const shareData = {
-        overall: overallScore.toFixed(0),
-        evaluation: evaluation,
-        date: new Date().toISOString().split('T')[0],
-        insights: insights.slice(0, 5), // Limit insights to reduce size
-        pillarScores: simplifiedPillarScores,
-        recommendations: recommendations.slice(0, 5), // Limit to top 5 recommendations
-        expiresAt: expiresAt
-      };
-      
-      // Save in localStorage
-      localStorage.setItem(`diagnosticShare_${uniqueId}`, JSON.stringify(shareData));
+      const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
       setShareableLink(generatedLink);
-      
-      // Copy to clipboard
-      navigator.clipboard.writeText(generatedLink)
-        .then(() => {
-          toast.success("Link do diagnóstico copiado para a área de transferência!");
-        })
-        .catch(err => {
-          console.error('Erro ao copiar: ', err);
-          toast.error("Erro ao copiar link. Tente novamente.");
-        })
-        .finally(() => {
-          setIsGenerating(false);
-        });
-    } catch (error) {
-      console.error("Error storing diagnostic data:", error);
-      toast.error("Erro ao gerar link. Tente novamente.");
-      setIsGenerating(false);
     }
-  };
+  }, [resultsId]);
 
   const handleCopyLink = () => {
+    if (!shareableLink) {
+      toast.error("Nenhum link disponível para copiar");
+      return;
+    }
+
     navigator.clipboard.writeText(shareableLink)
-      .then(() => toast.success("Link copiado!"))
+      .then(() => {
+        toast.success("Link copiado!");
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 3000);
+      })
       .catch(() => toast.error("Erro ao copiar link"));
   };
 
@@ -134,33 +59,29 @@ const ShareResults: React.FC<ShareResultsProps> = ({
         <Input 
           value={shareableLink} 
           readOnly 
-          placeholder="Link será gerado ao clicar no botão" 
+          placeholder={resultsId ? "Gerando link..." : "Link indisponível"}
           className="flex-grow min-w-0"
           aria-label="Link compartilhável"
         />
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Button 
-            onClick={handleShareResults}
-            className="bg-growth-orange hover:bg-orange-700 text-white font-bold h-12 w-full"
-            size="sm"
-            aria-label="Gerar link para compartilhar"
-            disabled={isGenerating}
-          >
-            <Share2 size={16} className="mr-2" aria-hidden="true" /> 
-            {isGenerating ? 'Gerando...' : 'Gerar Link'}
-          </Button>
-          {shareableLink && (
-            <Button
-              onClick={handleCopyLink}
-              variant="outline"
-              size="sm"
-              className="border-growth-orange text-growth-orange hover:bg-orange-50 h-12 w-full"
-              aria-label="Copiar link"
-            >
-              <Copy size={16} className="mr-2" aria-hidden="true" /> Copiar
-            </Button>
+        <Button 
+          onClick={handleCopyLink}
+          className={`${isCopied ? 'bg-green-600' : 'bg-growth-orange'} hover:${isCopied ? 'bg-green-700' : 'bg-orange-700'} text-white font-bold h-12 w-full sm:w-auto transition-colors`}
+          size="sm"
+          aria-label="Copiar link para compartilhar"
+          disabled={!shareableLink}
+        >
+          {isCopied ? (
+            <>
+              <CheckCircle size={16} className="mr-2" aria-hidden="true" /> 
+              Copiado!
+            </>
+          ) : (
+            <>
+              <Copy size={16} className="mr-2" aria-hidden="true" /> 
+              Copiar Link
+            </>
           )}
-        </div>
+        </Button>
       </div>
       
       <p className="text-xs text-gray-500 mt-3">

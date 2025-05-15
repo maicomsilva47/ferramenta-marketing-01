@@ -1,6 +1,8 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import LandingPage from '@/components/LandingPage';
 import DiagnosticQuestion from '@/components/DiagnosticQuestion';
 import DiagnosticResults from '@/components/DiagnosticResults';
@@ -8,6 +10,7 @@ import ProgressBar from '@/components/ProgressBar';
 import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult } from '@/types/diagnostic';
 import { diagnosticQuestions } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
+import { generateUniqueId } from '@/utils/idGenerator';
 
 enum DiagnosticState {
   LANDING,
@@ -16,10 +19,57 @@ enum DiagnosticState {
 }
 
 const DiagnosticApp: React.FC = () => {
-  const [diagnosticState, setDiagnosticState] = useState<DiagnosticState>(DiagnosticState.LANDING);
+  const [searchParams] = useSearchParams();
+  const shareId = searchParams.get('share_id');
+  
+  const [diagnosticState, setDiagnosticState] = useState<DiagnosticState>(
+    shareId ? DiagnosticState.RESULTS : DiagnosticState.LANDING
+  );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
   const [results, setResults] = useState<DiagnosticResult | null>(null);
+  const [resultsId, setResultsId] = useState<string | null>(shareId);
+
+  // Load shared results if a share_id is provided
+  useEffect(() => {
+    if (shareId) {
+      try {
+        const storageKey = `diagnosticShare_${shareId}`;
+        const storedData = localStorage.getItem(storageKey);
+        
+        if (storedData) {
+          const data = JSON.parse(storedData);
+          
+          // Check if data has expired
+          if (data.expiresAt && Date.now() > data.expiresAt) {
+            localStorage.removeItem(storageKey);
+            toast.error("Este link de diagnóstico expirou.");
+            setDiagnosticState(DiagnosticState.LANDING);
+            return;
+          }
+          
+          // Reconstruct the results object from stored data
+          const loadedResults: DiagnosticResult = {
+            pillarScores: data.pillarScores || {},
+            totalScore: parseFloat(data.overall) || 0,
+            totalPossibleScore: 100,
+            overallEvaluation: data.evaluation || 'medium',
+            recommendations: data.recommendations || []
+          };
+          
+          setResults(loadedResults);
+          setResultsId(shareId);
+        } else {
+          toast.error("Não foi possível encontrar os resultados compartilhados.");
+          setDiagnosticState(DiagnosticState.LANDING);
+        }
+      } catch (error) {
+        console.error("Error loading shared diagnostic:", error);
+        toast.error("Ocorreu um erro ao carregar o diagnóstico compartilhado.");
+        setDiagnosticState(DiagnosticState.LANDING);
+      }
+    }
+  }, [shareId]);
 
   const handleStartDiagnostic = () => {
     setDiagnosticState(DiagnosticState.QUESTIONS);
@@ -51,10 +101,81 @@ const DiagnosticApp: React.FC = () => {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         const calculatedResults = calculateResults(updatedAnswers, diagnosticQuestions);
+        
+        // Generate a unique ID for this diagnostic result
+        const uniqueId = generateUniqueId();
+        setResultsId(uniqueId);
+        
+        // Save results immediately to localStorage
+        saveResultsToLocalStorage(calculatedResults, uniqueId);
+        
         setResults(calculatedResults);
         setDiagnosticState(DiagnosticState.RESULTS);
       }
     }, 400); // Short delay for visual feedback
+  };
+  
+  // Function to save results to localStorage
+  const saveResultsToLocalStorage = (diagnosticResults: DiagnosticResult, id: string) => {
+    try {
+      // Clean up expired data first
+      cleanupExpiredData();
+      
+      // Set expiration date (48 hours from now)
+      const EXPIRATION_TIME = 48 * 60 * 60 * 1000;
+      const expiresAt = Date.now() + EXPIRATION_TIME;
+      
+      // Create a simplified version of pillar scores to reduce storage size
+      const simplifiedPillarScores: Record<string, any> = {};
+      
+      Object.entries(diagnosticResults.pillarScores).forEach(([pillar, score]) => {
+        simplifiedPillarScores[pillar] = {
+          evaluation: score.evaluation,
+          score: score.score,
+          totalQuestions: score.totalQuestions
+        };
+      });
+      
+      const shareData = {
+        overall: diagnosticResults.totalScore.toFixed(0),
+        evaluation: diagnosticResults.overallEvaluation,
+        date: new Date().toISOString().split('T')[0],
+        insights: [], // These will be generated in the Results component
+        pillarScores: simplifiedPillarScores,
+        recommendations: diagnosticResults.recommendations.slice(0, 5),
+        expiresAt: expiresAt
+      };
+      
+      // Save in localStorage
+      localStorage.setItem(`diagnosticShare_${id}`, JSON.stringify(shareData));
+      
+    } catch (error) {
+      console.error("Error storing diagnostic data:", error);
+    }
+  };
+
+  // Clean up expired diagnostic data from localStorage
+  const cleanupExpiredData = () => {
+    try {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('diagnosticShare_')) {
+          const storedData = localStorage.getItem(key);
+          if (storedData) {
+            try {
+              const data = JSON.parse(storedData);
+              if (data.expiresAt && Date.now() > data.expiresAt) {
+                localStorage.removeItem(key);
+              }
+            } catch (err) {
+              // Invalid JSON, remove the entry
+              localStorage.removeItem(key);
+            }
+          }
+        }
+      });
+    } catch (err) {
+      console.error('Error cleaning up expired data:', err);
+    }
   };
 
   const handleGoBack = () => {
@@ -64,9 +185,15 @@ const DiagnosticApp: React.FC = () => {
   };
 
   const handleResetDiagnostic = () => {
+    // Clear URL params by replacing the current URL without the parameters
+    const url = new URL(window.location.href);
+    url.searchParams.delete('share_id');
+    window.history.replaceState({}, '', url);
+    
     setCurrentQuestionIndex(0);
     setAnswers([]);
     setResults(null);
+    setResultsId(null);
     setDiagnosticState(DiagnosticState.LANDING);
   };
 
@@ -113,7 +240,7 @@ const DiagnosticApp: React.FC = () => {
       )}
       
       {diagnosticState === DiagnosticState.RESULTS && results && (
-        <DiagnosticResults results={results} onReset={handleResetDiagnostic} />
+        <DiagnosticResults results={results} onReset={handleResetDiagnostic} resultsId={resultsId} />
       )}
     </div>
   );
