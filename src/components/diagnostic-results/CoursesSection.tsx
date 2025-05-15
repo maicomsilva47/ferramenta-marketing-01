@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
@@ -14,6 +14,22 @@ interface CoursesSectionProps {
 }
 
 const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
+  // Debug log to see what resources we're receiving
+  useEffect(() => {
+    console.log('CoursesSection received resources:', resources);
+  }, [resources]);
+  
+  // Check if resources array is empty
+  if (!resources || resources.length === 0) {
+    console.log('No resources available to display');
+    return (
+      <div className="my-8">
+        <h3 className="text-2xl font-bold mb-6">Aprofunde seus conhecimentos</h3>
+        <p className="text-center text-gray-500">Nenhum material disponível no momento.</p>
+      </div>
+    );
+  }
+  
   // Map resources to their specific URLs based on title
   const enhancedResources = resources.map(resource => {
     let customUrl = "https://go.growthmachine.com.br/way/"; // fallback
@@ -35,6 +51,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
         customUrl = 'https://lp.growthmachine.com.br/templates-de-cold-mail';
         break;
     }
+    
+    console.log(`Resource "${resource.title}" mapped to URL: ${customUrl}`);
     
     return {
       ...resource,
@@ -62,9 +80,11 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
     return patterns[index % patterns.length];
   };
   
-  const handleAccessMaterial = (url: string) => {
+  const handleAccessMaterial = (url: string, title: string) => {
+    console.log(`Opening material: ${title} with URL: ${url}`);
     try {
       window.open(url, '_blank', 'noopener,noreferrer');
+      toast.success(`Acessando ${title}`);
     } catch (error) {
       console.error('Error opening URL:', error);
       toast.error('Erro ao abrir o material. Tente novamente.');
@@ -83,7 +103,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 + 0.2 }}
           >
-            <Card className="h-full transition-all duration-300 hover:shadow-lg border-0 shadow overflow-hidden">
+            <Card className="h-full transition-all duration-300 hover:shadow-lg border-0 shadow overflow-hidden flex flex-col">
               <div className={`h-32 ${getBackgroundStyle(index)} flex items-center justify-center p-6`}>
                 <div className="bg-black bg-opacity-20 p-4 rounded-full">
                   {getIconForResource(resource.id)}
@@ -106,8 +126,8 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
                 <h4 className="text-lg font-semibold mb-2">{resource.title}</h4>
                 <p className="text-gray-600 mb-4 flex-grow">{resource.description}</p>
                 <Button 
-                  className="mt-auto bg-growth-orange hover:bg-orange-700 transition-all flex items-center text-white"
-                  onClick={() => handleAccessMaterial(resource.url)}
+                  className="mt-auto w-full bg-growth-orange hover:bg-orange-700 transition-all flex items-center justify-center text-white"
+                  onClick={() => handleAccessMaterial(resource.url, resource.title)}
                 >
                   Acessar Material
                   <ExternalLink className="ml-2 h-4 w-4" />

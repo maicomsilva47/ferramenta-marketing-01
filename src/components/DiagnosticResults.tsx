@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
@@ -42,7 +42,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Filter and prepare resources
+  // Filter and prepare resources - DON'T override the URLs here
   const relevantResources = Object.keys(results.pillarScores)
     .filter(pillar => {
       const pillarScore = results.pillarScores[pillar as DiagnosticPillar];
@@ -52,11 +52,16 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     .filter((resource, index, self) => 
       index === self.findIndex((t) => t.id === resource.id)
     )
-    .slice(0, 5)
-    .map(resource => ({
-      ...resource,
-      url: "https://go.growthmachine.com.br/way/" // Ensure all resources point to the consultation page
-    })) as Resource[];
+    .slice(0, 5) as Resource[];
+  
+  // Add a debug log to check resources
+  useEffect(() => {
+    console.log("Filtered relevant resources:", relevantResources);
+    // If no resources were found through filtering, include some defaults
+    if (relevantResources.length === 0) {
+      console.log("No resources met the criteria, using default resources");
+    }
+  }, [relevantResources]);
 
   // Count evaluations
   const evaluationCounts = {
@@ -64,6 +69,9 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
     medium: Object.values(results.pillarScores).filter(score => score.evaluation === 'medium').length,
     high: Object.values(results.pillarScores).filter(score => score.evaluation === 'high').length,
   };
+
+  // If we don't have any resources, include some defaults to ensure content shows
+  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : resources.slice(0, 3) as Resource[];
 
   return (
     <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
@@ -164,7 +172,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
             <Separator className="my-8" />
             
             {/* Courses Section - Aprofunde seus conhecimentos */}
-            <CoursesSection resources={relevantResources} />
+            <CoursesSection resources={resourcesForDisplay} />
 
             <Separator className="my-8" />
 
