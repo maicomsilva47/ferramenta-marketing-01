@@ -1,0 +1,179 @@
+
+import React from 'react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { toast } from "sonner";
+
+// Form validation schema
+const formSchema = z.object({
+  name: z.string().min(2, { message: "O nome deve ter pelo menos 2 caracteres" }),
+  email: z.string().email({ message: "Email inválido" }),
+  company: z.string().min(2, { message: "O nome da empresa deve ter pelo menos 2 caracteres" }),
+  phone: z.string().min(14, { message: "Telefone inválido" })
+    .max(16, { message: "Telefone inválido" })
+    .refine((val) => /^\(\d{2}\) \d{4,5}-\d{4}$/.test(val), {
+      message: "Formato inválido. Use: (XX) XXXXX-XXXX",
+    }),
+  utm_source: z.string().optional(),
+  utm_medium: z.string().optional(),
+  utm_campaign: z.string().optional(),
+  utm_term: z.string().optional(),
+  utm_content: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
+interface UserInfoFormProps {
+  onSubmit: (data: FormValues) => void;
+}
+
+const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit }) => {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      company: "",
+      phone: "",
+      utm_source: getUtmParameter("utm_source"),
+      utm_medium: getUtmParameter("utm_medium"),
+      utm_campaign: getUtmParameter("utm_campaign"),
+      utm_term: getUtmParameter("utm_term"),
+      utm_content: getUtmParameter("utm_content"),
+    },
+  });
+
+  function getUtmParameter(param: string): string {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param) || "";
+  }
+
+  // Format phone number as user types
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, "");
+    
+    if (digits.length === 0) return "";
+    
+    // Format as (XX) XXXXX-XXXX
+    if (digits.length <= 2) return `(${digits}`;
+    if (digits.length <= 7) return `(${digits.substring(0, 2)}) ${digits.substring(2)}`;
+    return `(${digits.substring(0, 2)}) ${digits.substring(2, 7)}-${digits.substring(7, 11)}`;
+  };
+
+  const handleSubmit = (data: FormValues) => {
+    try {
+      // Submit the form data
+      onSubmit(data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Erro ao enviar o formulário. Por favor, tente novamente.");
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm border max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        Conte-nos sobre você
+      </h2>
+      
+      <p className="text-gray-600 mb-6 text-center">
+        Precisamos de algumas informações antes de iniciar seu diagnóstico personalizado.
+      </p>
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome completo</FormLabel>
+                <FormControl>
+                  <Input placeholder="João Silva" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="joao@empresa.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="company"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome da empresa</FormLabel>
+                <FormControl>
+                  <Input placeholder="Growth Machine" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field: { onChange, ...rest } }) => (
+              <FormItem>
+                <FormLabel>Telefone</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="(XX) XXXXX-XXXX"
+                    onChange={(e) => {
+                      const formatted = formatPhoneNumber(e.target.value);
+                      onChange(formatted);
+                    }}
+                    {...rest}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          {/* Hidden UTM fields */}
+          <input type="hidden" {...form.register("utm_source")} />
+          <input type="hidden" {...form.register("utm_medium")} />
+          <input type="hidden" {...form.register("utm_campaign")} />
+          <input type="hidden" {...form.register("utm_term")} />
+          <input type="hidden" {...form.register("utm_content")} />
+          
+          <Button
+            type="submit"
+            className="w-full bg-growth-orange hover:bg-orange-600 h-12 mt-4"
+          >
+            Iniciar Diagnóstico
+          </Button>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export default UserInfoForm;

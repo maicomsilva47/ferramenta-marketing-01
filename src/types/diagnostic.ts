@@ -57,3 +57,15 @@ export interface PillarFeedbacks {
     low: PillarFeedback;
   };
 }
+
+export interface UserInfo {
+  name: string;
+  email: string;
+  company: string;
+  phone: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  utm_term?: string;
+  utm_content?: string;
+}

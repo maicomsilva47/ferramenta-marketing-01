@@ -6,14 +6,17 @@ import { toast } from 'sonner';
 import LandingPage from '@/components/LandingPage';
 import DiagnosticQuestion from '@/components/DiagnosticQuestion';
 import DiagnosticResults from '@/components/DiagnosticResults';
+import UserInfoForm from '@/components/UserInfoForm';
 import ProgressBar from '@/components/ProgressBar';
 import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult } from '@/types/diagnostic';
 import { diagnosticQuestions } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
+import { sendToHubspot, UserFormData } from '@/utils/hubspotIntegration';
 
 enum DiagnosticState {
   LANDING,
+  USER_INFO,
   QUESTIONS,
   RESULTS
 }
@@ -29,6 +32,7 @@ const DiagnosticApp: React.FC = () => {
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
   const [results, setResults] = useState<DiagnosticResult | null>(null);
   const [resultsId, setResultsId] = useState<string | null>(shareId);
+  const [userData, setUserData] = useState<UserFormData | null>(null);
 
   // Load shared results if a share_id is provided
   useEffect(() => {
@@ -72,7 +76,29 @@ const DiagnosticApp: React.FC = () => {
   }, [shareId]);
 
   const handleStartDiagnostic = () => {
-    setDiagnosticState(DiagnosticState.QUESTIONS);
+    setDiagnosticState(DiagnosticState.USER_INFO);
+  };
+
+  const handleUserInfoSubmit = async (formData: UserFormData) => {
+    // Store user data
+    setUserData(formData);
+    
+    try {
+      // Send data to HubSpot via webhook
+      const success = await sendToHubspot(formData);
+      
+      if (!success) {
+        console.warn("Failed to send data to HubSpot, but continuing with diagnostic");
+        // We don't stop the diagnostic process if HubSpot integration fails
+      }
+      
+      // Proceed to questions
+      setDiagnosticState(DiagnosticState.QUESTIONS);
+    } catch (error) {
+      console.error("Error in user form submission:", error);
+      toast.error("Houve um erro ao processar seus dados, mas você pode continuar com o diagnóstico.");
+      setDiagnosticState(DiagnosticState.QUESTIONS);
+    }
   };
 
   const handleSelectAnswer = (value: 'high' | 'medium' | 'low') => {
@@ -143,7 +169,8 @@ const DiagnosticApp: React.FC = () => {
         insights: [], // These will be generated in the Results component
         pillarScores: simplifiedPillarScores,
         recommendations: diagnosticResults.recommendations.slice(0, 5),
-        expiresAt: expiresAt
+        expiresAt: expiresAt,
+        userData: userData, // Store user information with the results
       };
       
       // Save in localStorage
@@ -194,6 +221,7 @@ const DiagnosticApp: React.FC = () => {
     setAnswers([]);
     setResults(null);
     setResultsId(null);
+    setUserData(null);
     setDiagnosticState(DiagnosticState.LANDING);
   };
 
@@ -210,6 +238,16 @@ const DiagnosticApp: React.FC = () => {
     <div className="container max-w-6xl mx-auto px-4 py-6 sm:py-12">
       {diagnosticState === DiagnosticState.LANDING && (
         <LandingPage onStartDiagnostic={handleStartDiagnostic} />
+      )}
+      
+      {diagnosticState === DiagnosticState.USER_INFO && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <UserInfoForm onSubmit={handleUserInfoSubmit} />
+        </motion.div>
       )}
       
       {diagnosticState === DiagnosticState.QUESTIONS && (
