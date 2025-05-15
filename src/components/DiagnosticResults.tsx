@@ -19,6 +19,11 @@ import {
   getResourceUrl 
 } from '@/components/diagnostic-results/utils';
 import { Resource } from '@/components/diagnostic-results/ResourcesList';
+import RadarChart from '@/components/diagnostic-results/RadarChart';
+import GrowthcastSection from '@/components/diagnostic-results/GrowthcastSection';
+import CoursesSection from '@/components/diagnostic-results/CoursesSection';
+import ConsultationCTA from '@/components/diagnostic-results/ConsultationCTA';
+import { motion } from 'framer-motion';
 
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
@@ -53,6 +58,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
       ...resource
     })) as Resource[];
 
+  // Count evaluations
+  const evaluationCounts = {
+    low: Object.values(results.pillarScores).filter(score => score.evaluation === 'low').length,
+    medium: Object.values(results.pillarScores).filter(score => score.evaluation === 'medium').length,
+    high: Object.values(results.pillarScores).filter(score => score.evaluation === 'high').length,
+  };
+
   return (
     <div className="w-full mx-auto animate-fade-in">
       <DiagnosticResultsHeader 
@@ -62,70 +74,114 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset 
       
       <Card className="w-full mx-auto mb-6 shadow-lg border-t-4 border-t-growth-orange">
         <CardContent className="pb-6">
-          <OverallScore 
-            totalScore={totalScorePercentage} 
-            overallEvaluation={results.overallEvaluation}
-          />
-          
-          <Separator className="my-6" />
-          
-          <h3 className="font-bold text-xl mb-4">Análise por Pilar</h3>
-          
-          <div className="space-y-6">
-            {Object.entries(results.pillarScores).map(([pillar, score]) => {
-              const pillarKey = pillar as DiagnosticPillar;
-              const isExpanded = expandedPillar === pillarKey;
-              const icon = pillarIcons[pillarKey] || '📊';
-              const feedback = pillarFeedbacks?.[pillarKey]?.[score.evaluation] || {
-                title: "Análise",
-                paragraphs: ["Não há feedback específico disponível para este pilar."]
-              };
-              
-              return (
-                <PillarScoreCard
-                  key={pillar}
-                  pillarKey={pillarKey}
-                  pillarName={pillarNames[pillarKey]}
-                  evaluation={score.evaluation}
-                  score={score.score}
-                  totalQuestions={score.totalQuestions}
-                  expanded={isExpanded}
-                  icon={icon}
-                  feedback={feedback}
-                  onToggle={() => togglePillarDetails(pillarKey)}
-                />
-              );
-            })}
-          </div>
-          
-          <Separator className="my-6" />
-
-          <StrategicInsights insights={strategicInsights} />
-          
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-bold text-lg mb-2">Recomendações Estratégicas</h3>
-              <ul className="list-disc pl-5 space-y-2">
-                {results.recommendations.slice(0, 5).map((recommendation, i) => (
-                  <li key={i}>{recommendation}</li>
-                ))}
-              </ul>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <OverallScore 
+              totalScore={totalScorePercentage} 
+              overallEvaluation={results.overallEvaluation}
+            />
+            
+            {/* Status summary */}
+            <div className="grid grid-cols-3 gap-4 my-6">
+              <div className="bg-red-50 p-4 rounded-lg text-center">
+                <span className="text-2xl font-bold text-red-600">{evaluationCounts.low}</span>
+                <p className="text-xs text-gray-700 mt-1">Críticos</p>
+              </div>
+              <div className="bg-amber-50 p-4 rounded-lg text-center">
+                <span className="text-2xl font-bold text-amber-600">{evaluationCounts.medium}</span>
+                <p className="text-xs text-gray-700 mt-1">Em Desenvolvimento</p>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg text-center">
+                <span className="text-2xl font-bold text-green-600">{evaluationCounts.high}</span>
+                <p className="text-xs text-gray-700 mt-1">Acelerando</p>
+              </div>
             </div>
-          </div>
-          
-          <Separator className="my-6" />
-          
-          <ShareResults 
-            overallScore={totalScorePercentage} 
-            evaluation={results.overallEvaluation}
-            insights={strategicInsights}
-            pillarScores={results.pillarScores}
-            recommendations={results.recommendations}
-          />
-          
-          <ResourcesList resources={relevantResources} />
-          
-          <ActionButtons onReset={onReset} />
+            
+            <Separator className="my-8" />
+            
+            {/* Radar Chart */}
+            <div className="my-6">
+              <h3 className="font-bold text-xl text-center mb-2">Visão Geral dos Pilares</h3>
+              <p className="text-center text-gray-600 mb-4">Análise de maturidade por pilar estratégico</p>
+              <RadarChart pillarScores={results.pillarScores} />
+            </div>
+            
+            <Separator className="my-8" />
+            
+            <h3 className="font-bold text-xl mb-6">Análise Detalhada por Pilar</h3>
+            
+            <div className="space-y-6">
+              {Object.entries(results.pillarScores).map(([pillar, score]) => {
+                const pillarKey = pillar as DiagnosticPillar;
+                const isExpanded = expandedPillar === pillarKey;
+                const icon = pillarIcons[pillarKey] || '📊';
+                const feedback = pillarFeedbacks?.[pillarKey]?.[score.evaluation] || {
+                  title: "Análise",
+                  paragraphs: ["Não há feedback específico disponível para este pilar."]
+                };
+                
+                return (
+                  <PillarScoreCard
+                    key={pillar}
+                    pillarKey={pillarKey}
+                    pillarName={pillarNames[pillarKey]}
+                    evaluation={score.evaluation}
+                    score={score.score}
+                    totalQuestions={score.totalQuestions}
+                    expanded={isExpanded}
+                    icon={icon}
+                    feedback={feedback}
+                    onToggle={() => togglePillarDetails(pillarKey)}
+                  />
+                );
+              })}
+            </div>
+            
+            <Separator className="my-8" />
+
+            <StrategicInsights insights={strategicInsights} />
+            
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-bold text-xl mb-4">Recomendações Estratégicas</h3>
+                <div className="bg-gray-50 p-5 rounded-lg">
+                  <ul className="list-disc pl-5 space-y-3">
+                    {results.recommendations.slice(0, 5).map((recommendation, i) => (
+                      <li key={i} className="text-gray-800">{recommendation}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <Separator className="my-8" />
+
+            {/* Growthcast Section */}
+            <GrowthcastSection />
+
+            {/* Courses Section */}
+            <CoursesSection />
+
+            {/* Consultation CTA */}
+            <ConsultationCTA />
+            
+            <Separator className="my-8" />
+            
+            <ShareResults 
+              overallScore={totalScorePercentage} 
+              evaluation={results.overallEvaluation}
+              insights={strategicInsights}
+              pillarScores={results.pillarScores}
+              recommendations={results.recommendations}
+            />
+            
+            <ResourcesList resources={relevantResources} />
+            
+            <ActionButtons onReset={onReset} />
+          </motion.div>
         </CardContent>
       </Card>
       

@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import LandingPage from './LandingPage';
 import DiagnosticIntro from './DiagnosticIntro';
 import DiagnosticQuestion from './DiagnosticQuestion';
 import FeedbackCard from './FeedbackCard';
@@ -23,6 +25,7 @@ import {
 } from '@/types/diagnostic';
 
 enum DiagnosticState {
+  LANDING = 'landing',
   INTRO = 'intro',
   QUESTION = 'question',
   FEEDBACK = 'feedback',
@@ -30,12 +33,16 @@ enum DiagnosticState {
 }
 
 const DiagnosticApp: React.FC = () => {
-  const [currentState, setCurrentState] = useState<DiagnosticState>(DiagnosticState.INTRO);
+  const [currentState, setCurrentState] = useState<DiagnosticState>(DiagnosticState.LANDING);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [currentFeedback, setCurrentFeedback] = useState<string>('');
   const [currentOptionValue, setCurrentOptionValue] = useState<OptionValue>('medium');
   const [diagnosticResults, setDiagnosticResults] = useState<DiagnosticResult | null>(null);
+
+  const handleStartFromLanding = () => {
+    setCurrentState(DiagnosticState.INTRO);
+  };
 
   const handleStartDiagnostic = () => {
     setCurrentState(DiagnosticState.QUESTION);
@@ -79,7 +86,7 @@ const DiagnosticApp: React.FC = () => {
   };
 
   const handleReset = () => {
-    setCurrentState(DiagnosticState.INTRO);
+    setCurrentState(DiagnosticState.LANDING);
     setCurrentQuestionIndex(0);
     setUserAnswers([]);
     setDiagnosticResults(null);
@@ -197,6 +204,10 @@ const DiagnosticApp: React.FC = () => {
   return (
     <div className="w-full bg-gray-50 py-4">
       <div className="container">
+        {currentState === DiagnosticState.LANDING && (
+          <LandingPage onStartDiagnostic={handleStartFromLanding} />
+        )}
+
         {currentState === DiagnosticState.INTRO && (
           <DiagnosticIntro onStartDiagnostic={handleStartDiagnostic} />
         )}

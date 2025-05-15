@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 import plugin from "tailwindcss/plugin";
@@ -103,6 +104,24 @@ const config: Config = {
             opacity: "0",
             transform: "translateY(10px)"
           }
+        },
+        "pulse-slow": {
+          "0%, 100%": {
+            opacity: "1",
+            transform: "scale(1)"
+          },
+          "50%": {
+            opacity: "0.95",
+            transform: "scale(1.03)"
+          },
+        },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0)"
+          },
+          "50%": {
+            transform: "translateY(-10px)"
+          },
         }
       },
       animation: {
@@ -110,6 +129,8 @@ const config: Config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "fade-out": "fade-out 0.3s ease-out",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "float": "float 6s ease-in-out infinite",
       },
     },
   },
@@ -123,6 +144,10 @@ const config: Config = {
         },
         '.text-balance': {
           'text-wrap': 'balance'
+        },
+        '.tech-grid-bg': {
+          'background-image': 'radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
+          'background-size': '20px 20px'
         }
       })
     })
