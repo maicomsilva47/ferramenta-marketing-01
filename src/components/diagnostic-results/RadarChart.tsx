@@ -34,7 +34,9 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
       const percentScore = Math.min(100, (data.score / maxScore) * 100);
 
       return {
-        subject: pillarName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),
+        subject: isMobile 
+          ? pillarName.split(' ').map(word => word.charAt(0).toUpperCase()).join('')
+          : pillarName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),
         value: Math.round(percentScore),
         fullMark: 100
       };
@@ -46,13 +48,13 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
   return (
     <div className="w-full h-96 md:h-[500px] mt-4 mb-8">
       <ResponsiveContainer width="100%" height="100%">
-        <RechartsRadarChart cx="50%" cy="50%" outerRadius={isMobile ? "60%" : "70%"} data={chartData}>
+        <RechartsRadarChart cx="50%" cy="50%" outerRadius={isMobile ? "55%" : "70%"} data={chartData}>
           <PolarGrid stroke="#e5e7eb" />
           <PolarAngleAxis 
             dataKey="subject" 
             tick={{ 
               fill: '#4b5563', 
-              fontSize: isMobile ? 9 : 12, 
+              fontSize: isMobile ? 8 : 12, 
               fontFamily: 'Montserrat' 
             }} 
           />
