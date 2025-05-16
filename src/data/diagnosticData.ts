@@ -1,3 +1,4 @@
+
 import { DiagnosticPillar } from '@/types/diagnostic';
 import { Resource } from '@/components/diagnostic-results/ResourcesList';
 
@@ -192,7 +193,7 @@ export const pillarIcons: Record<DiagnosticPillar, string> = {
   'tools': '🛠️'
 };
 
-// Add sample diagnostic questions with correct OptionValue types
+// Add diagnostic questions with correct OptionValue types
 export const diagnosticQuestions = [
   {
     id: "q1",
@@ -225,7 +226,7 @@ export const diagnosticQuestions = [
     options: [
       { 
         label: "Temos dificuldade em articular nossa proposta de valor", 
-        value: "low" as const, // Using 'as const' to ensure TypeScript knows this is a literal type
+        value: "low" as const,
         feedback: "Definir claramente sua proposta de valor é essencial",
         score: 1 
       },
@@ -243,6 +244,132 @@ export const diagnosticQuestions = [
       }
     ],
     pillar: "value-proposition" as DiagnosticPillar
+  },
+  // Adicionando mais perguntas para cada pilar
+  {
+    id: "q3",
+    text: "Como você avalia a qualidade dos dados comerciais que você coleta?",
+    options: [
+      { 
+        label: "Coletamos poucos ou nenhum dado relevante", 
+        value: "low" as const,
+        feedback: "A falta de dados prejudica suas decisões comerciais",
+        score: 1 
+      },
+      { 
+        label: "Coletamos alguns dados, mas não os utilizamos efetivamente", 
+        value: "medium" as const,
+        feedback: "É importante não apenas coletar dados, mas também analisá-los",
+        score: 2 
+      },
+      { 
+        label: "Coletamos e utilizamos dados de forma estratégica", 
+        value: "high" as const,
+        feedback: "Excelente! Decisões baseadas em dados são mais eficazes",
+        score: 4 
+      }
+    ],
+    pillar: "commercial-intelligence" as DiagnosticPillar
+  },
+  {
+    id: "q4",
+    text: "Como é o processo de prospecção de novos clientes na sua empresa?",
+    options: [
+      { 
+        label: "Não temos um processo consistente de prospecção", 
+        value: "low" as const,
+        feedback: "A falta de um processo estruturado limita seu crescimento",
+        score: 1 
+      },
+      { 
+        label: "Temos um processo básico, mas não é muito eficiente", 
+        value: "medium" as const,
+        feedback: "Seu processo pode ser aprimorado para gerar melhores resultados",
+        score: 2 
+      },
+      { 
+        label: "Nosso processo de prospecção é bem definido e eficaz", 
+        value: "high" as const,
+        feedback: "Parabéns! Um processo eficaz de prospecção é fundamental",
+        score: 4 
+      }
+    ],
+    pillar: "prospecting" as DiagnosticPillar
+  },
+  {
+    id: "q5",
+    text: "Como você avalia sua taxa de conversão de leads em clientes?",
+    options: [
+      { 
+        label: "Nossa taxa de conversão é baixa comparada ao mercado", 
+        value: "low" as const,
+        feedback: "Melhorar sua conversão pode trazer resultados rápidos",
+        score: 1 
+      },
+      { 
+        label: "Nossa taxa de conversão é razoável, mas poderia melhorar", 
+        value: "medium" as const,
+        feedback: "Há oportunidades para otimizar seu processo de conversão",
+        score: 2 
+      },
+      { 
+        label: "Nossa taxa de conversão é alta e consistente", 
+        value: "high" as const,
+        feedback: "Excelente! Sua abordagem de conversão está funcionando bem",
+        score: 4 
+      }
+    ],
+    pillar: "conversion" as DiagnosticPillar
+  },
+  {
+    id: "q6",
+    text: "Como é a taxa de retenção de clientes na sua empresa?",
+    options: [
+      { 
+        label: "Perdemos clientes com frequência", 
+        value: "low" as const,
+        feedback: "A alta rotatividade de clientes afeta seu crescimento",
+        score: 1 
+      },
+      { 
+        label: "Conseguimos reter alguns clientes, mas perdemos outros", 
+        value: "medium" as const,
+        feedback: "Há espaço para melhorar sua estratégia de retenção",
+        score: 2 
+      },
+      { 
+        label: "Temos alta taxa de retenção e clientes fiéis", 
+        value: "high" as const,
+        feedback: "Parabéns! Clientes fiéis são a base de um negócio sólido",
+        score: 4 
+      }
+    ],
+    pillar: "retention" as DiagnosticPillar
+  },
+  {
+    id: "q7",
+    text: "Quão bem equipada é sua equipe com ferramentas de vendas?",
+    options: [
+      { 
+        label: "Usamos poucas ou nenhuma ferramenta especializada", 
+        value: "low" as const,
+        feedback: "Investir em ferramentas pode aumentar sua produtividade",
+        score: 1 
+      },
+      { 
+        label: "Temos algumas ferramentas básicas, mas faltam recursos avançados", 
+        value: "medium" as const,
+        feedback: "Considere complementar seu stack tecnológico",
+        score: 2 
+      },
+      { 
+        label: "Possuímos um conjunto completo de ferramentas modernas", 
+        value: "high" as const,
+        feedback: "Excelente! Boas ferramentas potencializam sua equipe",
+        score: 4 
+      }
+    ],
+    pillar: "tools" as DiagnosticPillar
   }
 ];
 

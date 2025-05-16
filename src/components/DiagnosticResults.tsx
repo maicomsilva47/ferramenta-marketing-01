@@ -44,46 +44,15 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Filter and prepare resources - Make sure to handle both array and object structure
+  // Prepare resources - Make sure to handle both array and object structure
+  // Get ALL resources regardless of user scores
   const resourcesArray = Array.isArray(allResources) ? allResources : 
     [...(allResources.videos || []), ...(allResources.podcasts || []), ...(allResources.articles || [])];
   
-  // Filter resources for low and medium pillars
-  const getLowAndMediumPillars = () => {
-    return Object.entries(results.pillarScores)
-      .filter(([_, score]) => score.evaluation === 'low' || score.evaluation === 'medium')
-      .map(([pillar]) => pillar as DiagnosticPillar);
-  };
-  
-  const lowAndMediumPillars = getLowAndMediumPillars();
-  
-  // Get relevant resources for these pillars
-  const getRelevantResources = () => {
-    const filteredResources = resourcesArray.filter(resource => {
-      // If the resource has pillar tags and at least one matches our low/medium pillars
-      if (resource.pillars && resource.pillars.length > 0) {
-        return resource.pillars.some(pillar => lowAndMediumPillars.includes(pillar as DiagnosticPillar));
-      }
-      return false;
-    });
-    
-    // Return 5 resources max, avoiding duplicates
-    return filteredResources.filter((resource, index, self) => 
-      index === self.findIndex((r) => r.id === resource.id)
-    ).slice(0, 5);
-  };
-  
-  const relevantResources = getRelevantResources();
-  
-  // If no relevant resources found, use default ones
-  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
-    resourcesArray.slice(0, 3);
-  
-  // Log for debugging
+  // Just for logging/debugging
   useEffect(() => {
-    console.log("Low and medium pillars:", lowAndMediumPillars);
-    console.log("Resources for display:", resourcesForDisplay);
-  }, [lowAndMediumPillars]);
+    console.log("All resources available:", resourcesArray);
+  }, []);
 
   // Count evaluations
   const evaluationCounts = {
@@ -209,7 +178,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             <Separator className="my-8" />
             
             {/* Courses Section - Aprofunde seus conhecimentos */}
-            <CoursesSection resources={resourcesForDisplay} />
+            <CoursesSection resources={resourcesArray} />
 
             <Separator className="my-8" />
 
