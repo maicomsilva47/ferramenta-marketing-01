@@ -34,7 +34,7 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
     });
 
     // Calculate possible score (max score per question * number of questions)
-    const maxScorePerQuestion = 4; // Since the new format uses 1-4 scale
+    const maxScorePerQuestion = 4; // Using a 1-4 scale
     const possibleScore = questions.length * maxScorePerQuestion;
     totalPossibleScore += possibleScore;
     

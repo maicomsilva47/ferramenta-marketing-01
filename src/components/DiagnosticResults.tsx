@@ -6,7 +6,7 @@ import {
   DiagnosticResult, 
   DiagnosticPillar 
 } from '@/types/diagnostic';
-import { pillarNames, pillarFeedbacks, pillarIcons, resources } from '@/data/diagnosticData';
+import { pillarNames, pillarFeedbacks, pillarIcons, resources as allResources } from '@/data/diagnosticData';
 import { OverallScore } from '@/components/diagnostic-results/DiagnosticResultsHeader';
 import PillarScoreCard from '@/components/diagnostic-results/PillarScoreCard';
 import StrategicInsights from '@/components/diagnostic-results/StrategicInsights';
@@ -33,7 +33,8 @@ interface DiagnosticResultsProps {
 const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset, resultsId }) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
   
-  const totalScorePercentage = getTotalScore(results.totalScore, results.totalPossibleScore);
+  // Calculate total score properly - out of max possible score
+  const totalScorePercentage = Math.min(100, getTotalScore(results.totalScore, results.totalPossibleScore));
   
   // Generate strategic insights
   const strategicInsights = generateStrategicInsights(results.pillarScores, totalScorePercentage);
@@ -43,32 +44,46 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Filter and prepare resources - Convert the object structure to an array first
-  const allResources = Array.isArray(resources) ? resources : 
-    [...(resources.videos || []), ...(resources.podcasts || []), ...(resources.articles || [])];
+  // Filter and prepare resources - Make sure to handle both array and object structure
+  const resourcesArray = Array.isArray(allResources) ? allResources : 
+    [...(allResources.videos || []), ...(allResources.podcasts || []), ...(allResources.articles || [])];
   
-  // Now filter the resources array
-  const relevantResources = Object.keys(results.pillarScores)
-    .filter(pillar => {
-      const pillarScore = results.pillarScores[pillar as DiagnosticPillar];
-      return pillarScore.evaluation === 'low' || pillarScore.evaluation === 'medium';
-    })
-    .flatMap(pillar => allResources.filter(resource => 
-      resource.pillars && resource.pillars.includes(pillar as DiagnosticPillar))
-    )
-    .filter((resource, index, self) => 
-      index === self.findIndex((t) => t.id === resource.id)
-    )
-    .slice(0, 5) as Resource[];
+  // Filter resources for low and medium pillars
+  const getLowAndMediumPillars = () => {
+    return Object.entries(results.pillarScores)
+      .filter(([_, score]) => score.evaluation === 'low' || score.evaluation === 'medium')
+      .map(([pillar]) => pillar as DiagnosticPillar);
+  };
   
-  // Add a debug log to check resources
+  const lowAndMediumPillars = getLowAndMediumPillars();
+  
+  // Get relevant resources for these pillars
+  const getRelevantResources = () => {
+    const filteredResources = resourcesArray.filter(resource => {
+      // If the resource has pillar tags and at least one matches our low/medium pillars
+      if (resource.pillars && resource.pillars.length > 0) {
+        return resource.pillars.some(pillar => lowAndMediumPillars.includes(pillar as DiagnosticPillar));
+      }
+      return false;
+    });
+    
+    // Return 5 resources max, avoiding duplicates
+    return filteredResources.filter((resource, index, self) => 
+      index === self.findIndex((r) => r.id === resource.id)
+    ).slice(0, 5);
+  };
+  
+  const relevantResources = getRelevantResources();
+  
+  // If no relevant resources found, use default ones
+  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
+    resourcesArray.slice(0, 3);
+  
+  // Log for debugging
   useEffect(() => {
-    console.log("Filtered relevant resources:", relevantResources);
-    // If no resources were found through filtering, include some defaults
-    if (relevantResources.length === 0) {
-      console.log("No resources met the criteria, using default resources");
-    }
-  }, [relevantResources]);
+    console.log("Low and medium pillars:", lowAndMediumPillars);
+    console.log("Resources for display:", resourcesForDisplay);
+  }, [lowAndMediumPillars]);
 
   // Count evaluations
   const evaluationCounts = {
@@ -76,11 +91,6 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     medium: Object.values(results.pillarScores).filter(score => score.evaluation === 'medium').length,
     high: Object.values(results.pillarScores).filter(score => score.evaluation === 'high').length,
   };
-
-  // If we don't have any resources, include some defaults
-  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
-    Array.isArray(resources) ? resources.slice(0, 3) as Resource[] : 
-    [...(resources.videos || []), ...(resources.podcasts || []), ...(resources.articles || [])].slice(0, 3) as Resource[];
 
   return (
     <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
@@ -97,19 +107,19 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
               overallEvaluation={results.overallEvaluation}
             />
             
-            {/* Status summary */}
-            <div className="grid grid-cols-3 gap-4 my-6">
-              <div className="bg-red-50 p-4 rounded-lg text-center">
-                <span className="text-2xl font-bold text-red-600">{evaluationCounts.low}</span>
-                <p className="text-xs text-gray-700 mt-1">Críticos</p>
+            {/* Status summary - Fixed mobile layout */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 my-6">
+              <div className="bg-red-50 p-2 sm:p-4 rounded-lg text-center">
+                <span className="text-xl sm:text-2xl font-bold text-red-600">{evaluationCounts.low}</span>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Críticos</p>
               </div>
-              <div className="bg-amber-50 p-4 rounded-lg text-center">
-                <span className="text-2xl font-bold text-amber-600">{evaluationCounts.medium}</span>
-                <p className="text-xs text-gray-700 mt-1">Em Desenvolvimento</p>
+              <div className="bg-amber-50 p-2 sm:p-4 rounded-lg text-center">
+                <span className="text-xl sm:text-2xl font-bold text-amber-600">{evaluationCounts.medium}</span>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Em Desenvolvimento</p>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg text-center">
-                <span className="text-2xl font-bold text-green-600">{evaluationCounts.high}</span>
-                <p className="text-xs text-gray-700 mt-1">Acelerando</p>
+              <div className="bg-green-50 p-2 sm:p-4 rounded-lg text-center">
+                <span className="text-xl sm:text-2xl font-bold text-green-600">{evaluationCounts.high}</span>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Acelerando</p>
               </div>
             </div>
             
@@ -127,7 +137,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             {/* Análise Detalhada por Pilar */}
             <h3 className="font-bold text-2xl mb-6">Análise Detalhada por Pilar</h3>
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {Object.entries(results.pillarScores).map(([pillar, score]) => {
                 const pillarKey = pillar as DiagnosticPillar;
                 const isExpanded = expandedPillar === pillarKey;
@@ -164,8 +174,8 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             {/* Recomendações Estratégicas */}
             <div className="mb-8">
               <h3 className="font-bold text-2xl mb-4">Recomendações Estratégicas</h3>
-              <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 shadow-sm">
-                <ul className="list-disc pl-5 space-y-3">
+              <div className="bg-gray-50 p-4 sm:p-6 rounded-lg border border-gray-100 shadow-sm">
+                <ul className="list-disc pl-5 space-y-2 sm:space-y-3 text-sm sm:text-base">
                   {results.recommendations.slice(0, 5).map((recommendation, i) => (
                     <li key={i} className="text-gray-800">{recommendation}</li>
                   ))}
@@ -178,14 +188,14 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             {/* Conclusão Provocativa */}
             <div className="mb-8">
               <h3 className="font-bold text-2xl mb-4">Conclusão</h3>
-              <div className="bg-growth-orange bg-opacity-5 p-6 rounded-lg border border-growth-orange border-opacity-20 shadow-sm">
-                <p className="text-gray-800 mb-4">
+              <div className="bg-growth-orange bg-opacity-5 p-4 sm:p-6 rounded-lg border border-growth-orange border-opacity-20 shadow-sm">
+                <p className="text-gray-800 mb-4 text-sm sm:text-base">
                   Você acabou de receber um retrato fiel – e talvez incômodo – da sua máquina de vendas. Os pontos positivos mostram que potencial existe, mas os gargalos escancarados explicam por que seu crescimento talvez esteja aquém do possível. Agora é questão de ação. As recomendações acima não são teóricas ou "mais do mesmo" – são passos concretos para ganhos imediatos. Cada dia mantido no status quo é dinheiro ficando na mesa e território sendo perdido para concorrentes mais preparados.
                 </p>
-                <p className="text-gray-800 mb-4">
+                <p className="text-gray-800 mb-4 text-sm sm:text-base">
                   A realidade dói? Ótimo. Use esse desconforto como combustível para mudança. Ajuste o rumo, cobre responsabilidade e parta para a execução agressiva dessas melhorias. Em poucas semanas, você deve notar diferença em pipeline, conversion e, principalmente, na postura do time. E se precisar de ajuda especializada para acelerar esse processo – desde estruturar um funil previsível até implementar tecnologias e treinar seu time para vendas complexas – a Growth Machine está aqui exatamente para isso.
                 </p>
-                <p className="text-gray-800">
+                <p className="text-gray-800 text-sm sm:text-base">
                   No fim do dia, crescimento real em B2B não vem de mágica ou desejo – vem de processo, disciplina e estratégia bem executada. O diagnóstico foi o primeiro passo. Agora é mãos à obra, porque o mercado não espera. Ou vocês consertam a máquina de crescimento, ou ficam para trás. A escolha (e as consequências) são de vocês. Boa sorte – e conte conosco nessa jornada para transformar sua área comercial!
                 </p>
               </div>

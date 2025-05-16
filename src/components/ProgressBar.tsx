@@ -34,7 +34,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           {/* Overall progress */}
           {pillarStep && totalPillars && (
             <span className="font-semibold text-gray-700 mb-1 sm:mb-0 sm:mr-3">
-              Etapa {pillarStep} de {totalPillars}
+              Pilar {pillarStep} de {totalPillars}
             </span>
           )}
           

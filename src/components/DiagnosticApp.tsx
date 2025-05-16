@@ -8,8 +8,8 @@ import DiagnosticQuestion from '@/components/DiagnosticQuestion';
 import DiagnosticResults from '@/components/DiagnosticResults';
 import UserInfoForm from '@/components/UserInfoForm';
 import ProgressBar from '@/components/ProgressBar';
-import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue } from '@/types/diagnostic';
-import { diagnosticQuestions } from '@/data/diagnosticData';
+import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue, DiagnosticPillar } from '@/types/diagnostic';
+import { diagnosticQuestions, pillarNames } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
 import { sendToHubspot, UserFormData } from '@/utils/hubspotIntegration';
@@ -33,6 +33,44 @@ const DiagnosticApp: React.FC = () => {
   const [results, setResults] = useState<DiagnosticResult | null>(null);
   const [resultsId, setResultsId] = useState<string | null>(shareId);
   const [userData, setUserData] = useState<UserFormData | null>(null);
+
+  // Organize questions by pillar
+  const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
+    if (!acc[question.pillar]) {
+      acc[question.pillar] = [];
+    }
+    acc[question.pillar].push(question);
+    return acc;
+  }, {} as Record<DiagnosticPillar, QuestionType[]>);
+  
+  // Get all pillar keys
+  const pillarKeys = Object.keys(questionsByPillar) as DiagnosticPillar[];
+  
+  // Get current question info
+  const currentQuestion = diagnosticQuestions[currentQuestionIndex];
+  const currentPillar = currentQuestion?.pillar;
+  
+  // Get pillar-specific question info
+  const getCurrentPillarQuestionInfo = () => {
+    if (!currentQuestion) return { currentPillarQuestion: 1, totalPillarQuestions: 1 };
+    
+    const pillarQuestions = questionsByPillar[currentQuestion.pillar];
+    const currentPillarQuestionIndex = pillarQuestions.findIndex(q => q.id === currentQuestion.id);
+    
+    return {
+      currentPillarQuestion: currentPillarQuestionIndex + 1,
+      totalPillarQuestions: pillarQuestions.length
+    };
+  };
+  
+  // Get current pillar index
+  const getCurrentPillarIndex = () => {
+    if (!currentQuestion) return 0;
+    return pillarKeys.findIndex(key => key === currentQuestion.pillar);
+  };
+  
+  const { currentPillarQuestion, totalPillarQuestions } = getCurrentPillarQuestionInfo();
+  const currentPillarIndex = getCurrentPillarIndex();
 
   // Load shared results if a share_id is provided
   useEffect(() => {
@@ -227,7 +265,8 @@ const DiagnosticApp: React.FC = () => {
 
   // Determine if there's a previous answer for the current question
   const getPreviousAnswer = () => {
-    const currentQuestion = diagnosticQuestions[currentQuestionIndex];
+    if (!currentQuestion) return undefined;
+    
     const previousAnswer = answers.find(a => a.questionId === currentQuestion.id);
     return previousAnswer?.selectedOption;
   };
@@ -250,7 +289,7 @@ const DiagnosticApp: React.FC = () => {
         </motion.div>
       )}
       
-      {diagnosticState === DiagnosticState.QUESTIONS && (
+      {diagnosticState === DiagnosticState.QUESTIONS && currentQuestion && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -261,14 +300,25 @@ const DiagnosticApp: React.FC = () => {
             <ProgressBar 
               currentQuestion={currentQuestionIndex + 1}
               totalQuestions={diagnosticQuestions.length}
+              currentPillar={pillarNames[currentPillar]}
+              pillarStep={currentPillarIndex + 1}
+              totalPillars={pillarKeys.length}
+              pillarProgress={{
+                current: currentPillarQuestion,
+                total: totalPillarQuestions
+              }}
             />
           </div>
           
           <div className="w-full max-w-3xl">
             <DiagnosticQuestion
-              question={diagnosticQuestions[currentQuestionIndex]}
+              question={currentQuestion}
               currentQuestion={currentQuestionIndex + 1}
               totalQuestions={diagnosticQuestions.length}
+              currentPillarQuestion={currentPillarQuestion}
+              totalPillarQuestions={totalPillarQuestions}
+              pillarNumber={currentPillarIndex + 1}
+              totalPillars={pillarKeys.length}
               onSelectAnswer={handleSelectAnswer}
               onGoBack={currentQuestionIndex > 0 ? handleGoBack : undefined}
               previousAnswer={getPreviousAnswer()}

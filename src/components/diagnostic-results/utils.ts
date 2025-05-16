@@ -1,10 +1,11 @@
+
 import { DiagnosticPillar, OptionValue, PillarScore } from '@/types/diagnostic';
 import { Resource } from './ResourcesList';
 
 export const getEvaluationColor = (evaluation: OptionValue): string => {
   switch (evaluation) {
     case 'high': return 'text-green-600';
-    case 'medium': return 'text-yellow-600';
+    case 'medium': return 'text-amber-600';
     case 'low': return 'text-red-600';
     default: return 'text-gray-600';
   }
@@ -13,18 +14,19 @@ export const getEvaluationColor = (evaluation: OptionValue): string => {
 export const getProgressColor = (evaluation: OptionValue): string => {
   switch (evaluation) {
     case 'high': return 'bg-green-500';
-    case 'medium': return 'bg-yellow-500';
+    case 'medium': return 'bg-amber-500';
     case 'low': return 'bg-red-500';
     default: return 'bg-gray-500';
   }
 };
 
 export const getPillarScore = (pillar: PillarScore): number => {
-  return (pillar.score / (pillar.totalQuestions * 3)) * 100;
+  // Using a 1-4 scale with max of 4 points per question
+  return Math.min(100, (pillar.score / (pillar.totalQuestions * 4)) * 100);
 };
 
 export const getTotalScore = (totalScore: number, totalPossibleScore: number): number => {
-  return (totalScore / totalPossibleScore) * 100;
+  return Math.min(100, (totalScore / totalPossibleScore) * 100);
 };
 
 // Updated function to ensure consistent mapping between resource IDs and URLs

@@ -12,6 +12,10 @@ interface DiagnosticQuestionProps {
   question: QuestionType;
   currentQuestion: number;
   totalQuestions: number;
+  currentPillarQuestion?: number;
+  totalPillarQuestions?: number;
+  pillarNumber?: number;
+  totalPillars?: number;
   onSelectAnswer: (value: OptionValue) => void;
   onGoBack?: () => void;
   previousAnswer?: OptionValue;
@@ -21,6 +25,10 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   question,
   currentQuestion,
   totalQuestions,
+  currentPillarQuestion,
+  totalPillarQuestions,
+  pillarNumber,
+  totalPillars,
   onSelectAnswer,
   onGoBack,
   previousAnswer
@@ -36,9 +44,18 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
               <span className="bg-growth-orange text-white font-semibold text-xs md:text-sm px-2 py-1 md:px-3 md:py-1 rounded-full">
                 {pillarNames[question.pillar]}
               </span>
-              <span className="text-xs md:text-sm text-gray-500">
-                Pergunta {currentQuestion} de {totalQuestions}
-              </span>
+              
+              <div className="text-xs md:text-sm text-gray-500">
+                {pillarNumber && totalPillars && (
+                  <span>Pilar {pillarNumber} de {totalPillars}{' '}</span>
+                )}
+                
+                {currentPillarQuestion && totalPillarQuestions && (
+                  <span>
+                    (Pergunta {currentPillarQuestion} de {totalPillarQuestions})
+                  </span>
+                )}
+              </div>
             </div>
             <h2 className="text-base md:text-lg lg:text-xl font-bold text-gray-800 break-words">{question.text}</h2>
           </div>
