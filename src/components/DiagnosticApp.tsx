@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -118,6 +117,13 @@ const DiagnosticApp: React.FC = () => {
   };
 
   const handleUserInfoSubmit = async (formData: UserFormData) => {
+    // Store user data in localStorage for later use in consultation form
+    try {
+      localStorage.setItem('diagnosticUserData', JSON.stringify(formData));
+    } catch (error) {
+      console.error("Error storing user data in localStorage:", error);
+    }
+    
     // Store user data
     setUserData(formData);
     
@@ -254,6 +260,13 @@ const DiagnosticApp: React.FC = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete('share_id');
     window.history.replaceState({}, '', url);
+    
+    // Also remove user data from localStorage when resetting
+    try {
+      localStorage.removeItem('diagnosticUserData');
+    } catch (error) {
+      console.error("Error removing user data from localStorage:", error);
+    }
     
     setCurrentQuestionIndex(0);
     setAnswers([]);

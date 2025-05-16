@@ -6,7 +6,7 @@ import {
   DiagnosticResult, 
   DiagnosticPillar 
 } from '@/types/diagnostic';
-import { pillarNames, pillarFeedbacks, pillarIcons, resources as allResources } from '@/data/diagnosticData';
+import { pillarNames, pillarFeedbacks, pillarIcons, resources as allResources, evaluationLabels } from '@/data/diagnosticData';
 import { OverallScore } from '@/components/diagnostic-results/DiagnosticResultsHeader';
 import PillarScoreCard from '@/components/diagnostic-results/PillarScoreCard';
 import StrategicInsights from '@/components/diagnostic-results/StrategicInsights';
@@ -23,6 +23,7 @@ import {
   generateStrategicInsights,
   getResourceUrl 
 } from '@/components/diagnostic-results/utils';
+import SpecialistConsultationForm from '@/components/diagnostic-results/SpecialistConsultationForm';
 
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
@@ -32,6 +33,7 @@ interface DiagnosticResultsProps {
 
 const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset, resultsId }) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   
   // Calculate total score properly - out of max possible score
   const totalScorePercentage = Math.min(100, getTotalScore(results.totalScore, results.totalPossibleScore));
@@ -44,46 +46,19 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Filter and prepare resources - Make sure to handle both array and object structure
+  // Prepare resources for display - show all resources instead of filtering
   const resourcesArray = Array.isArray(allResources) ? allResources : 
     [...(allResources.videos || []), ...(allResources.podcasts || []), ...(allResources.articles || [])];
   
-  // Filter resources for low and medium pillars
-  const getLowAndMediumPillars = () => {
-    return Object.entries(results.pillarScores)
-      .filter(([_, score]) => score.evaluation === 'low' || score.evaluation === 'medium')
-      .map(([pillar]) => pillar as DiagnosticPillar);
-  };
-  
-  const lowAndMediumPillars = getLowAndMediumPillars();
-  
-  // Get relevant resources for these pillars
-  const getRelevantResources = () => {
-    const filteredResources = resourcesArray.filter(resource => {
-      // If the resource has pillar tags and at least one matches our low/medium pillars
-      if (resource.pillars && resource.pillars.length > 0) {
-        return resource.pillars.some(pillar => lowAndMediumPillars.includes(pillar as DiagnosticPillar));
-      }
-      return false;
-    });
-    
-    // Return 5 resources max, avoiding duplicates
-    return filteredResources.filter((resource, index, self) => 
-      index === self.findIndex((r) => r.id === resource.id)
-    ).slice(0, 5);
-  };
-  
-  const relevantResources = getRelevantResources();
-  
-  // If no relevant resources found, use default ones
-  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
-    resourcesArray.slice(0, 3);
+  // Get 5 resources to display - no longer filtering by pillar scores
+  const resourcesForDisplay = resourcesArray.slice(0, 5);
   
   // Log for debugging
   useEffect(() => {
-    console.log("Low and medium pillars:", lowAndMediumPillars);
+    console.log("Results loaded:", results);
     console.log("Resources for display:", resourcesForDisplay);
-  }, [lowAndMediumPillars]);
+    setIsLoaded(true);
+  }, [results]);
 
   // Count evaluations
   const evaluationCounts = {
@@ -91,6 +66,14 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     medium: Object.values(results.pillarScores).filter(score => score.evaluation === 'medium').length,
     high: Object.values(results.pillarScores).filter(score => score.evaluation === 'high').length,
   };
+
+  if (!isLoaded) {
+    return <div className="flex justify-center items-center min-h-[30vh]">
+      <div className="animate-pulse text-center">
+        <p className="text-lg text-gray-600">Carregando resultados...</p>
+      </div>
+    </div>;
+  }
 
   return (
     <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
@@ -107,19 +90,19 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
               overallEvaluation={results.overallEvaluation}
             />
             
-            {/* Status summary - Fixed mobile layout */}
+            {/* Status summary - Updated mobile layout with shorter labels */}
             <div className="grid grid-cols-3 gap-2 sm:gap-4 my-6">
               <div className="bg-red-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-red-600">{evaluationCounts.low}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Críticos</p>
+                <p className="text-xs sm:text-sm text-gray-700 mt-1">{evaluationLabels.low}</p>
               </div>
               <div className="bg-amber-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-amber-600">{evaluationCounts.medium}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Em Desenvolvimento</p>
+                <p className="text-xs sm:text-sm text-gray-700 mt-1">{evaluationLabels.medium}</p>
               </div>
               <div className="bg-green-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-green-600">{evaluationCounts.high}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Acelerando</p>
+                <p className="text-xs sm:text-sm text-gray-700 mt-1">{evaluationLabels.high}</p>
               </div>
             </div>
             
@@ -203,12 +186,12 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
 
             <Separator className="my-8" />
 
-            {/* Consultation CTA - Quer um diagnóstico mais preciso? */}
-            <ConsultationCTA />
+            {/* New Specialist Consultation Form */}
+            <SpecialistConsultationForm />
             
             <Separator className="my-8" />
             
-            {/* Courses Section - Aprofunde seus conhecimentos */}
+            {/* Courses Section - Aprofunde seus conhecimentos - Now showing all resources */}
             <CoursesSection resources={resourcesForDisplay} />
 
             <Separator className="my-8" />

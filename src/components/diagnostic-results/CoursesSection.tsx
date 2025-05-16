@@ -114,7 +114,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
                   <span className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-700 font-medium">
                     {resource.id.includes('video') ? 'Vídeo' : 'E-book'}
                   </span>
-                  {resource.pillars.slice(0, 2).map(pillar => (
+                  {resource.pillars && resource.pillars.slice(0, 2).map(pillar => (
                     <span 
                       key={`${resource.id}-${pillar}`} 
                       className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
