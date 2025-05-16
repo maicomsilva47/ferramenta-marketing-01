@@ -123,7 +123,7 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
     setIsSubmitting(true);
     try {
       // Reuse webhook URL from hubspotIntegration.ts
-      const webhookUrl = 'https://n8n.growthmachine.com.br/webhook-test/843e1f22-7574-4681-a1ef-f43a570869ae';
+      const webhookUrl = 'https://webhook.n8n.growthmachine.com.br/webhook/843e1f22-7574-4681-a1ef-f43a570869ae';
       
       // Combine user data from previous form with new form data
       const params = new URLSearchParams();
