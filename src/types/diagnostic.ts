@@ -22,7 +22,8 @@ export type DiagnosticPillar =
   | 'prospecting'
   | 'conversion'
   | 'retention'
-  | 'tools';
+  | 'tools'
+  | string; // Add string as a fallback to accept any string value
 
 export interface PillarScore {
   pillar: DiagnosticPillar;
