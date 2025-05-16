@@ -22,7 +22,8 @@ export type DiagnosticPillar =
   | 'prospecting'
   | 'conversion'
   | 'retention'
-  | 'tools';
+  | 'tools'
+  | string;
 
 export interface PillarScore {
   pillar: DiagnosticPillar;
@@ -37,6 +38,7 @@ export interface DiagnosticResult {
   totalPossibleScore: number;
   overallEvaluation: 'high' | 'medium' | 'low';
   recommendations: string[];
+  userData?: UserInfo | null;
 }
 
 export interface UserAnswer {

@@ -81,8 +81,13 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
   
   // Log for debugging
   useEffect(() => {
-    console.log("Low and medium pillars:", lowAndMediumPillars);
-    console.log("Resources for display:", resourcesForDisplay);
+    console.log("DiagnosticResults rendered with:", {
+      pillarScores: results.pillarScores,
+      totalScore: results.totalScore,
+      totalScorePercentage,
+      resultsId,
+      userData: results.userData
+    });
   }, [lowAndMediumPillars]);
 
   // Count evaluations
@@ -111,15 +116,15 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             <div className="grid grid-cols-3 gap-2 sm:gap-4 my-6">
               <div className="bg-red-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-red-600">{evaluationCounts.low}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Críticos</p>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Crítico</p>
               </div>
               <div className="bg-amber-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-amber-600">{evaluationCounts.medium}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Em Desenvolvimento</p>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Intermediário</p>
               </div>
               <div className="bg-green-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-green-600">{evaluationCounts.high}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Acelerando</p>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Avançado</p>
               </div>
             </div>
             
@@ -204,7 +209,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             <Separator className="my-8" />
 
             {/* Consultation CTA - Quer um diagnóstico mais preciso? */}
-            <ConsultationCTA />
+            <ConsultationCTA userData={results.userData} />
             
             <Separator className="my-8" />
             

@@ -1,15 +1,7 @@
 
-export interface UserFormData {
-  name: string;
-  email: string;
-  company: string;
-  phone: string;
-  utm_source?: string;
-  utm_medium?: string;
-  utm_campaign?: string;
-  utm_term?: string;
-  utm_content?: string;
-}
+import { UserInfo } from '@/types/diagnostic';
+
+export type UserFormData = UserInfo;
 
 export async function sendToHubspot(data: UserFormData): Promise<boolean> {
   try {

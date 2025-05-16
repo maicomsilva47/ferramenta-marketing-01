@@ -8,7 +8,7 @@ import DiagnosticQuestion from '@/components/DiagnosticQuestion';
 import DiagnosticResults from '@/components/DiagnosticResults';
 import UserInfoForm from '@/components/UserInfoForm';
 import ProgressBar from '@/components/ProgressBar';
-import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue, DiagnosticPillar } from '@/types/diagnostic';
+import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue, DiagnosticPillar, UserInfo } from '@/types/diagnostic';
 import { diagnosticQuestions, pillarNames } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
@@ -32,7 +32,7 @@ const DiagnosticApp: React.FC = () => {
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
   const [results, setResults] = useState<DiagnosticResult | null>(null);
   const [resultsId, setResultsId] = useState<string | null>(shareId);
-  const [userData, setUserData] = useState<UserFormData | null>(null);
+  const [userData, setUserData] = useState<UserInfo | null>(null);
 
   // Organize questions by pillar
   const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
@@ -96,7 +96,8 @@ const DiagnosticApp: React.FC = () => {
             totalScore: parseFloat(data.overall) || 0,
             totalPossibleScore: 100,
             overallEvaluation: data.evaluation || 'medium',
-            recommendations: data.recommendations || []
+            recommendations: data.recommendations || [],
+            userData: data.userData || null
           };
           
           setResults(loadedResults);
@@ -165,6 +166,9 @@ const DiagnosticApp: React.FC = () => {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         const calculatedResults = calculateResults(updatedAnswers, diagnosticQuestions);
+        
+        // Add user data to results
+        calculatedResults.userData = userData;
         
         // Generate a unique ID for this diagnostic result
         const uniqueId = generateUniqueId();
