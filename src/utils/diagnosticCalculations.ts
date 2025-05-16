@@ -33,8 +33,9 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
       }
     });
 
-    // Calculate possible score (3 points per question is maximum)
-    const possibleScore = questions.length * 3;
+    // Calculate possible score (max score per question * number of questions)
+    const maxScorePerQuestion = 4; // Since the new format uses 1-4 scale
+    const possibleScore = questions.length * maxScorePerQuestion;
     totalPossibleScore += possibleScore;
     
     // Calculate actual score
@@ -42,11 +43,11 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
     
     // Calculate evaluation based on percentage
     const percentageScore = (pillarScore / possibleScore) * 100;
-    let evaluation: OptionValue = 'medium';
+    let evaluation: 'high' | 'medium' | 'low' = 'medium';
     
-    if (percentageScore >= 80) {
+    if (percentageScore >= 75) {
       evaluation = 'high';
-    } else if (percentageScore <= 40) {
+    } else if (percentageScore <= 50) {
       evaluation = 'low';
     }
 
@@ -60,11 +61,11 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
 
   // Calculate overall evaluation
   const overallPercentage = (totalScore / totalPossibleScore) * 100;
-  let overallEvaluation: OptionValue = 'medium';
+  let overallEvaluation: 'high' | 'medium' | 'low' = 'medium';
   
-  if (overallPercentage >= 80) {
+  if (overallPercentage >= 75) {
     overallEvaluation = 'high';
-  } else if (overallPercentage <= 40) {
+  } else if (overallPercentage <= 50) {
     overallEvaluation = 'low';
   }
 
@@ -86,8 +87,8 @@ function generateRecommendations(pillarScores: Record<DiagnosticPillar, PillarSc
   // Get lowest scoring pillars
   const sortedPillars = Object.entries(pillarScores)
     .sort(([, scoreA], [, scoreB]) => {
-      const percentA = scoreA.score / (scoreA.totalQuestions * 3);
-      const percentB = scoreB.score / (scoreB.totalQuestions * 3);
+      const percentA = scoreA.score / (scoreA.totalQuestions * 4); // Using 4 as max score per question
+      const percentB = scoreB.score / (scoreB.totalQuestions * 4);
       return percentA - percentB;
     });
 
