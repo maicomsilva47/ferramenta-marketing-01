@@ -1,4 +1,3 @@
-
 import { DiagnosticPillar } from '@/types/diagnostic';
 import { Resource } from '@/components/diagnostic-results/ResourcesList';
 
@@ -193,7 +192,7 @@ export const pillarIcons: Record<DiagnosticPillar, string> = {
   'tools': '🛠️'
 };
 
-// Add sample diagnostic questions
+// Add sample diagnostic questions with correct OptionValue types
 export const diagnosticQuestions = [
   {
     id: "q1",
@@ -201,24 +200,24 @@ export const diagnosticQuestions = [
     options: [
       { 
         label: "Não temos uma estratégia clara", 
-        value: "low", 
+        value: "low" as const, // Using 'as const' to ensure TypeScript knows this is a literal type
         feedback: "A falta de estratégia clara afeta diretamente seus resultados",
         score: 1 
       },
       { 
         label: "Temos alguma estratégia, mas não está bem documentada", 
-        value: "medium", 
+        value: "medium" as const,
         feedback: "Uma estratégia parcial é um começo, mas precisa ser aprimorada",
         score: 2 
       },
       { 
         label: "Nossa estratégia é clara e bem documentada", 
-        value: "high", 
+        value: "high" as const,
         feedback: "Excelente! Uma estratégia clara é fundamental para o sucesso",
         score: 4 
       }
     ],
-    pillar: "revenue-strategy"
+    pillar: "revenue-strategy" as DiagnosticPillar
   },
   {
     id: "q2",
@@ -226,24 +225,24 @@ export const diagnosticQuestions = [
     options: [
       { 
         label: "Temos dificuldade em articular nossa proposta de valor", 
-        value: "low", 
+        value: "low" as const, // Using 'as const' to ensure TypeScript knows this is a literal type
         feedback: "Definir claramente sua proposta de valor é essencial",
         score: 1 
       },
       { 
         label: "Temos uma proposta de valor, mas nem todos conseguem explicá-la", 
-        value: "medium", 
+        value: "medium" as const,
         feedback: "Uma proposta de valor consistente deve ser compreendida por todos",
         score: 2 
       },
       { 
         label: "Nossa proposta de valor é clara e todos na empresa sabem comunicá-la", 
-        value: "high", 
+        value: "high" as const,
         feedback: "Excelente! Isso dá uma vantagem competitiva significativa",
         score: 4 
       }
     ],
-    pillar: "value-proposition"
+    pillar: "value-proposition" as DiagnosticPillar
   }
 ];
 
