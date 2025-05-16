@@ -39,10 +39,6 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
   };
 
   const chartData = formatData();
-  
-  // Add debug logging
-  console.log("RadarChart - Received pillar scores:", pillarScores);
-  console.log("RadarChart - Formatted chart data:", chartData);
 
   return (
     <div className="w-full h-96 md:h-[500px] mt-4 mb-8">
