@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,7 +12,7 @@ import StrategicInsights from '@/components/diagnostic-results/StrategicInsights
 import { Resource } from '@/components/diagnostic-results/ResourcesList';
 import RadarChart from '@/components/diagnostic-results/RadarChart';
 import GrowthcastSection from '@/components/diagnostic-results/GrowthcastSection';
-import CoursesSection from '@/components/diagnostic-results/CoursesSection';
+// Remove CoursesSection import
 import ConsultationCTA from '@/components/diagnostic-results/ConsultationCTA';
 import { motion } from 'framer-motion';
 import ShareResults from '@/components/diagnostic-results/ShareResults';
@@ -213,10 +212,8 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             
             <Separator className="my-8" />
             
-            {/* Courses Section - Aprofunde seus conhecimentos */}
-            <CoursesSection resources={resourcesForDisplay} />
-
-            <Separator className="my-8" />
+            {/* Remove CoursesSection */}
+            
 
             {/* Growthcast Section */}
             <GrowthcastSection />
