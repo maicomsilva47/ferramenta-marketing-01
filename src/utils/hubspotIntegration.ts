@@ -11,52 +11,45 @@ export interface UserFormData {
   utm_content?: string;
 }
 
-/**
- * Sends user data to the webhook for n8n integration
- */
-export const sendToHubspot = async (userData: UserFormData): Promise<boolean> => {
+export async function sendToHubspot(data: UserFormData): Promise<boolean> {
   try {
-    // The n8n webhook URL
-    const webhookUrl = "https://n8n.growthmachine.com.br/webhook-test/843e1f22-7574-4681-a1ef-f43a570869ae";
+    // This is the webhook URL for n8n
+    const webhookUrl = 'https://n8n.growthmachine.com.br/webhook-test/843e1f22-7574-4681-a1ef-f43a570869ae';
     
-    const payload = {
-      ...userData,
-      source: "diagnostic_tool",
-      timestamp: new Date().toISOString(),
-      page_url: window.location.href,
-      event_type: "diagnostic_started"
-    };
+    // Create query string from user data
+    const params = new URLSearchParams();
     
-    // Convert the payload to query string parameters
-    const queryParams = new URLSearchParams();
-    Object.entries(payload).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        queryParams.append(key, String(value));
+    // Add user data to query params
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) { // Only add parameters with values
+        params.append(key, value.toString());
       }
     });
     
-    // Construct the full URL with query parameters
-    const fullUrl = `${webhookUrl}?${queryParams.toString()}`;
+    // Add timestamp to avoid caching
+    params.append('timestamp', Date.now().toString());
     
-    console.log("Sending data to n8n webhook:", fullUrl);
+    // Append query string to URL
+    const urlWithParams = `${webhookUrl}?${params.toString()}`;
     
-    // Make a GET request instead of POST
-    const response = await fetch(fullUrl, {
-      method: "GET",
+    // Make GET request to the webhook
+    const response = await fetch(urlWithParams, {
+      method: 'GET',
       headers: {
-        "Accept": "application/json"
-      }
+        'Accept': 'application/json',
+      },
     });
     
     if (!response.ok) {
-      console.error("Error sending data to webhook:", await response.text());
+      console.error('Failed to send data to n8n webhook:', response.status, response.statusText);
       return false;
     }
     
-    console.log("Data successfully sent to n8n webhook");
+    console.log('Successfully sent user data to n8n webhook');
     return true;
+    
   } catch (error) {
-    console.error("Error sending data to webhook:", error);
+    console.error('Error sending data to n8n webhook:', error);
     return false;
   }
-};
+}

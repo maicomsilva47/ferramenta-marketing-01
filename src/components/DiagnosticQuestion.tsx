@@ -29,7 +29,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   
   return (
     <div className="flex justify-center items-center min-h-[60vh]">
-      <Card className="w-full max-w-3xl mx-auto shadow-lg animate-fade-in border-t-4 border-t-growth-orange">
+      <Card className="w-full max-w-4xl mx-auto shadow-lg animate-fade-in border-t-4 border-t-growth-orange overflow-hidden">
         <CardContent className="pt-6 pb-6 px-4 md:pt-8 md:pb-8 md:px-6">
           <div className="mb-6">
             <div className="flex items-center mb-3 flex-wrap gap-2">
@@ -40,18 +40,18 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
                 Pergunta {currentQuestion} de {totalQuestions}
               </span>
             </div>
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 break-words">{question.text}</h2>
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 break-words">{question.text}</h2>
           </div>
           
-          <div className="space-y-3 md:space-y-4">
+          <div className="space-y-3 md:space-y-4 max-h-[50vh] md:max-h-[60vh] overflow-y-auto pr-1 pb-2">
             {question.options.map((option, index) => {
               const optionLetter = String.fromCharCode(65 + index);
-              const isSelected = previousAnswer === option.value;
+              const isSelected = previousAnswer !== undefined && previousAnswer === option.value;
               
               return (
                 <motion.button
                   key={index}
-                  className={`w-full p-3 md:p-5 text-left border-2 rounded-lg transition-all duration-300 break-words overflow-hidden min-h-[60px] md:min-h-[70px] hover:shadow-md
+                  className={`w-full p-3 md:p-4 text-left border-2 rounded-lg transition-all duration-300 break-words overflow-hidden
                     ${isSelected 
                       ? 'border-growth-orange bg-orange-50 shadow-md' 
                       : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
@@ -60,11 +60,11 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                 >
-                  <div className="flex">
-                    <span className={`font-medium mr-2 md:mr-3 flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full flex-shrink-0 ${isSelected ? 'bg-growth-orange text-white' : 'bg-gray-100 text-gray-500'}`} aria-hidden="true">
+                  <div className="flex items-start gap-3">
+                    <span className={`font-medium flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full flex-shrink-0 mt-0.5 ${isSelected ? 'bg-growth-orange text-white' : 'bg-gray-100 text-gray-500'}`} aria-hidden="true">
                       {optionLetter}
                     </span>
-                    <span className="text-gray-700 whitespace-normal text-sm md:text-lg">
+                    <span className="text-gray-700 whitespace-normal text-sm md:text-base">
                       {option.label}
                     </span>
                   </div>

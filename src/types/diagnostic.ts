@@ -1,5 +1,5 @@
 
-export type OptionValue = 1 | 2 | 3 | 4;
+export type OptionValue = 1 | 2 | 3 | 4 | 'high' | 'medium' | 'low';
 
 export interface DiagnosticOption {
   label: string;

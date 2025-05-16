@@ -1,4 +1,3 @@
-
 import { 
   DiagnosticQuestion, 
   DiagnosticPillar,
@@ -29,14 +28,14 @@ export const pillarIcons: Record<DiagnosticPillar, string> = {
 };
 
 // Labels for each evaluation level
-export const evaluationLabels: Record<OptionValue, string> = {
+export const evaluationLabels: Record<string, string> = {
   'high': 'Alto',
   'medium': 'Médio',
   'low': 'Baixo'
 };
 
 // Functions to evaluate pillar and overall scores
-export const getPillarEvaluation = (score: number, questionCount: number): OptionValue => {
+export const getPillarEvaluation = (score: number, questionCount: number): 'high' | 'medium' | 'low' => {
   const percentage = (score / (questionCount * 3)) * 100;
   
   if (percentage >= 70) return 'high';
@@ -44,7 +43,7 @@ export const getPillarEvaluation = (score: number, questionCount: number): Optio
   return 'low';
 };
 
-export const getOverallEvaluation = (totalScore: number, totalPossibleScore: number): OptionValue => {
+export const getOverallEvaluation = (totalScore: number, totalPossibleScore: number): 'high' | 'medium' | 'low' => {
   const percentage = (totalScore / totalPossibleScore) * 100;
   
   if (percentage >= 70) return 'high';
@@ -357,86 +356,6 @@ export const pillarFeedbacks: PillarFeedbacks = {
   }
 };
 
-export const recommendations: Record<DiagnosticPillar, string[]> = {
-  'revenue-strategy': [
-    "Formalize seu Plano de Receita: Estabeleça metas mensais/trimestrais realistas e um plano tático para alcançá-las.",
-    "Diversifique suas fontes de receita para reduzir dependência de canais únicos."
-  ],
-  'value-proposition': [
-    "Defina seu ICP e Qualifique Rigorosamente: Desenhe com clareza o perfil do cliente dos sonhos.",
-    "Refine sua proposta de valor para falar diretamente das dores específicas do seu cliente ideal."
-  ],
-  'commercial-intelligence': [
-    "Implemente análise de métricas básicas do funil para identificar gargalos de conversão.",
-    "Invista em ferramentas de inteligência comercial para orientar decisões baseadas em dados."
-  ],
-  'prospecting': [
-    "Implemente um Processo de Prospecção Ativa com cadências de contato definidas.",
-    "Estruture um time de vendas autônomo que não dependa dos sócios para fechar."
-  ],
-  'conversion': [
-    "Melhore seu Follow-up de Vendas com um playbook estruturado e persistente.",
-    "Analise a taxa de conversão em cada etapa do funil para identificar e corrigir pontos fracos."
-  ],
-  'retention': [
-    "Fortaleça Pós-venda/Customer Success com check-ins regulares e onboarding estruturado.",
-    "Monitore indicadores de retenção como churn e LTV para agir preventivamente."
-  ],
-  'tools': [
-    "Evolua seu Stack Comercial com um CRM de verdade e ferramentas de automação.",
-    "Experimente soluções de IA como o Prospct para prospecção automática e qualificação de leads."
-  ]
-};
-
-export const resources = [
-  {
-    id: "prospecting-guide",
-    title: "Guia Essencial da Prospecção",
-    description: "E-book passo a passo para estruturar seu processo de prospecção do zero, gerando leads quentes consistentemente.",
-    pillars: ["prospecting", "conversion"],
-    url: "https://lp.growthmachine.com.br/guia-da-prospeccao",
-    image: "prospection-guide.png",
-    icon: "book"
-  },
-  {
-    id: "kanban-prospect",
-    title: "Template Kanban Prospect",
-    description: "Modelo pronto para organizar sua prospecção em formato Kanban, visualizando o fluxo de leads do primeiro contato até o fechamento.",
-    pillars: ["prospecting", "conversion"],
-    url: "https://blog.growthmachine.com.br/o-que-e-kanban-prospect/",
-    image: "kanban-template.png",
-    icon: "layout-dashboard"
-  },
-  {
-    id: "cold-mail-template",
-    title: "Template de Cold Mail",
-    description: "Exemplos de e-mails frios de alto impacto, prontos para uso em suas campanhas de prospecção, para gerar oportunidades qualificadas todos os dias.",
-    pillars: ["prospecting"],
-    url: "https://lp.growthmachine.com.br/templates-de-cold-mail",
-    image: "cold-mail-template.png",
-    icon: "mail"
-  },
-  {
-    id: "social-selling-bible",
-    title: "Bíblia do Social Selling",
-    description: "E-book com 20+ estratégias de Social Selling para gerar mais oportunidades usando o LinkedIn.",
-    pillars: ["prospecting", "revenue-strategy"],
-    url: "https://lp.growthmachine.com.br/biblia-do-social-selling",
-    image: "social-selling-bible.png",
-    icon: "book"
-  },
-  {
-    id: "sales-model-canvas",
-    title: "Sales Model Canvas",
-    description: "Ferramenta em formato canvas para prototipar seu processo de vendas completo.",
-    pillars: ["revenue-strategy", "value-proposition", "commercial-intelligence", "conversion"],
-    url: "https://blog.growthmachine.com.br/o-que-e-sales-model-canvas",
-    image: "sales-canvas.png",
-    icon: "layout-grid"
-  }
-];
-
-
 // Sample diagnostic questions
 export const diagnosticQuestions: DiagnosticQuestion[] = [
   {
@@ -446,19 +365,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Sim, temos metas anuais/trimestrais bem definidas e um plano de ações detalhado para atingi-las, com pipeline previsível (sabemos de onde virão os clientes para bater a meta).",
-        value: "high",
+        value: 3,
         feedback: "Ótimo, você tem um norte claro. Estratégia de receita bem definida é a base do crescimento previsível. Continue executando o plano consistentemente (um plano sem execução não passa de papel). ✔️",
         score: 3
       },
       {
         label: "Temos metas definidas, mas o planejamento é básico ou nem sempre seguido – a previsibilidade sofre e acabamos \"correndo atrás\" mês a mês.",
-        value: "medium",
+        value: 2,
         feedback: "Você tem alguma direção, porém falta previsibilidade. Sem um plano sólido e disciplinado, sua receita fica vulnerável a oscilações. Navegar sem mapa pode custar caro quando a maré virar. ⛵️ Ajuste o planejamento para tornar as metas mais alcançáveis.",
         score: 2
       },
       {
         label: "Não há metas formais ou plano estruturado; as vendas acontecem de forma reativa, sem muita previsibilidade.",
-        value: "low",
+        value: 1,
         feedback: "Alerta vermelho! Sem metas nem plano, você está basicamente torcendo pelo melhor. Isso é receita para estagnação – ou pior. 📉 É como pilotar um avião sem rota definida: arriscado e insustentável. Está na hora de definir metas concretas e traçar um plano de voo, ou suas vendas continuarão no improviso.",
         score: 1
       }
@@ -471,19 +390,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Bem diversificadas – combinamos múltiplos canais: inbound (marketing), prospecção outbound ativa, parcerias e indicações. Não dependemos de um canal só para bater meta.",
-        value: "high",
+        value: 3,
         feedback: "Excelente, múltiplas fontes = risco diluído. Empresas de alto crescimento espalham apostas e garantem fluxo constante de oportunidades. Sua receita não fica refém de um só canal – continue assim. 🔄",
         score: 3
       },
       {
         label: "Possuímos mais de uma fonte de leads, mas ainda dependemos muito de um canal principal (ex: 80% dos leads vêm apenas de indicações ou apenas de mídia paga).",
-        value: "medium",
+        value: 2,
         feedback: "Atenção: alguma diversificação existe, mas a dependência de um canal ainda é grande. Se esse canal principal sofrer (por exemplo, se indicações diminuírem ou custo de marketing aumentar), seu crescimento trava. Pense em equilibrar o mix de geração de demanda para não ficar com \"todos os ovos na mesma cesta\". 🧺",
         score: 2
       },
       {
         label: "Nossa geração de negócios é quase totalmente concentrada em um único meio ou em poucos clientes-chave. Se essa fonte falhar, as vendas despencam.",
-        value: "low",
+        value: 1,
         feedback: "Crítico! Você está com receita concentrada. Se essa fonte seca ou aquele cliente principal churnar, seu comercial pode apagar as luzes. 🔌 Contar com um único canal (ou cliente) é extremamente perigoso – busque variedade urgente nas estratégias de geração de leads para não depender da sorte.",
         score: 1
       }
@@ -496,19 +415,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Sim, conhecemos profundamente nosso cliente ideal e as dores específicas que resolvemos. Nossa proposta de valor é clara e comprovada nas conversas de vendas – o cliente rapidamente reconhece que precisa do que oferecemos.",
-        value: "high",
+        value: 3,
         feedback: "Ótimo – saber exatamente quem é seu cliente ideal e sua dor torna a venda muito mais eficaz. Quando há aderência clara da sua solução ao problema do cliente, o ciclo de venda encurta e a taxa de conversão dispara. Continue alinhado ao seu ICP, isso é ouro. 🥇",
         score: 3
       },
       {
         label: "Temos alguma noção de quem é nosso público-alvo e qual problema resolvemos, mas poderia ser mais bem definido. Às vezes ajustamos o discurso conforme o cliente, ainda buscando encaixar perfeitamente o valor.",
-        value: "medium",
+        value: 2,
         feedback: "Há algum alinhamento, mas falta nitidez. Se você não tem total clareza do nicho e do valor específico que entrega, sua mensagem pode estar difusa. Lembre: \"quem mira em tudo, não acerta em nada\". 🎯 Refine a definição do ICP e ajuste sua proposta de valor para falar diretamente com as dores dele – isso vai diferenciar você da concorrência.",
         score: 2
       },
       {
         label: "Vendemos de forma genérica, tentando atender \"todo mundo\". Não temos um nicho ou dor específica claramente definida – acreditamos que nosso produto serve para qualquer um que apareça.",
-        value: "low",
+        value: 1,
         feedback: "Grave! Quem vende para todo mundo, na verdade não vende para ninguém. Sem ICP definido e proposta de valor específica, você vai continuar gastando energia com leads que nunca vão fechar. Provavelmente seu time está vendendo para quem nunca vai comprar – um desperdício enorme de esforços. Defina urgentemente quem é seu cliente certo e foque nele, ou você continuará dando tiro no escuro. 🔫",
         score: 1
       }
@@ -521,19 +440,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Sim, temos critérios claros de qualificação (ex.: segmento, tamanho, necessidade, orçamento). Identificamos cedo se o lead tem fit com nosso produto e raramente perseguimos oportunidades sem potencial real.",
-        value: "high",
+        value: 3,
         feedback: "Muito bom – qualificação rigorosa evita perder tempo com curiosos ou \"turistas\". 📋 Saber dizer \"não\" para leads sem fit economiza energia para focar nos alvos certos. Seu time foca onde há chance real, aumentando eficiência e moral.",
         score: 3
       },
       {
         label: "Em geral qualificamos os leads, mas às vezes acabamos insistindo em leads duvidosos (com baixo fit) na esperança de converter. Falta rigor para dizer \"não\" a quem não encaixa bem.",
-        value: "medium",
+        value: 2,
         feedback: "Você procura qualificar, porém ainda há desperdício perseguindo quem não é tão aderente. Isso é queimar munição com pouco retorno. Muitos vendedores caem na armadilha de tentar salvar leads ruins – em vez disso, ajuste o processo para filtrar melhor. Um lead não qualificado deve sair do funil rapidamente, liberando espaço para oportunidades melhores.",
         score: 2
       },
       {
         label: "Não há um processo formal de qualificação por fit; tentamos vender para qualquer lead que aparece. Só descobrimos que não era cliente ideal depois de gastar tempo (ou nem isso).",
-        value: "low",
+        value: 1,
         feedback: "Sem qualificação, seu time está atirando no escuro. Provavelmente estão gastando a maior parte do tempo com leads que nunca terão fit, ou seja, queimando esforços valiosos sem saber. Esse é um dos maiores vazamentos no funil de vendas: perseguir oportunidades que jamais virariam negócio. 🚱 Implemente imediatamente uma triagem de leads – vai economizar tempo, dinheiro e muita frustração.",
         score: 1
       }
@@ -546,19 +465,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Sim, monitoramos ativamente nossos KPIs de vendas em cada etapa. Temos dashboards ou relatórios frequentes e as decisões estratégicas são baseadas nesses dados concretos.",
-        value: "high",
+        value: 3,
         feedback: "Excelente – gerir por dados é fundamental para escalar com segurança. Você sabe onde ajustar o leme, pois tem inteligência para identificar gargalos e oportunidades rapidamente. Continue assim.",
         score: 3
       },
       {
         label: "Monitoramos algumas métricas básicas, mas a análise não é sistemática ou frequente. Às vezes as decisões são mais baseadas em percepção do que em dados.",
-        value: "medium",
+        value: 2,
         feedback: "Você está no caminho certo ao coletar dados, mas sem uma análise disciplinada, pode estar deixando oportunidades importantes na mesa. Transformar dados em insights acionáveis é a diferença entre empresas que crescem acidentalmente e as que crescem por design. 📊 Invista tempo para entender realmente o que seus números dizem.",
         score: 2
       },
       {
         label: "Não acompanhamos métricas de forma sistemática. Temos uma visão geral de fechamentos, mas pouca ou nenhuma análise do funil, conversão ou eficiência.",
-        value: "low",
+        value: 1,
         feedback: "Você está vendando no escuro. Como otimizar o que não é medido? 📏 Sem métricas claras, você está condenado a repetir erros e deixar passar oportunidades. Se os números te assustam, comece com o básico: quantos leads entram, quantos avançam e quantos fecham, e quanto tempo leva cada etapa. Só isso já seria um salto quântico para orientar suas decisões.",
         score: 1
       }
@@ -571,19 +490,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Temos um processo estruturado, multicanal e consistente de prospecção. Nossa equipe executa ações planejadas diariamente e geramos um fluxo previsível de leads qualificados.",
-        value: "high",
+        value: 3,
         feedback: "Parabéns! Um motor de prospecção bem azeitado é a base do crescimento sustentável. Você não depende da sorte para gerar oportunidades – seu sistema cria resultados previsíveis. Continue refinando e testando novos canais e abordagens para manter a máquina evoluindo. 🔍",
         score: 3
       },
       {
         label: "Fazemos algumas ações de prospecção com alguma regularidade, mas não de forma totalmente sistemática ou consistente. O fluxo de leads tem altos e baixos.",
-        value: "medium",
+        value: 2,
         feedback: "Você está no meio do caminho – já reconhece a importância da prospecção ativa, mas ainda falta consistência. Lembre-se: prospecção é como exercício físico, precisa ser regular para dar resultados. Transforme ações pontuais em processos diários, e você verá seu pipeline se estabilizar. 📅",
         score: 2
       },
       {
         label: "Nossa geração de leads é principalmente reativa/passiva. Dependemos muito de indicações ou contatos espontâneos, sem um processo estruturado de busca ativa por novos clientes.",
-        value: "low",
+        value: 1,
         feedback: "Atenção! Depender apenas de leads passivos é arriscar o futuro do negócio. É como um agricultor que só espera a chuva, sem sistema de irrigação. Quando a fonte secar (e em algum momento vai), você estará vulnerável. Estabeleça urgentemente um processo mínimo de prospecção ativa diária – mesmo que simples no início – para garantir um fluxo constante de oportunidades. 🚰",
         score: 1
       }
@@ -596,19 +515,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Temos um processo sistemático de follow-up, com cadências de contato bem definidas e utilizamos diversas formas de abordar (e-mail, telefone, mensagens). Raramente perdemos uma oportunidade por falta de acompanhamento.",
-        value: "high",
+        value: 3,
         feedback: "Excelente! O follow-up persistente e sistemático é um grande diferencial competitivo. A maioria das vendas acontece após a quinta tentativa de contato, mas poucos vendedores chegam até lá. Continue com essa disciplina de acompanhamento e você continuará convertendo oportunidades que seus concorrentes deixariam escapar. 🏆",
         score: 3
       },
       {
         label: "Fazemos follow-up, mas sem um processo muito estruturado. Dependemos do vendedor lembrar de retomar contato, e às vezes demoramos para dar sequência ou acabamos abandonando leads potencialmente viáveis.",
-        value: "medium",
+        value: 2,
         feedback: "Você reconhece a importância do follow-up, mas a falta de processo estruturado está certamente deixando dinheiro na mesa. A memória humana é falível – vendedores ocupados inevitavelmente deixarão leads cair no esquecimento sem um sistema robusto. Implemente uma cadência formal de follow-up e veja sua taxa de conversão subir significativamente. 📈",
         score: 2
       },
       {
         label: "Nosso follow-up é frágil ou quase inexistente. Frequentemente esperamos o cliente retomar contato após a primeira interação, e muitos leads acabam esfriando por falta de acompanhamento adequado.",
-        value: "low",
+        value: 1,
         feedback: "Alerta crítico! Sem follow-up adequado, você está literalmente jogando dinheiro no lixo. Leads que você já pagou para adquirir estão escapando por entre os dedos. Estudos mostram que 80% das vendas requerem pelo menos 5 contatos, mas 44% dos vendedores desistem após apenas 1 tentativa. Implemente imediatamente um processo básico de acompanhamento – é provavelmente o ajuste de menor esforço e maior retorno que você pode fazer no seu processo comercial hoje. 🚨",
         score: 1
       }
@@ -621,19 +540,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Temos um processo estruturado de onboarding, sucesso do cliente e relacionamento contínuo. Monitoramos ativamente a satisfação e identificamos riscos de cancelamento e oportunidades de expansão.",
-        value: "high",
+        value: 3,
         feedback: "Parabéns por valorizar a retenção! Empresas que mantêm alto foco em pós-venda crescem mais rápido e de forma mais sustentável. Com clientes satisfeitos e bem atendidos, você provavelmente já colhe os frutos em forma de menor CAC (via indicações), maior LTV e receita mais previsível. Continue investindo no relacionamento de longo prazo. 🌱",
         score: 3
       },
       {
         label: "Temos alguns pontos de contato pós-venda, mas o processo não é totalmente estruturado. Oferecemos algum suporte e atenção, mas poderia ser mais sistemático e proativo.",
-        value: "medium",
+        value: 2,
         feedback: "Você está no caminho certo ao dedicar alguma atenção ao pós-venda, mas há espaço para melhorias significativas. Lembre-se que é 5 a 25 vezes mais caro adquirir um novo cliente do que manter um existente. Estruture melhor seu processo de sucesso do cliente, com pontos de contato programados em momentos estratégicos do ciclo de vida – o retorno sobre esse investimento tende a ser extraordinário. ⏱️",
         score: 2
       },
       {
         label: "Não temos um processo formal de pós-venda ou retenção. Após a compra, o contato é principalmente reativo (quando há problemas) ou para tentar renovar/vender mais apenas próximo ao fim do contrato.",
-        value: "low",
+        value: 1,
         feedback: "Atenção! Negligenciar o pós-venda é como encher um balde com um grande furo – por mais que você venda, a água escapa. Alto churn exige muito mais esforço de aquisição apenas para manter o negócio estável. Estabeleça urgentemente ao menos um processo básico de onboarding e check-in periódico com clientes – isso já reduziria significativamente sua taxa de cancelamento e abriria oportunidades de expansão que você provavelmente está perdendo. 🚽",
         score: 1
       }
@@ -646,19 +565,19 @@ export const diagnosticQuestions: DiagnosticQuestion[] = [
     options: [
       {
         label: "Utilizamos tecnologias integradas que automatizam grande parte do nosso processo comercial. Temos CRM bem implementado, automação de marketing, ferramentas de comunicação e análise que aumentam significativamente nossa produtividade.",
-        value: "high",
+        value: 3,
         feedback: "Excelente! Um stack tecnológico robusto é um multiplicador de força para equipes comerciais. Com as ferramentas certas, sua equipe consegue focar no que realmente importa: relacionamentos e conversões, enquanto o trabalho manual fica com os robôs. Continue investindo em tecnologia e avaliando regularmente se as ferramentas estão realmente sendo utilizadas em seu potencial máximo. 🤖",
         score: 3
       },
       {
         label: "Usamos algumas ferramentas básicas (como um CRM simples), mas muitos processos ainda são manuais. Falta integração entre sistemas ou utilizamos apenas parcialmente as funcionalidades disponíveis.",
-        value: "medium",
+        value: 2,
         feedback: "Você deu os primeiros passos com tecnologia comercial, mas ainda está deixando muito valor na mesa. Sistemas fragmentados ou subutilizados criam ineficiências e fazem sua equipe perder tempo com tarefas que poderiam ser automatizadas. Avalie se está aproveitando completamente as ferramentas que já possui antes de adicionar novas, e busque integrar melhor seus sistemas para eliminar trabalho manual desnecessário. 🔄",
         score: 2
       },
       {
         label: "Temos pouca ou nenhuma tecnologia de apoio comercial. Usamos principalmente planilhas, e-mails e métodos manuais para gerenciar nosso pipeline e processos de vendas.",
-        value: "low",
+        value: 1,
         feedback: "Alerta! Operar processos comerciais sem tecnologia adequada hoje é como tentar competir em uma corrida de Fórmula 1 com um carro de passeio. Por mais talentosa que seja sua equipe, há um teto de eficiência que só será superado com ferramentas adequadas. Comece implementando um CRM básico e gradualmente adicione automações para os processos mais repetitivos e demorados. O investimento se paga rapidamente em produtividade e leads que não caem mais nas rachaduras do processo manual. 🔧",
         score: 1
       }
