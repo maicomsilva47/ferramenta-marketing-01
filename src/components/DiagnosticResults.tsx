@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
@@ -42,13 +43,19 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Filter and prepare resources - DON'T override the URLs here
+  // Filter and prepare resources - Convert the object structure to an array first
+  const allResources = Array.isArray(resources) ? resources : 
+    [...(resources.videos || []), ...(resources.podcasts || []), ...(resources.articles || [])];
+  
+  // Now filter the resources array
   const relevantResources = Object.keys(results.pillarScores)
     .filter(pillar => {
       const pillarScore = results.pillarScores[pillar as DiagnosticPillar];
       return pillarScore.evaluation === 'low' || pillarScore.evaluation === 'medium';
     })
-    .flatMap(pillar => resources.filter(resource => resource.pillars.includes(pillar as DiagnosticPillar)))
+    .flatMap(pillar => allResources.filter(resource => 
+      resource.pillars && resource.pillars.includes(pillar as DiagnosticPillar))
+    )
     .filter((resource, index, self) => 
       index === self.findIndex((t) => t.id === resource.id)
     )
@@ -70,8 +77,10 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     high: Object.values(results.pillarScores).filter(score => score.evaluation === 'high').length,
   };
 
-  // If we don't have any resources, include some defaults to ensure content shows
-  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : resources.slice(0, 3) as Resource[];
+  // If we don't have any resources, include some defaults
+  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
+    Array.isArray(resources) ? resources.slice(0, 3) as Resource[] : 
+    [...(resources.videos || []), ...(resources.podcasts || []), ...(resources.articles || [])].slice(0, 3) as Resource[];
 
   return (
     <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
@@ -164,6 +173,24 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
               </div>
             </div>
             
+            <Separator className="my-8" />
+            
+            {/* Conclusão Provocativa */}
+            <div className="mb-8">
+              <h3 className="font-bold text-2xl mb-4">Conclusão</h3>
+              <div className="bg-growth-orange bg-opacity-5 p-6 rounded-lg border border-growth-orange border-opacity-20 shadow-sm">
+                <p className="text-gray-800 mb-4">
+                  Você acabou de receber um retrato fiel – e talvez incômodo – da sua máquina de vendas. Os pontos positivos mostram que potencial existe, mas os gargalos escancarados explicam por que seu crescimento talvez esteja aquém do possível. Agora é questão de ação. As recomendações acima não são teóricas ou "mais do mesmo" – são passos concretos para ganhos imediatos. Cada dia mantido no status quo é dinheiro ficando na mesa e território sendo perdido para concorrentes mais preparados.
+                </p>
+                <p className="text-gray-800 mb-4">
+                  A realidade dói? Ótimo. Use esse desconforto como combustível para mudança. Ajuste o rumo, cobre responsabilidade e parta para a execução agressiva dessas melhorias. Em poucas semanas, você deve notar diferença em pipeline, conversion e, principalmente, na postura do time. E se precisar de ajuda especializada para acelerar esse processo – desde estruturar um funil previsível até implementar tecnologias e treinar seu time para vendas complexas – a Growth Machine está aqui exatamente para isso.
+                </p>
+                <p className="text-gray-800">
+                  No fim do dia, crescimento real em B2B não vem de mágica ou desejo – vem de processo, disciplina e estratégia bem executada. O diagnóstico foi o primeiro passo. Agora é mãos à obra, porque o mercado não espera. Ou vocês consertam a máquina de crescimento, ou ficam para trás. A escolha (e as consequências) são de vocês. Boa sorte – e conte conosco nessa jornada para transformar sua área comercial!
+                </p>
+              </div>
+            </div>
+
             <Separator className="my-8" />
 
             {/* Consultation CTA - Quer um diagnóstico mais preciso? */}

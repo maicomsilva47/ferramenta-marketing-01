@@ -29,18 +29,18 @@ const LandingPage: React.FC<{ onStartDiagnostic: () => void }> = ({
         transition={{ duration: 1.5, delay: 0.5 }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 py-10 relative z-10 w-full">
+      <div className="max-w-6xl mx-auto px-4 py-8 md:py-10 relative z-10 w-full">
         {/* Logo */}
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-8 md:mb-10">
           <img 
             src="/lovable-uploads/3037e665-7de2-4fe8-b9d9-08eea010be72.png" 
             alt="Growth Machine" 
-            className="h-16 max-w-[220px] object-contain"
+            className="h-12 md:h-16 max-w-[180px] md:max-w-[220px] object-contain"
             loading="lazy"
           />
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center mt-4 md:mt-8">
           {/* Left Column - Geometric Shape */}
           <div className="hidden lg:flex justify-center items-center">
             <motion.div 
@@ -64,17 +64,17 @@ const LandingPage: React.FC<{ onStartDiagnostic: () => void }> = ({
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-center lg:text-left"
           >
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6 text-gray-900">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-gray-900">
               DIAGNÓSTICO <span className="text-growth-orange">COMERCIAL</span>
             </h1>
-            <h2 className="text-2xl lg:text-3xl font-semibold mb-6 text-growth-orange">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-4 md:mb-6 text-growth-orange">
               Growth Machine
             </h2>
-            <p className="text-lg mb-8 text-gray-700 leading-relaxed">
+            <p className="text-base md:text-lg mb-6 md:mb-8 text-gray-700 leading-relaxed">
               Avalie a maturidade da sua operação comercial em 7 pilares estratégicos. Descubra os gargalos que impedem sua empresa de crescer mais.
             </p>
             
-            <div className="space-y-4 mb-8 text-gray-700">
+            <div className="space-y-3 md:space-y-4 mb-6 md:mb-8 text-gray-700 text-sm md:text-base">
               <p>
                 As empresas que mais crescem têm algo em comum: processos comerciais bem estruturados, time dividido em pré-vendas e vendas, máquina de vendas para gerar demanda e alto uso de tecnologia.
               </p>
@@ -83,7 +83,7 @@ const LandingPage: React.FC<{ onStartDiagnostic: () => void }> = ({
                 Inspirados nisso, dividimos este diagnóstico em 7 pilares estratégicos que vão avaliar a maturidade do seu negócio:
               </p>
               
-              <ul className="list-none space-y-2 mt-3">
+              <ul className="list-none space-y-2 mt-3 text-left max-w-2xl mx-auto lg:mx-0">
                 <li className="flex items-start">
                   <span className="mr-2 text-growth-orange font-bold">1.</span>
                   <span><strong>Estratégia de Receita</strong> – Planejamento e previsibilidade do crescimento.</span>
@@ -115,13 +115,15 @@ const LandingPage: React.FC<{ onStartDiagnostic: () => void }> = ({
               </ul>
             </div>
             
-            <Button 
-              onClick={onStartDiagnostic}
-              className="bg-growth-orange hover:bg-orange-700 text-white px-8 py-6 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Iniciar diagnóstico gratuito
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Button>
+            <div className="flex justify-center lg:justify-start">
+              <Button 
+                onClick={onStartDiagnostic}
+                className="bg-growth-orange hover:bg-orange-700 text-white px-6 sm:px-8 py-5 sm:py-6 h-auto text-base sm:text-lg font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Iniciar diagnóstico gratuito
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
           </motion.div>
         </div>
       </div>
