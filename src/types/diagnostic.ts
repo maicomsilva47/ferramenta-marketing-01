@@ -1,5 +1,5 @@
 
-export type OptionValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 'high' | 'medium' | 'low' | number;
+export type OptionValue = 1 | 2 | 3 | 4 | 'high' | 'medium' | 'low';
 
 export interface DiagnosticOption {
   label: string;
@@ -22,8 +22,7 @@ export type DiagnosticPillar =
   | 'prospecting'
   | 'conversion'
   | 'retention'
-  | 'tools'
-  | string; // Add string as a fallback to accept any string value
+  | 'tools';
 
 export interface PillarScore {
   pillar: DiagnosticPillar;

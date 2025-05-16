@@ -1,51 +1,53 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import SpecialistConsultationForm from './SpecialistConsultationForm';
-import { UserFormData } from '@/utils/hubspotIntegration';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
+import { Users, ExternalLink } from 'lucide-react';
 
-interface ConsultationCTAProps {
-  userData: UserFormData | null;
-  resultsId: string | null;
-}
+const ConsultationCTA: React.FC = () => {
+  const handleExternalLink = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    window.open('https://go.growthmachine.com.br/way/', '_blank', 'noopener,noreferrer');
+  };
 
-const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }) => {
   return (
-    <div className="my-8">
-      <h3 className="text-2xl font-bold mb-6">Quer um diagnóstico mais preciso?</h3>
-      <Card className="shadow-md border-0 overflow-hidden">
-        <CardContent className="p-0">
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className="bg-gradient-to-br from-growth-orange to-orange-600 p-6 md:p-8 text-white">
-              <h4 className="text-xl md:text-2xl font-bold mb-4">
-                Diagnóstico especializado gratuito
-              </h4>
-              <p className="mb-4 text-white/90">
-                Vá além do autodiagnóstico e converse com um de nossos especialistas para uma análise personalizada da sua máquina de vendas.
-              </p>
-              <ul className="space-y-2 mb-6">
-                <li className="flex items-start">
-                  <span className="mr-2 mt-1">✓</span>
-                  <span>Análise aprofundada do seu processo comercial</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 mt-1">✓</span>
-                  <span>Identificação dos gargalos críticos específicos do seu negócio</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 mt-1">✓</span>
-                  <span>Recomendações táticas personalizadas para crescimento acelerado</span>
-                </li>
-              </ul>
+    <Card className="w-full mx-auto my-8 overflow-hidden border-0 shadow-lg">
+      <CardContent className="p-0">
+        <div className="bg-gradient-to-r from-growth-orange to-orange-500 p-6 text-white">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-shrink-0">
+                <div className="bg-white/20 p-5 rounded-full">
+                  <Users className="h-10 w-10 text-white" />
+                </div>
+              </div>
+              
+              <div className="flex-grow text-center md:text-left">
+                <h3 className="text-2xl font-bold mb-2 text-white">Quer um diagnóstico mais preciso?</h3>
+                <p className="text-white/90 text-lg mb-6 md:mb-0">
+                  Fale com um especialista da Growth Machine e descubra como podemos acelerar sua operação comercial através de um programa de diagnóstico completo e personalizado.
+                </p>
+              </div>
+              
+              <div className="flex-shrink-0">
+                <Button 
+                  onClick={handleExternalLink}
+                  className="bg-white hover:bg-gray-100 text-growth-orange transition-all duration-300 py-6 px-8 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl"
+                >
+                  Falar com Especialista
+                  <ExternalLink className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
             </div>
-            
-            <div className="p-6 md:p-8 bg-white">
-              <SpecialistConsultationForm userData={userData} resultsId={resultsId} />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </motion.div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
