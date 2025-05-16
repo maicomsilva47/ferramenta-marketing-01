@@ -36,9 +36,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface UserInfoFormProps {
   onSubmit: (data: FormValues) => void;
+  isAfterQuestions?: boolean;
 }
 
-const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit }) => {
+const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions = false }) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -85,11 +86,13 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Conte-nos sobre você
+        {isAfterQuestions ? "Último passo: seus dados para receber o diagnóstico" : "Conte-nos sobre você"}
       </h2>
       
       <p className="text-gray-600 mb-6 text-center">
-        Precisamos de algumas informações antes de iniciar seu diagnóstico personalizado.
+        {isAfterQuestions 
+          ? "Preencha suas informações para visualizar os resultados do diagnóstico personalizado."
+          : "Precisamos de algumas informações antes de iniciar seu diagnóstico personalizado."}
       </p>
       
       <Form {...form}>
@@ -168,7 +171,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit }) => {
             type="submit"
             className="w-full bg-growth-orange hover:bg-orange-600 h-12 mt-4"
           >
-            Iniciar Diagnóstico
+            {isAfterQuestions ? "Ver Resultados" : "Iniciar Diagnóstico"}
           </Button>
         </form>
       </Form>

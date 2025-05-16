@@ -16,8 +16,8 @@ import { sendToHubspot, UserFormData } from '@/utils/hubspotIntegration';
 
 enum DiagnosticState {
   LANDING,
-  USER_INFO,
   QUESTIONS,
+  USER_INFO,
   RESULTS
 }
 
@@ -33,6 +33,7 @@ const DiagnosticApp: React.FC = () => {
   const [results, setResults] = useState<DiagnosticResult | null>(null);
   const [resultsId, setResultsId] = useState<string | null>(shareId);
   const [userData, setUserData] = useState<UserInfo | null>(null);
+  const [completedAnswers, setCompletedAnswers] = useState<UserAnswer[]>([]);
 
   // Organize questions by pillar
   const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
@@ -115,7 +116,8 @@ const DiagnosticApp: React.FC = () => {
   }, [shareId]);
 
   const handleStartDiagnostic = () => {
-    setDiagnosticState(DiagnosticState.USER_INFO);
+    // Go directly to questions instead of user info
+    setDiagnosticState(DiagnosticState.QUESTIONS);
   };
 
   const handleUserInfoSubmit = async (formData: UserFormData) => {
@@ -123,20 +125,42 @@ const DiagnosticApp: React.FC = () => {
     setUserData(formData);
     
     try {
+      // Now use the completedAnswers to calculate results
+      const calculatedResults = calculateResults(completedAnswers, diagnosticQuestions);
+      
+      // Add user data to results
+      calculatedResults.userData = formData;
+      
+      // Generate a unique ID for this diagnostic result
+      const uniqueId = generateUniqueId();
+      setResultsId(uniqueId);
+      
+      // Save results immediately to localStorage
+      saveResultsToLocalStorage(calculatedResults, uniqueId);
+      
+      setResults(calculatedResults);
+      
       // Send data to HubSpot via webhook
       const success = await sendToHubspot(formData);
       
       if (!success) {
         console.warn("Failed to send data to HubSpot, but continuing with diagnostic");
-        // We don't stop the diagnostic process if HubSpot integration fails
       }
       
-      // Proceed to questions
-      setDiagnosticState(DiagnosticState.QUESTIONS);
+      // Now proceed to results
+      setDiagnosticState(DiagnosticState.RESULTS);
+      
     } catch (error) {
       console.error("Error in user form submission:", error);
       toast.error("Houve um erro ao processar seus dados, mas você pode continuar com o diagnóstico.");
-      setDiagnosticState(DiagnosticState.QUESTIONS);
+      
+      // Even if there's an error, try to proceed to results
+      if (completedAnswers.length > 0) {
+        const calculatedResults = calculateResults(completedAnswers, diagnosticQuestions);
+        calculatedResults.userData = formData;
+        setResults(calculatedResults);
+        setDiagnosticState(DiagnosticState.RESULTS);
+      }
     }
   };
 
@@ -165,20 +189,9 @@ const DiagnosticApp: React.FC = () => {
       if (currentQuestionIndex < diagnosticQuestions.length - 1) {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        const calculatedResults = calculateResults(updatedAnswers, diagnosticQuestions);
-        
-        // Add user data to results
-        calculatedResults.userData = userData;
-        
-        // Generate a unique ID for this diagnostic result
-        const uniqueId = generateUniqueId();
-        setResultsId(uniqueId);
-        
-        // Save results immediately to localStorage
-        saveResultsToLocalStorage(calculatedResults, uniqueId);
-        
-        setResults(calculatedResults);
-        setDiagnosticState(DiagnosticState.RESULTS);
+        // Store the completed answers and move to user info collection
+        setCompletedAnswers(updatedAnswers);
+        setDiagnosticState(DiagnosticState.USER_INFO);
       }
     }, 400); // Short delay for visual feedback
   };
@@ -264,6 +277,7 @@ const DiagnosticApp: React.FC = () => {
     setResults(null);
     setResultsId(null);
     setUserData(null);
+    setCompletedAnswers([]);
     setDiagnosticState(DiagnosticState.LANDING);
   };
 
@@ -289,7 +303,7 @@ const DiagnosticApp: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <UserInfoForm onSubmit={handleUserInfoSubmit} />
+          <UserInfoForm onSubmit={handleUserInfoSubmit} isAfterQuestions={true} />
         </motion.div>
       )}
       
