@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { DiagnosticPillar, PillarScore } from '@/types/diagnostic';
 import { pillarNames } from '@/data/diagnosticData';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface RadarChartProps {
   pillarScores: Record<DiagnosticPillar, PillarScore>;
@@ -21,6 +22,8 @@ interface ChartData {
 }
 
 const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
+  const isMobile = useIsMobile();
+  
   const formatData = (): ChartData[] => {
     return Object.entries(pillarScores).map(([pillar, data]) => {
       const pillarKey = pillar as DiagnosticPillar;
@@ -43,11 +46,15 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
   return (
     <div className="w-full h-96 md:h-[500px] mt-4 mb-8">
       <ResponsiveContainer width="100%" height="100%">
-        <RechartsRadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
+        <RechartsRadarChart cx="50%" cy="50%" outerRadius={isMobile ? "60%" : "70%"} data={chartData}>
           <PolarGrid stroke="#e5e7eb" />
           <PolarAngleAxis 
             dataKey="subject" 
-            tick={{ fill: '#4b5563', fontSize: 12, fontFamily: 'Montserrat' }} 
+            tick={{ 
+              fill: '#4b5563', 
+              fontSize: isMobile ? 9 : 12, 
+              fontFamily: 'Montserrat' 
+            }} 
           />
           <Radar 
             name="Pontuação" 

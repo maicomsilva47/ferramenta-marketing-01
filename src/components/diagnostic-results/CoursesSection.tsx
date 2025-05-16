@@ -30,37 +30,6 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
     );
   }
   
-  // Map resources to their specific URLs based on title
-  const enhancedResources = resources.map(resource => {
-    let customUrl = "https://go.growthmachine.com.br/way/"; // fallback
-    
-    switch (resource.title.toLowerCase()) {
-      case 'sales model canvas':
-        customUrl = 'https://blog.growthmachine.com.br/o-que-e-sales-model-canvas';
-        break;
-      case 'bíblia do social selling':
-        customUrl = 'https://lp.growthmachine.com.br/biblia-do-social-selling';
-        break;
-      case 'guia essencial da prospecção':
-        customUrl = 'https://lp.growthmachine.com.br/guia-da-prospeccao';
-        break;
-      case 'template kanban prospect':
-        customUrl = 'https://blog.growthmachine.com.br/o-que-e-kanban-prospect/';
-        break;
-      case 'template de cold mail':
-        customUrl = 'https://lp.growthmachine.com.br/templates-de-cold-mail';
-        break;
-    }
-    
-    console.log(`Resource "${resource.title}" mapped to URL: ${customUrl}`);
-    
-    return {
-      ...resource,
-      url: customUrl,
-      id: resource.id.replace("course-", "").replace("ebook-", "").replace("video-", "")
-    };
-  });
-  
   const getIconForResource = (id: string) => {
     if (id.includes('video')) {
       return <Video className="h-10 w-10 text-white" />;
@@ -96,7 +65,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
       <h3 className="text-2xl font-bold mb-6">Aprofunde seus conhecimentos</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {enhancedResources.map((resource, index) => (
+        {resources.map((resource, index) => (
           <motion.div
             key={resource.id}
             initial={{ opacity: 0, y: 20 }}

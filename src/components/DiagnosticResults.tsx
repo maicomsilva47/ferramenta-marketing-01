@@ -6,31 +6,34 @@ import {
   DiagnosticResult, 
   DiagnosticPillar 
 } from '@/types/diagnostic';
-import { pillarNames, pillarFeedbacks, pillarIcons, resources as allResources } from '@/data/diagnosticData';
+import { pillarNames, pillarFeedbacks, pillarIcons, evaluationLabels } from '@/data/diagnosticData';
 import { OverallScore } from '@/components/diagnostic-results/DiagnosticResultsHeader';
 import PillarScoreCard from '@/components/diagnostic-results/PillarScoreCard';
 import StrategicInsights from '@/components/diagnostic-results/StrategicInsights';
-import { Resource } from '@/components/diagnostic-results/ResourcesList';
 import RadarChart from '@/components/diagnostic-results/RadarChart';
-import GrowthcastSection from '@/components/diagnostic-results/GrowthcastSection';
-import CoursesSection from '@/components/diagnostic-results/CoursesSection';
 import ConsultationCTA from '@/components/diagnostic-results/ConsultationCTA';
 import { motion } from 'framer-motion';
 import ShareResults from '@/components/diagnostic-results/ShareResults';
 import ActionButtons from '@/components/diagnostic-results/ActionButtons';
 import { 
   getTotalScore, 
-  generateStrategicInsights,
-  getResourceUrl 
+  generateStrategicInsights
 } from '@/components/diagnostic-results/utils';
+import { UserFormData } from '@/utils/hubspotIntegration';
 
 interface DiagnosticResultsProps {
   results: DiagnosticResult;
   onReset: () => void;
   resultsId: string | null;
+  userData: UserFormData | null;
 }
 
-const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset, resultsId }) => {
+const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ 
+  results, 
+  onReset, 
+  resultsId,
+  userData
+}) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
   
   // Calculate total score properly - out of max possible score
@@ -43,47 +46,6 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
   const togglePillarDetails = (pillar: DiagnosticPillar) => {
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
-  
-  // Filter and prepare resources - Make sure to handle both array and object structure
-  const resourcesArray = Array.isArray(allResources) ? allResources : 
-    [...(allResources.videos || []), ...(allResources.podcasts || []), ...(allResources.articles || [])];
-  
-  // Filter resources for low and medium pillars
-  const getLowAndMediumPillars = () => {
-    return Object.entries(results.pillarScores)
-      .filter(([_, score]) => score.evaluation === 'low' || score.evaluation === 'medium')
-      .map(([pillar]) => pillar as DiagnosticPillar);
-  };
-  
-  const lowAndMediumPillars = getLowAndMediumPillars();
-  
-  // Get relevant resources for these pillars
-  const getRelevantResources = () => {
-    const filteredResources = resourcesArray.filter(resource => {
-      // If the resource has pillar tags and at least one matches our low/medium pillars
-      if (resource.pillars && resource.pillars.length > 0) {
-        return resource.pillars.some(pillar => lowAndMediumPillars.includes(pillar as DiagnosticPillar));
-      }
-      return false;
-    });
-    
-    // Return 5 resources max, avoiding duplicates
-    return filteredResources.filter((resource, index, self) => 
-      index === self.findIndex((r) => r.id === resource.id)
-    ).slice(0, 5);
-  };
-  
-  const relevantResources = getRelevantResources();
-  
-  // If no relevant resources found, use default ones
-  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
-    resourcesArray.slice(0, 3);
-  
-  // Log for debugging
-  useEffect(() => {
-    console.log("Low and medium pillars:", lowAndMediumPillars);
-    console.log("Resources for display:", resourcesForDisplay);
-  }, [lowAndMediumPillars]);
 
   // Count evaluations
   const evaluationCounts = {
@@ -91,6 +53,17 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     medium: Object.values(results.pillarScores).filter(score => score.evaluation === 'medium').length,
     high: Object.values(results.pillarScores).filter(score => score.evaluation === 'high').length,
   };
+
+  // Debug logging for any loading issues
+  useEffect(() => {
+    console.log("DiagnosticResults rendered with:", {
+      pillarScores: results.pillarScores,
+      totalScore: results.totalScore,
+      totalScorePercentage,
+      resultsId,
+      userData
+    });
+  }, [results, totalScorePercentage, resultsId, userData]);
 
   return (
     <div className="w-full mx-auto animate-fade-in bg-gradient-to-b from-white to-gray-50">
@@ -111,15 +84,15 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             <div className="grid grid-cols-3 gap-2 sm:gap-4 my-6">
               <div className="bg-red-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-red-600">{evaluationCounts.low}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Críticos</p>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Crítico</p>
               </div>
               <div className="bg-amber-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-amber-600">{evaluationCounts.medium}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Em Desenvolvimento</p>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Intermediário</p>
               </div>
               <div className="bg-green-50 p-2 sm:p-4 rounded-lg text-center">
                 <span className="text-xl sm:text-2xl font-bold text-green-600">{evaluationCounts.high}</span>
-                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Acelerando</p>
+                <p className="text-[10px] sm:text-xs text-gray-700 mt-1 whitespace-nowrap">Avançado</p>
               </div>
             </div>
             
@@ -204,17 +177,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
             <Separator className="my-8" />
 
             {/* Consultation CTA - Quer um diagnóstico mais preciso? */}
-            <ConsultationCTA />
-            
-            <Separator className="my-8" />
-            
-            {/* Courses Section - Aprofunde seus conhecimentos */}
-            <CoursesSection resources={resourcesForDisplay} />
-
-            <Separator className="my-8" />
-
-            {/* Growthcast Section */}
-            <GrowthcastSection />
+            <ConsultationCTA userData={userData} resultsId={resultsId} />
             
             <Separator className="my-8" />
             

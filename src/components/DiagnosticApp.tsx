@@ -9,7 +9,7 @@ import DiagnosticResults from '@/components/DiagnosticResults';
 import UserInfoForm from '@/components/UserInfoForm';
 import ProgressBar from '@/components/ProgressBar';
 import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue, DiagnosticPillar } from '@/types/diagnostic';
-import { diagnosticQuestions, pillarNames } from '@/data/diagnosticData';
+import { diagnosticQuestions, pillarNames, evaluationLabels } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
 import { sendToHubspot, UserFormData } from '@/utils/hubspotIntegration';
@@ -98,6 +98,11 @@ const DiagnosticApp: React.FC = () => {
             overallEvaluation: data.evaluation || 'medium',
             recommendations: data.recommendations || []
           };
+          
+          // Load user data if available
+          if (data.userData) {
+            setUserData(data.userData);
+          }
           
           setResults(loadedResults);
           setResultsId(shareId);
@@ -328,7 +333,12 @@ const DiagnosticApp: React.FC = () => {
       )}
       
       {diagnosticState === DiagnosticState.RESULTS && results && (
-        <DiagnosticResults results={results} onReset={handleResetDiagnostic} resultsId={resultsId} />
+        <DiagnosticResults 
+          results={results} 
+          onReset={handleResetDiagnostic} 
+          resultsId={resultsId}
+          userData={userData}
+        />
       )}
     </div>
   );
