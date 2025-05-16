@@ -17,7 +17,7 @@ export interface UserFormData {
 export const sendToHubspot = async (userData: UserFormData): Promise<boolean> => {
   try {
     // The n8n webhook URL
-    const webhookUrl = "https://n8n.growthmachine.com.br/webhook-test/843e1f22-7574-4681-a1ef-f43a570869ae";
+    const webhookUrl = "https://webhook.n8n.growthmachine.com.br/webhook/843e1f22-7574-4681-a1ef-f43a570869ae";
     
     const payload = {
       ...userData,
