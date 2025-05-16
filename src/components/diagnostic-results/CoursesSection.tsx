@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { FileText, Video, ExternalLink } from 'lucide-react';
+import { FileText, Video, ExternalLink, Book, LayoutDashboard, Mail, LayoutGrid } from 'lucide-react';
 import { Resource } from './ResourcesList';
 import { DiagnosticPillar } from '@/types/diagnostic';
 import { pillarNames } from '@/data/diagnosticData';
@@ -30,42 +30,42 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
     );
   }
   
-  // Map resources to their specific URLs based on title
-  const enhancedResources = resources.map(resource => {
-    let customUrl = "https://go.growthmachine.com.br/way/"; // fallback
-    
-    switch (resource.title.toLowerCase()) {
-      case 'sales model canvas':
-        customUrl = 'https://blog.growthmachine.com.br/o-que-e-sales-model-canvas';
-        break;
-      case 'bíblia do social selling':
-        customUrl = 'https://lp.growthmachine.com.br/biblia-do-social-selling';
-        break;
-      case 'guia essencial da prospecção':
-        customUrl = 'https://lp.growthmachine.com.br/guia-da-prospeccao';
-        break;
-      case 'template kanban prospect':
-        customUrl = 'https://blog.growthmachine.com.br/o-que-e-kanban-prospect/';
-        break;
-      case 'template de cold mail':
-        customUrl = 'https://lp.growthmachine.com.br/templates-de-cold-mail';
-        break;
+  const getIconForResource = (resource: Resource) => {
+    // First check if the resource has an explicit icon type
+    if (resource.icon) {
+      switch(resource.icon.toLowerCase()) {
+        case 'video':
+          return <Video className="h-10 w-10 text-white" />;
+        case 'book':
+          return <Book className="h-10 w-10 text-white" />;
+        case 'dashboard':
+          return <LayoutDashboard className="h-10 w-10 text-white" />;
+        case 'mail':
+          return <Mail className="h-10 w-10 text-white" />;
+        case 'grid':
+          return <LayoutGrid className="h-10 w-10 text-white" />;
+      }
     }
     
-    console.log(`Resource "${resource.title}" mapped to URL: ${customUrl}`);
-    
-    return {
-      ...resource,
-      url: customUrl,
-      id: resource.id.replace("course-", "").replace("ebook-", "").replace("video-", "")
-    };
-  });
-  
-  const getIconForResource = (id: string) => {
-    if (id.includes('video')) {
+    // If no icon specified, infer from id
+    if (resource.id.includes('video')) {
       return <Video className="h-10 w-10 text-white" />;
     }
-    return <FileText className="h-10 w-10 text-white" />;
+    
+    // Use specific icons based on resource ID
+    switch(resource.id) {
+      case 'sales-model-canvas':
+        return <LayoutGrid className="h-10 w-10 text-white" />;
+      case 'social-selling-bible':
+      case 'prospecting-guide':
+        return <Book className="h-10 w-10 text-white" />;
+      case 'kanban-prospect':
+        return <LayoutDashboard className="h-10 w-10 text-white" />;
+      case 'cold-mail-template':
+        return <Mail className="h-10 w-10 text-white" />;
+      default:
+        return <FileText className="h-10 w-10 text-white" />;
+    }
   };
   
   const getBackgroundStyle = (index: number) => {
@@ -80,11 +80,17 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
     return patterns[index % patterns.length];
   };
   
-  const handleAccessMaterial = (url: string, title: string) => {
-    console.log(`Opening material: ${title} with URL: ${url}`);
+  const handleAccessMaterial = (resource: Resource) => {
+    console.log(`Opening material: ${resource.title} with URL: ${resource.url}`);
+    if (!resource.url) {
+      console.error("Missing URL for resource:", resource.title);
+      toast.error("O link para este recurso não está disponível no momento.");
+      return;
+    }
+    
     try {
-      window.open(url, '_blank', 'noopener,noreferrer');
-      toast.success(`Acessando ${title}`);
+      window.open(resource.url, '_blank', 'noopener,noreferrer');
+      toast.success(`Acessando ${resource.title}`);
     } catch (error) {
       console.error('Error opening URL:', error);
       toast.error('Erro ao abrir o material. Tente novamente.');
@@ -96,7 +102,7 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
       <h3 className="text-2xl font-bold mb-6">Aprofunde seus conhecimentos</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {enhancedResources.map((resource, index) => (
+        {resources.map((resource, index) => (
           <motion.div
             key={resource.id}
             initial={{ opacity: 0, y: 20 }}
@@ -106,28 +112,32 @@ const CoursesSection: React.FC<CoursesSectionProps> = ({ resources }) => {
             <Card className="h-full transition-all duration-300 hover:shadow-lg border-0 shadow overflow-hidden flex flex-col">
               <div className={`h-32 ${getBackgroundStyle(index)} flex items-center justify-center p-6`}>
                 <div className="bg-black bg-opacity-20 p-4 rounded-full">
-                  {getIconForResource(resource.id)}
+                  {getIconForResource(resource)}
                 </div>
               </div>
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-center flex-wrap gap-2 mb-3">
                   <span className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-700 font-medium">
-                    {resource.id.includes('video') ? 'Vídeo' : 'E-book'}
+                    {resource.icon === 'video' || resource.id.includes('video') ? 'Vídeo' : 'E-book'}
                   </span>
-                  {resource.pillars.slice(0, 2).map(pillar => (
-                    <span 
-                      key={`${resource.id}-${pillar}`} 
-                      className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
-                    >
-                      {pillarNames[pillar as DiagnosticPillar]}
-                    </span>
-                  ))}
+                  {resource.pillars.slice(0, 2).map(pillar => {
+                    // Check if this pillar exists in pillarNames
+                    const pillarName = pillarNames[pillar as DiagnosticPillar] || pillar;
+                    return (
+                      <span 
+                        key={`${resource.id}-${pillar}`} 
+                        className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
+                      >
+                        {pillarName}
+                      </span>
+                    );
+                  })}
                 </div>
                 <h4 className="text-lg font-semibold mb-2">{resource.title}</h4>
                 <p className="text-gray-600 mb-4 flex-grow">{resource.description}</p>
                 <Button 
                   className="mt-auto w-full bg-growth-orange hover:bg-orange-700 transition-all flex items-center justify-center text-white"
-                  onClick={() => handleAccessMaterial(resource.url, resource.title)}
+                  onClick={() => handleAccessMaterial(resource)}
                 >
                   Acessar Material
                   <ExternalLink className="ml-2 h-4 w-4" />

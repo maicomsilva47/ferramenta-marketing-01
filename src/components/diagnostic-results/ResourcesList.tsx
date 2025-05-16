@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { pillarNames } from '@/data/diagnosticData';
 import { getPillarBadgeColor } from './resource-utils';
 import { DiagnosticPillar } from '@/types/diagnostic';
+import { toast } from 'sonner';
 
 export interface Resource {
   id: string;
@@ -20,34 +21,67 @@ interface ResourcesListProps {
   resources: Resource[];
 }
 
-const ResourceIcon = ({ id }: { id: string }) => {
+const ResourceIcon = ({ id, iconType }: { id: string; iconType?: string }) => {
   const iconSize = 24;
   
-  // Map resource IDs to specific icons
+  // First try to use the explicit icon type if provided
+  if (iconType) {
+    switch(iconType.toLowerCase()) {
+      case 'book':
+        return <Book size={iconSize} className="text-orange-500" />;
+      case 'dashboard':
+        return <LayoutDashboard size={iconSize} className="text-emerald-500" />;
+      case 'mail':
+        return <Mail size={iconSize} className="text-amber-500" />;
+      case 'grid':
+        return <LayoutGrid size={iconSize} className="text-purple-500" />;
+      case 'video':
+        return <Book size={iconSize} className="text-blue-500" />;
+    }
+  }
+  
+  // Fallback to ID-based mapping if no icon type or unrecognized
   switch(id) {
-    case 'prospecting-guide':
+    case 'sales-model-canvas':
+      return <LayoutGrid size={iconSize} className="text-purple-500" />;
     case 'social-selling-bible':
+    case 'prospecting-guide':
       return <Book size={iconSize} className="text-orange-500" />;
     case 'kanban-prospect':
       return <LayoutDashboard size={iconSize} className="text-emerald-500" />;
     case 'cold-mail-template':
       return <Mail size={iconSize} className="text-amber-500" />;
-    case 'sales-model-canvas':
-      return <LayoutGrid size={iconSize} className="text-purple-500" />;
     default:
       return <Book size={iconSize} className="text-gray-500" />;
   }
 };
 
 const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
-  if (resources.length === 0) {
+  // Debug logging
+  console.log("ResourcesList - Received resources:", resources);
+  
+  if (!resources || resources.length === 0) {
+    console.log("ResourcesList - No resources available");
     return null;
   }
   
   // Handle the external link opening - directly use the resource's URL property
-  const handleExternalLink = (e: React.MouseEvent<HTMLButtonElement>, resourceUrl: string) => {
+  const handleExternalLink = (e: React.MouseEvent<HTMLButtonElement>, resourceUrl: string, title: string) => {
     e.preventDefault();
-    window.open(resourceUrl, '_blank', 'noopener,noreferrer');
+    console.log(`Opening resource: ${title} with URL: ${resourceUrl}`);
+    if (!resourceUrl) {
+      console.error("Missing URL for resource:", title);
+      toast.error("O link para este recurso não está disponível no momento.");
+      return;
+    }
+    
+    try {
+      window.open(resourceUrl, '_blank', 'noopener,noreferrer');
+      toast.success(`Acessando ${title}`);
+    } catch (error) {
+      console.error('Error opening URL:', error);
+      toast.error('Erro ao abrir o material. Tente novamente.');
+    }
   };
 
   return (
@@ -66,7 +100,7 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
             <CardContent className="p-5 flex flex-col h-full">
               <div className="flex items-start mb-3">
                 <div className="mr-3 p-2 bg-orange-50 rounded-md">
-                  <ResourceIcon id={resource.id} />
+                  <ResourceIcon id={resource.id} iconType={resource.icon} />
                 </div>
                 <div>
                   <h4 
@@ -80,21 +114,25 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources }) => {
               </div>
               
               <div className="flex flex-wrap gap-2 mb-4">
-                {resource.pillars.map((pillar) => (
-                  <span 
-                    key={`${resource.id}-${pillar}`}
-                    className={cn(
-                      "text-xs px-2 py-1 rounded-full border",
-                      getPillarBadgeColor(pillar as DiagnosticPillar)
-                    )}
-                  >
-                    {pillarNames[pillar as DiagnosticPillar]}
-                  </span>
-                ))}
+                {resource.pillars.map((pillar) => {
+                  // Check if this pillar exists in pillarNames
+                  const pillarName = pillarNames[pillar as DiagnosticPillar] || pillar;
+                  return (
+                    <span 
+                      key={`${resource.id}-${pillar}`}
+                      className={cn(
+                        "text-xs px-2 py-1 rounded-full border",
+                        getPillarBadgeColor(pillar as DiagnosticPillar)
+                      )}
+                    >
+                      {pillarName}
+                    </span>
+                  );
+                })}
               </div>
               
               <button 
-                onClick={(e) => handleExternalLink(e, resource.url)}
+                onClick={(e) => handleExternalLink(e, resource.url, resource.title)}
                 className="mt-auto inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium h-10 px-4 py-2 w-full text-white bg-orange-500 hover:bg-orange-600 transition-colors"
                 aria-label={`Saiba mais sobre ${resource.title}`}
               >
