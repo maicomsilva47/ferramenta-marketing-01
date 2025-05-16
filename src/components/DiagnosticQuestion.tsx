@@ -6,12 +6,13 @@ import { ArrowLeft } from 'lucide-react';
 import { DiagnosticQuestion as QuestionType, OptionValue } from '@/types/diagnostic';
 import { pillarNames } from '@/data/diagnosticData';
 import { motion } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DiagnosticQuestionProps {
   question: QuestionType;
   currentQuestion: number;
   totalQuestions: number;
-  onSelectAnswer: (value: 'high' | 'medium' | 'low') => void;
+  onSelectAnswer: (value: OptionValue) => void;
   onGoBack?: () => void;
   previousAnswer?: OptionValue;
 }
@@ -24,23 +25,25 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   onGoBack,
   previousAnswer
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="flex justify-center items-center min-h-[60vh]">
       <Card className="w-full max-w-3xl mx-auto shadow-lg animate-fade-in border-t-4 border-t-growth-orange">
-        <CardContent className="pt-8 pb-8 px-6">
-          <div className="mb-8">
-            <div className="flex items-center mb-3">
-              <span className="bg-growth-orange text-white font-semibold text-sm px-3 py-1 rounded-full">
+        <CardContent className="pt-6 pb-6 px-4 md:pt-8 md:pb-8 md:px-6">
+          <div className="mb-6">
+            <div className="flex items-center mb-3 flex-wrap gap-2">
+              <span className="bg-growth-orange text-white font-semibold text-xs md:text-sm px-2 py-1 md:px-3 md:py-1 rounded-full">
                 {pillarNames[question.pillar]}
               </span>
-              <span className="text-sm text-gray-500 ml-3">
+              <span className="text-xs md:text-sm text-gray-500">
                 Pergunta {currentQuestion} de {totalQuestions}
               </span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 break-words">{question.text}</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 break-words">{question.text}</h2>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {question.options.map((option, index) => {
               const optionLetter = String.fromCharCode(65 + index);
               const isSelected = previousAnswer === option.value;
@@ -48,7 +51,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
               return (
                 <motion.button
                   key={index}
-                  className={`w-full p-5 text-left border-2 rounded-lg transition-all duration-300 break-words overflow-hidden min-h-[70px] hover:shadow-md
+                  className={`w-full p-3 md:p-5 text-left border-2 rounded-lg transition-all duration-300 break-words overflow-hidden min-h-[60px] md:min-h-[70px] hover:shadow-md
                     ${isSelected 
                       ? 'border-growth-orange bg-orange-50 shadow-md' 
                       : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
@@ -58,10 +61,10 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
                   whileTap={{ scale: 0.99 }}
                 >
                   <div className="flex">
-                    <span className={`font-medium mr-3 flex items-center justify-center w-7 h-7 rounded-full ${isSelected ? 'bg-growth-orange text-white' : 'bg-gray-100 text-gray-500'}`} aria-hidden="true">
+                    <span className={`font-medium mr-2 md:mr-3 flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full flex-shrink-0 ${isSelected ? 'bg-growth-orange text-white' : 'bg-gray-100 text-gray-500'}`} aria-hidden="true">
                       {optionLetter}
                     </span>
-                    <span className="text-gray-700 whitespace-normal text-lg">
+                    <span className="text-gray-700 whitespace-normal text-sm md:text-lg">
                       {option.label}
                     </span>
                   </div>
@@ -72,11 +75,11 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
           
           {/* Back button */}
           {onGoBack && (
-            <div className="mt-8 flex justify-start">
+            <div className="mt-6 md:mt-8 flex justify-start">
               <Button 
                 variant="ghost"
                 onClick={onGoBack}
-                className="text-gray-600 hover:text-growth-orange hover:bg-orange-50 h-12"
+                className="text-gray-600 hover:text-growth-orange hover:bg-orange-50 h-10 md:h-12 text-sm md:text-base"
                 aria-label="Voltar para a pergunta anterior"
               >
                 <ArrowLeft size={16} className="mr-2" aria-hidden="true" /> Voltar

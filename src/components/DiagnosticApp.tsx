@@ -8,7 +8,7 @@ import DiagnosticQuestion from '@/components/DiagnosticQuestion';
 import DiagnosticResults from '@/components/DiagnosticResults';
 import UserInfoForm from '@/components/UserInfoForm';
 import ProgressBar from '@/components/ProgressBar';
-import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult } from '@/types/diagnostic';
+import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue } from '@/types/diagnostic';
 import { diagnosticQuestions } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
@@ -101,7 +101,7 @@ const DiagnosticApp: React.FC = () => {
     }
   };
 
-  const handleSelectAnswer = (value: 'high' | 'medium' | 'low') => {
+  const handleSelectAnswer = (value: OptionValue) => {
     const currentQuestion = diagnosticQuestions[currentQuestionIndex];
     
     // Record the answer
@@ -257,7 +257,7 @@ const DiagnosticApp: React.FC = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col items-center"
         >
-          <div className="w-full max-w-3xl mb-6">
+          <div className="w-full max-w-3xl mb-4 md:mb-6">
             <ProgressBar 
               currentQuestion={currentQuestionIndex + 1}
               totalQuestions={diagnosticQuestions.length}
