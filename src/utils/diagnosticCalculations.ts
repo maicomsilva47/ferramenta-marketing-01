@@ -60,7 +60,7 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
   });
 
   // Calculate overall evaluation
-  const overallPercentage = (totalScore / totalPossibleScore) * 100;
+  const overallPercentage = totalPossibleScore > 0 ? (totalScore / totalPossibleScore) * 100 : 0;
   let overallEvaluation: 'high' | 'medium' | 'low' = 'medium';
   
   if (overallPercentage >= 75) {

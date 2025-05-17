@@ -1,4 +1,3 @@
-
 import { DiagnosticPillar, OptionValue, PillarScore } from '@/types/diagnostic';
 import { Resource } from './ResourcesList';
 
@@ -22,11 +21,15 @@ export const getProgressColor = (evaluation: OptionValue): string => {
 
 export const getPillarScore = (pillar: PillarScore): number => {
   // Using a 1-4 scale with max of 4 points per question
-  return Math.min(100, (pillar.score / (pillar.totalQuestions * 4)) * 100);
+  const maxPossibleScore = pillar.totalQuestions * 4;
+  if (maxPossibleScore === 0) return 0;
+  return Math.min(100, Math.round((pillar.score / maxPossibleScore) * 100));
 };
 
 export const getTotalScore = (totalScore: number, totalPossibleScore: number): number => {
-  return Math.min(100, (totalScore / totalPossibleScore) * 100);
+  // Prevent division by zero and ensure we return a valid percentage
+  if (totalPossibleScore <= 0) return 0;
+  return Math.min(100, Math.round((totalScore / totalPossibleScore) * 100));
 };
 
 // Updated function to ensure consistent mapping between resource IDs and URLs

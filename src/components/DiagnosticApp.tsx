@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -91,15 +90,40 @@ const DiagnosticApp: React.FC = () => {
             return;
           }
           
-          // Reconstruct the results object from stored data
+          // Calculate the total possible score - this was missing before
+          let totalPossibleScoreFromData = 100; // Default fallback
+          
+          // If we have pillar scores stored, calculate the actual totalPossibleScore
+          if (data.pillarScores) {
+            let calculatedPossibleScore = 0;
+            
+            Object.values(data.pillarScores).forEach((pillarScore: any) => {
+              if (pillarScore.totalQuestions) {
+                // Using a 1-4 scale with max of 4 points per question
+                calculatedPossibleScore += pillarScore.totalQuestions * 4;
+              }
+            });
+            
+            if (calculatedPossibleScore > 0) {
+              totalPossibleScoreFromData = calculatedPossibleScore;
+            }
+          }
+          
+          // Reconstruct the results object from stored data with the correct totalPossibleScore
           const loadedResults: DiagnosticResult = {
             pillarScores: data.pillarScores || {},
-            totalScore: parseFloat(data.overall) || 0,
-            totalPossibleScore: 100,
+            totalScore: parseFloat(data.totalScore || data.overall) || 0,
+            totalPossibleScore: data.totalPossibleScore || totalPossibleScoreFromData,
             overallEvaluation: data.evaluation || 'medium',
             recommendations: data.recommendations || [],
             userData: data.userData || null
           };
+          
+          console.log('Loaded shared diagnostic with:', { 
+            totalScore: loadedResults.totalScore,
+            totalPossibleScore: loadedResults.totalPossibleScore,
+            shareId
+          });
           
           setResults(loadedResults);
           setResultsId(shareId);
@@ -196,7 +220,7 @@ const DiagnosticApp: React.FC = () => {
     }, 400); // Short delay for visual feedback
   };
   
-  // Function to save results to localStorage
+  // Function to save results to localStorage - update to store totalPossibleScore
   const saveResultsToLocalStorage = (diagnosticResults: DiagnosticResult, id: string) => {
     try {
       // Clean up expired data first
@@ -219,6 +243,8 @@ const DiagnosticApp: React.FC = () => {
       
       const shareData = {
         overall: diagnosticResults.totalScore.toFixed(0),
+        totalScore: diagnosticResults.totalScore,
+        totalPossibleScore: diagnosticResults.totalPossibleScore,
         evaluation: diagnosticResults.overallEvaluation,
         date: new Date().toISOString().split('T')[0],
         insights: [], // These will be generated in the Results component
@@ -227,6 +253,11 @@ const DiagnosticApp: React.FC = () => {
         expiresAt: expiresAt,
         userData: userData, // Store user information with the results
       };
+      
+      console.log('Saving diagnostic data:', {
+        totalScore: diagnosticResults.totalScore,
+        totalPossibleScore: diagnosticResults.totalPossibleScore
+      });
       
       // Save in localStorage
       localStorage.setItem(`diagnosticShare_${id}`, JSON.stringify(shareData));

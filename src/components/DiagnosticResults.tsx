@@ -12,7 +12,6 @@ import StrategicInsights from '@/components/diagnostic-results/StrategicInsights
 import { Resource } from '@/components/diagnostic-results/ResourcesList';
 import RadarChart from '@/components/diagnostic-results/RadarChart';
 import GrowthcastSection from '@/components/diagnostic-results/GrowthcastSection';
-// Remove CoursesSection import
 import ConsultationCTA from '@/components/diagnostic-results/ConsultationCTA';
 import { motion } from 'framer-motion';
 import ShareResults from '@/components/diagnostic-results/ShareResults';
@@ -33,7 +32,7 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
   
   // Calculate total score properly - out of max possible score
-  const totalScorePercentage = Math.min(100, getTotalScore(results.totalScore, results.totalPossibleScore));
+  const totalScorePercentage = getTotalScore(results.totalScore, results.totalPossibleScore);
   
   // Generate strategic insights
   const strategicInsights = generateStrategicInsights(results.pillarScores, totalScorePercentage);
@@ -43,51 +42,17 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Filter and prepare resources - Make sure to handle both array and object structure
-  const resourcesArray = Array.isArray(allResources) ? allResources : 
-    [...(allResources.videos || []), ...(allResources.podcasts || []), ...(allResources.articles || [])];
-  
-  // Filter resources for low and medium pillars
-  const getLowAndMediumPillars = () => {
-    return Object.entries(results.pillarScores)
-      .filter(([_, score]) => score.evaluation === 'low' || score.evaluation === 'medium')
-      .map(([pillar]) => pillar as DiagnosticPillar);
-  };
-  
-  const lowAndMediumPillars = getLowAndMediumPillars();
-  
-  // Get relevant resources for these pillars
-  const getRelevantResources = () => {
-    const filteredResources = resourcesArray.filter(resource => {
-      // If the resource has pillar tags and at least one matches our low/medium pillars
-      if (resource.pillars && resource.pillars.length > 0) {
-        return resource.pillars.some(pillar => lowAndMediumPillars.includes(pillar as DiagnosticPillar));
-      }
-      return false;
-    });
-    
-    // Return 5 resources max, avoiding duplicates
-    return filteredResources.filter((resource, index, self) => 
-      index === self.findIndex((r) => r.id === resource.id)
-    ).slice(0, 5);
-  };
-  
-  const relevantResources = getRelevantResources();
-  
-  // If no relevant resources found, use default ones
-  const resourcesForDisplay = relevantResources.length > 0 ? relevantResources : 
-    resourcesArray.slice(0, 3);
-  
   // Log for debugging
   useEffect(() => {
     console.log("DiagnosticResults rendered with:", {
       pillarScores: results.pillarScores,
-      totalScore: results.totalScore,
-      totalScorePercentage,
+      rawTotalScore: results.totalScore,
+      totalPossibleScore: results.totalPossibleScore,
+      calculatedPercentage: totalScorePercentage,
       resultsId,
       userData: results.userData
     });
-  }, [lowAndMediumPillars]);
+  }, [results, totalScorePercentage, resultsId]);
 
   // Count evaluations
   const evaluationCounts = {
