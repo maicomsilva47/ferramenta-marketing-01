@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Users, ExternalLink } from 'lucide-react';
+import { Users, Check } from 'lucide-react';
 import { 
   Form, 
   FormControl, 
@@ -26,6 +27,7 @@ import { UserInfo } from '@/types/diagnostic';
 
 interface ConsultationCTAProps {
   userData?: UserInfo | null;
+  resultsId?: string | null;
 }
 
 const formSchema = z.object({
@@ -92,9 +94,10 @@ const segmentoOptions = [
   'Varejo'
 ];
 
-const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
+const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }) => {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -112,10 +115,6 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
     } else {
       form.handleSubmit(onSubmit)();
     }
-  };
-
-  const handleOpenDirectLink = () => {
-    window.open('https://go.growthmachine.com.br/way/', '_blank', 'noopener,noreferrer');
   };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
@@ -159,7 +158,9 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
       
       // With no-cors, we can't check response.ok, so just assume success if no error
       toast.success("Solicitação enviada com sucesso! Entraremos em contato em breve.");
-      handleOpenDirectLink();
+      
+      // Navigate to thank you page instead of opening external link
+      navigate(`/obrigado?results_id=${resultsId || ''}`);
       
     } catch (error) {
       console.error('Error sending consultation data:', error);
@@ -170,9 +171,9 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
   };
 
   return (
-    <Card className="w-full mx-auto my-8 overflow-hidden border-0 shadow-lg">
+    <Card className="w-full mx-auto my-8 overflow-hidden border-0 shadow-xl">
       <CardContent className="p-0">
-        <div className="bg-gradient-to-r from-growth-orange to-orange-500 p-6 text-white">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-6 sm:p-8 text-white">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -180,26 +181,26 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
           >
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="flex-shrink-0">
-                <div className="bg-white/20 p-5 rounded-full">
+                <div className="bg-white/20 p-5 rounded-full shadow-lg">
                   <Users className="h-10 w-10 text-white" />
                 </div>
               </div>
               
               <div className="flex-grow text-center md:text-left">
-                <h3 className="text-2xl font-bold mb-2 text-white">Quer um diagnóstico mais preciso?</h3>
-                <p className="text-white/90 text-lg mb-6 md:mb-0">
-                  Fale com um especialista da Growth Machine e descubra como podemos acelerar sua operação comercial através de um programa de diagnóstico completo e personalizado.
+                <h3 className="text-2xl sm:text-3xl font-bold mb-2 text-white">Diagnóstico completo e personalizado</h3>
+                <p className="text-white/90 text-base sm:text-lg mb-6 md:mb-0 max-w-2xl">
+                  Converse com um especialista da Growth Machine e descubra como podemos acelerar sua operação comercial com um plano estratégico sob medida para o seu negócio.
                 </p>
               </div>
               
               <div className="flex-shrink-0">
                 <Button 
                   onClick={handleExternalLink}
-                  className="bg-white hover:bg-gray-100 text-growth-orange transition-all duration-300 py-6 px-8 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl"
+                  className="bg-white hover:bg-gray-100 text-indigo-700 transition-all duration-300 py-6 px-8 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Enviando..." : (showForm ? "Enviar" : "Falar com Especialista")}
-                  {!isSubmitting && !showForm && <ExternalLink className="ml-2 h-5 w-5" />}
+                  {!isSubmitting && !showForm && <Check className="ml-2 h-5 w-5" />}
                 </Button>
               </div>
             </div>
@@ -209,15 +210,15 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 transition={{ duration: 0.4 }}
-                className="mt-6 pt-6 border-t border-white/20"
+                className="mt-8 pt-8 border-t border-white/20"
               >
-                <h4 className="text-white text-xl font-medium mb-4 text-center">
+                <h4 className="text-white text-xl font-medium mb-6 text-center">
                   Complete algumas informações para falar com um especialista
                 </h4>
                 
                 <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-3xl mx-auto">
-                    <div className="grid md:grid-cols-3 gap-4">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl mx-auto">
+                    <div className="grid md:grid-cols-3 gap-6">
                       <FormField
                         control={form.control}
                         name="cargo_ocupado"
@@ -297,10 +298,10 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData }) => {
                       />
                     </div>
 
-                    <div className="flex justify-center mt-4">
+                    <div className="flex justify-center mt-6">
                       <Button 
                         type="submit"
-                        className="bg-white text-growth-orange hover:bg-gray-100"
+                        className="bg-white text-indigo-700 hover:bg-gray-100 px-8 py-3 h-auto text-lg"
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Enviando..." : "Solicitar Contato"}

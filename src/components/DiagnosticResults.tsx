@@ -207,8 +207,8 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
 
             <Separator className="my-8" />
 
-            {/* Consultation CTA - Quer um diagnóstico mais preciso? */}
-            <ConsultationCTA userData={results.userData} />
+            {/* Consultation CTA - Updated to pass resultsId */}
+            <ConsultationCTA userData={results.userData} resultsId={resultsId} />
             
             <Separator className="my-8" />
             
