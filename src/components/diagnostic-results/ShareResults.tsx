@@ -85,7 +85,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       </div>
       
       <p className="text-xs text-gray-500 mt-3">
-        Nota: Os links compartilhados expiram após 48 horas.
+        Nota: Os links compartilhados expiram após 48 horas. O link compartilhado mostrará "Diagnóstico - Growth Machine".
       </p>
     </div>
   );

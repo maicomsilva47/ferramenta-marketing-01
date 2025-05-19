@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,23 +38,31 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   const [selectedValue, setSelectedValue] = useState<OptionValue | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [processingComplete, setProcessingComplete] = useState(false);
+  const [highlightedPrevious, setHighlightedPrevious] = useState<OptionValue | undefined>(undefined);
   
-  // Reset processing state when question changes, but only set selectedValue to previousAnswer if it exists
+  // Reset processing state when question changes
   useEffect(() => {
+    // Reset selection state when question changes
+    setSelectedValue(undefined);
+    
+    // If there's a previous answer, highlight it but don't select it
     if (previousAnswer !== undefined) {
-      setSelectedValue(previousAnswer);
+      setHighlightedPrevious(previousAnswer);
     } else {
-      setSelectedValue(undefined);
+      setHighlightedPrevious(undefined);
     }
     
     setIsSubmitting(false);
     setProcessingComplete(false);
   }, [question.id, previousAnswer]);
   
-  // Handle option selection with improved debounce
+  // Handle option selection with improved debounce and blocking
   const handleOptionSelect = (value: OptionValue) => {
     // Don't allow selection while submitting or if parent component is processing
-    if (isSubmitting || isProcessing) return;
+    if (isSubmitting || isProcessing) {
+      console.log("Selection blocked - currently processing");
+      return;
+    }
     
     // Set local state immediately for UI feedback
     setSelectedValue(value);
@@ -70,13 +77,15 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
       setProcessingComplete(true);
       
       // Call the parent handler to record the answer
-      onSelectAnswer(value);
-      
-      // Keep the loading state visible for a short while
+      // Using a setTimeout to ensure we have visual feedback that 
+      // something is happening and reduce rapid clicking
       setTimeout(() => {
-        setIsSubmitting(false);
-      }, 500); // Extend this slightly for better user feedback
-    }, 1500); // Longer delay to ensure state is updated and to prevent rapid clicks
+        onSelectAnswer(value);
+        
+        // We keep the loading state until parent component tells us it's done
+        // This is controlled by the isProcessing prop
+      }, 800);
+    }, 1200); // Longer delay to ensure state is updated and to prevent rapid clicks
   };
   
   return (
@@ -104,11 +113,12 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
             <h2 className="text-base md:text-lg lg:text-xl font-bold text-gray-800 break-words">{question.text}</h2>
           </div>
           
-          {/* Removing overflow-hidden to prevent cut-off during scaling */}
-          <div className="space-y-3 md:space-y-4 max-h-[55vh] md:max-h-[60vh] overflow-y-auto pr-1 pb-2">
+          {/* Updated container with padding to prevent clipping */}
+          <div className="space-y-3 md:space-y-4 max-h-[55vh] md:max-h-[60vh] overflow-y-auto pr-3 pb-4 pt-1 pl-1">
             {question.options.map((option, index) => {
               const optionLetter = String.fromCharCode(65 + index);
               const isSelected = selectedValue !== undefined && selectedValue === option.value;
+              const isPreviouslySelected = highlightedPrevious === option.value && selectedValue === undefined;
               
               return (
                 <motion.button
@@ -116,15 +126,22 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
                   className={`w-full p-3 sm:p-4 md:p-4 text-left border-2 rounded-lg transition-all duration-300 break-words
                     ${isSelected 
                       ? 'border-growth-orange bg-orange-50 shadow-md' 
-                      : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
+                      : isPreviouslySelected
+                        ? 'border-orange-200 bg-orange-50/50 border-dashed'
+                        : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
                   onClick={() => handleOptionSelect(option.value)}
                   aria-label={`Opção ${optionLetter}: ${option.label}`}
                   whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
+                  whileTap={{ scale: 0.98 }}
                   disabled={isSubmitting || isProcessing}
                 >
                   <div className="flex items-start gap-2 md:gap-3">
-                    <span className={`font-medium flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full flex-shrink-0 mt-0.5 ${isSelected ? 'bg-growth-orange text-white' : 'bg-gray-100 text-gray-500'}`} aria-hidden="true">
+                    <span className={`font-medium flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full flex-shrink-0 mt-0.5 
+                      ${isSelected ? 'bg-growth-orange text-white' : 
+                        isPreviouslySelected ? 'bg-orange-100 text-orange-500 border border-orange-300' : 
+                        'bg-gray-100 text-gray-500'}`} 
+                      aria-hidden="true"
+                    >
                       {optionLetter}
                     </span>
                     <span className="text-gray-700 whitespace-normal text-xs sm:text-sm md:text-sm lg:text-base">

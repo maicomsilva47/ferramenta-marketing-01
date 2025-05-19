@@ -8,11 +8,17 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ThankYouPage from "./pages/ThankYouPage";
 
+// Configuração mais robusta do query client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retry: 1
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutos
+      gcTime: 10 * 60 * 1000, // 10 minutos
+    },
+    mutations: {
+      retry: 1,
     }
   }
 });

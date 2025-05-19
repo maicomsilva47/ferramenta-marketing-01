@@ -1,10 +1,17 @@
 
 import React from 'react';
 import DiagnosticApp from '@/components/DiagnosticApp';
+import { Helmet } from 'react-helmet';
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
+      <Helmet>
+        <title>Diagnóstico - Growth Machine</title>
+        <meta property="og:title" content="Diagnóstico - Growth Machine" />
+        <meta name="twitter:title" content="Diagnóstico - Growth Machine" />
+      </Helmet>
+      
       <main className="w-full">
         <DiagnosticApp />
       </main>
