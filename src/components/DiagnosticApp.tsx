@@ -12,6 +12,7 @@ import { diagnosticQuestions, pillarNames } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
 import { sendToHubspot, UserFormData } from '@/utils/hubspotIntegration';
+import { Button } from './ui/button';
 
 enum DiagnosticState {
   LANDING,
@@ -19,6 +20,13 @@ enum DiagnosticState {
   USER_INFO,
   RESULTS
 }
+
+// Storage keys
+const STORAGE_KEY_SESSION = 'diagnostic_session';
+const STORAGE_KEY_ANSWERS = 'diagnostic_answers';
+const STORAGE_KEY_STATE = 'diagnostic_state';
+const STORAGE_KEY_QUESTION_INDEX = 'diagnostic_question_index';
+const STORAGE_KEY_USER_FORM = 'diagnostic_user_form';
 
 const DiagnosticApp: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -33,6 +41,11 @@ const DiagnosticApp: React.FC = () => {
   const [resultsId, setResultsId] = useState<string | null>(shareId);
   const [userData, setUserData] = useState<UserInfo | null>(null);
   const [completedAnswers, setCompletedAnswers] = useState<UserAnswer[]>([]);
+  
+  // New state for session persistence
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [hasExistingSession, setHasExistingSession] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Organize questions by pillar
   const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
@@ -72,81 +85,232 @@ const DiagnosticApp: React.FC = () => {
   const { currentPillarQuestion, totalPillarQuestions } = getCurrentPillarQuestionInfo();
   const currentPillarIndex = getCurrentPillarIndex();
 
-  // Load shared results if a share_id is provided
+  // Check for existing session on initial load
   useEffect(() => {
+    // If we have a share_id, we're loading shared results instead of a saved session
     if (shareId) {
-      try {
-        const storageKey = `diagnosticShare_${shareId}`;
-        const storedData = localStorage.getItem(storageKey);
-        
-        if (storedData) {
-          const data = JSON.parse(storedData);
-          
-          // Check if data has expired
-          if (data.expiresAt && Date.now() > data.expiresAt) {
-            localStorage.removeItem(storageKey);
-            toast.error("Este link de diagnóstico expirou.");
-            setDiagnosticState(DiagnosticState.LANDING);
-            return;
-          }
-          
-          // Calculate the total possible score - this was missing before
-          let totalPossibleScoreFromData = 100; // Default fallback
-          
-          // If we have pillar scores stored, calculate the actual totalPossibleScore
-          if (data.pillarScores) {
-            let calculatedPossibleScore = 0;
-            
-            Object.values(data.pillarScores).forEach((pillarScore: any) => {
-              if (pillarScore.totalQuestions) {
-                // Using a 1-4 scale with max of 4 points per question
-                calculatedPossibleScore += pillarScore.totalQuestions * 4;
-              }
-            });
-            
-            if (calculatedPossibleScore > 0) {
-              totalPossibleScoreFromData = calculatedPossibleScore;
-            }
-          }
-          
-          // Reconstruct the results object from stored data with the correct totalPossibleScore
-          const loadedResults: DiagnosticResult = {
-            pillarScores: data.pillarScores || {},
-            totalScore: parseFloat(data.totalScore || data.overall) || 0,
-            totalPossibleScore: data.totalPossibleScore || totalPossibleScoreFromData,
-            overallEvaluation: data.evaluation || 'medium',
-            recommendations: data.recommendations || [],
-            userData: data.userData || null
-          };
-          
-          console.log('Loaded shared diagnostic with:', { 
-            totalScore: loadedResults.totalScore,
-            totalPossibleScore: loadedResults.totalPossibleScore,
-            shareId
-          });
-          
-          setResults(loadedResults);
-          setResultsId(shareId);
-        } else {
-          toast.error("Não foi possível encontrar os resultados compartilhados.");
-          setDiagnosticState(DiagnosticState.LANDING);
-        }
-      } catch (error) {
-        console.error("Error loading shared diagnostic:", error);
-        toast.error("Ocorreu um erro ao carregar o diagnóstico compartilhado.");
-        setDiagnosticState(DiagnosticState.LANDING);
-      }
+      loadSharedResults();
+      return;
     }
+    
+    // Check if there's a saved session
+    checkForExistingSession();
   }, [shareId]);
 
-  const handleStartDiagnostic = () => {
-    // Go directly to questions instead of user info
+  // Save progress to localStorage whenever answers or currentQuestionIndex change
+  useEffect(() => {
+    if (diagnosticState === DiagnosticState.QUESTIONS && !shareId && sessionId) {
+      saveProgressToLocalStorage();
+    }
+  }, [answers, currentQuestionIndex, diagnosticState, sessionId]);
+
+  // Check for existing diagnostic session
+  const checkForExistingSession = () => {
+    try {
+      const savedSessionId = localStorage.getItem(STORAGE_KEY_SESSION);
+      const savedAnswers = localStorage.getItem(STORAGE_KEY_ANSWERS);
+      const savedQuestionIndex = localStorage.getItem(STORAGE_KEY_QUESTION_INDEX);
+      const savedUserForm = localStorage.getItem(STORAGE_KEY_USER_FORM);
+      
+      // If we have saved answers, we have an existing session
+      if (savedSessionId && savedAnswers) {
+        const parsedAnswers = JSON.parse(savedAnswers) as UserAnswer[];
+        const questionIndex = savedQuestionIndex ? parseInt(savedQuestionIndex, 10) : 0;
+        
+        // Set session data
+        setSessionId(savedSessionId);
+        setAnswers(parsedAnswers);
+        setCurrentQuestionIndex(questionIndex);
+        
+        // If we have saved user data
+        if (savedUserForm) {
+          try {
+            const parsedUserData = JSON.parse(savedUserForm) as UserInfo;
+            setUserData(parsedUserData);
+          } catch (error) {
+            console.warn("Error parsing saved user form data:", error);
+          }
+        }
+        
+        // Show user there's an existing session
+        const progress = Math.round((questionIndex / diagnosticQuestions.length) * 100);
+        setHasExistingSession(true);
+        
+        console.log(`Found existing diagnostic session: ${progress}% complete`);
+      } else {
+        // Create a new session
+        const newSessionId = generateUniqueId();
+        setSessionId(newSessionId);
+        localStorage.setItem(STORAGE_KEY_SESSION, newSessionId);
+        setHasExistingSession(false);
+      }
+      
+      // End loading state
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error checking for existing session:", error);
+      // Create a new session if there was an error
+      const newSessionId = generateUniqueId();
+      setSessionId(newSessionId);
+      localStorage.setItem(STORAGE_KEY_SESSION, newSessionId);
+      setHasExistingSession(false);
+      setIsLoading(false);
+    }
+  };
+  
+  // Save current progress to localStorage
+  const saveProgressToLocalStorage = () => {
+    try {
+      if (!sessionId) return;
+      
+      // Save answers
+      localStorage.setItem(STORAGE_KEY_ANSWERS, JSON.stringify(answers));
+      
+      // Save current question index
+      localStorage.setItem(STORAGE_KEY_QUESTION_INDEX, currentQuestionIndex.toString());
+      
+      // Save diagnostic state
+      localStorage.setItem(STORAGE_KEY_STATE, diagnosticState.toString());
+      
+      // If we have user data, save it
+      if (userData) {
+        localStorage.setItem(STORAGE_KEY_USER_FORM, JSON.stringify(userData));
+      }
+      
+      console.log(`Progress saved: Question ${currentQuestionIndex + 1}/${diagnosticQuestions.length}`);
+    } catch (error) {
+      console.error("Error saving progress:", error);
+    }
+  };
+  
+  // Clear saved session
+  const clearSavedSession = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY_SESSION);
+      localStorage.removeItem(STORAGE_KEY_ANSWERS);
+      localStorage.removeItem(STORAGE_KEY_QUESTION_INDEX);
+      localStorage.removeItem(STORAGE_KEY_STATE);
+      localStorage.removeItem(STORAGE_KEY_USER_FORM);
+      console.log("Diagnostic session cleared");
+    } catch (error) {
+      console.error("Error clearing session:", error);
+    }
+  };
+
+  // Continue a saved session
+  const continueSavedSession = () => {
+    setDiagnosticState(DiagnosticState.QUESTIONS);
+  };
+  
+  // Start a new session
+  const startNewSession = () => {
+    // Clear any existing session data
+    clearSavedSession();
+    
+    // Create a new session
+    const newSessionId = generateUniqueId();
+    setSessionId(newSessionId);
+    localStorage.setItem(STORAGE_KEY_SESSION, newSessionId);
+    
+    // Reset state
+    setCurrentQuestionIndex(0);
+    setAnswers([]);
+    setUserData(null);
+    
+    // Start the diagnostic
     setDiagnosticState(DiagnosticState.QUESTIONS);
   };
 
+  // Load shared results if a share_id is provided
+  const loadSharedResults = () => {
+    try {
+      setIsLoading(true);
+      const storageKey = `diagnosticShare_${shareId}`;
+      const storedData = localStorage.getItem(storageKey);
+      
+      if (storedData) {
+        const data = JSON.parse(storedData);
+        
+        // Check if data has expired
+        if (data.expiresAt && Date.now() > data.expiresAt) {
+          localStorage.removeItem(storageKey);
+          toast.error("Este link de diagnóstico expirou.");
+          setDiagnosticState(DiagnosticState.LANDING);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Calculate the total possible score - this was missing before
+        let totalPossibleScoreFromData = 100; // Default fallback
+        
+        // If we have pillar scores stored, calculate the actual totalPossibleScore
+        if (data.pillarScores) {
+          let calculatedPossibleScore = 0;
+          
+          Object.values(data.pillarScores).forEach((pillarScore: any) => {
+            if (pillarScore.totalQuestions) {
+              // Using a 1-4 scale with max of 4 points per question
+              calculatedPossibleScore += pillarScore.totalQuestions * 4;
+            }
+          });
+          
+          if (calculatedPossibleScore > 0) {
+            totalPossibleScoreFromData = calculatedPossibleScore;
+          }
+        }
+        
+        // Reconstruct the results object from stored data with the correct totalPossibleScore
+        const loadedResults: DiagnosticResult = {
+          pillarScores: data.pillarScores || {},
+          totalScore: parseFloat(data.totalScore || data.overall) || 0,
+          totalPossibleScore: data.totalPossibleScore || totalPossibleScoreFromData,
+          overallEvaluation: data.evaluation || 'medium',
+          recommendations: data.recommendations || [],
+          userData: data.userData || null
+        };
+        
+        console.log('Loaded shared diagnostic with:', { 
+          totalScore: loadedResults.totalScore,
+          totalPossibleScore: loadedResults.totalPossibleScore,
+          shareId
+        });
+        
+        setResults(loadedResults);
+        setResultsId(shareId);
+      } else {
+        toast.error("Não foi possível encontrar os resultados compartilhados.");
+        setDiagnosticState(DiagnosticState.LANDING);
+      }
+    } catch (error) {
+      console.error("Error loading shared diagnostic:", error);
+      toast.error("Ocorreu um erro ao carregar o diagnóstico compartilhado.");
+      setDiagnosticState(DiagnosticState.LANDING);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartDiagnostic = () => {
+    // If there's an existing session, show the restart option
+    if (hasExistingSession) {
+      return;
+    }
+    
+    // Otherwise start a new diagnostic session
+    startNewSession();
+  };
+
   const handleUserInfoSubmit = async (formData: UserFormData) => {
+    // Show loading state
+    setIsLoading(true);
+    
     // Store user data
     setUserData(formData);
+    
+    // Save user data to localStorage for session persistence
+    if (sessionId) {
+      localStorage.setItem(STORAGE_KEY_USER_FORM, JSON.stringify(formData));
+    }
     
     try {
       // Now use the completedAnswers to calculate results
@@ -174,6 +338,9 @@ const DiagnosticApp: React.FC = () => {
       // Now proceed to results
       setDiagnosticState(DiagnosticState.RESULTS);
       
+      // Clear the in-progress session as it's now complete
+      clearSavedSession();
+      
     } catch (error) {
       console.error("Error in user form submission:", error);
       toast.error("Houve um erro ao processar seus dados, mas você pode continuar com o diagnóstico.");
@@ -184,7 +351,11 @@ const DiagnosticApp: React.FC = () => {
         calculatedResults.userData = formData;
         setResults(calculatedResults);
         setDiagnosticState(DiagnosticState.RESULTS);
+        clearSavedSession();
       }
+    } finally {
+      // End loading state
+      setIsLoading(false);
     }
   };
 
@@ -303,12 +474,23 @@ const DiagnosticApp: React.FC = () => {
     url.searchParams.delete('share_id');
     window.history.replaceState({}, '', url);
     
+    // Clear any existing session
+    clearSavedSession();
+    
+    // Reset all state
     setCurrentQuestionIndex(0);
     setAnswers([]);
     setResults(null);
     setResultsId(null);
     setUserData(null);
     setCompletedAnswers([]);
+    
+    // Create a new session
+    const newSessionId = generateUniqueId();
+    setSessionId(newSessionId);
+    localStorage.setItem(STORAGE_KEY_SESSION, newSessionId);
+    
+    // Go back to landing page
     setDiagnosticState(DiagnosticState.LANDING);
   };
 
@@ -322,9 +504,50 @@ const DiagnosticApp: React.FC = () => {
 
   const progressPercentage = ((currentQuestionIndex + 1) / diagnosticQuestions.length) * 100;
 
+  // Loading indicator component
+  if (isLoading) {
+    return (
+      <div className="container max-w-6xl mx-auto px-4 py-6 sm:py-12 flex justify-center items-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-growth-orange mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-6xl mx-auto px-4 py-6 sm:py-12">
-      {diagnosticState === DiagnosticState.LANDING && (
+      {/* Existing Session Notice */}
+      {hasExistingSession && diagnosticState === DiagnosticState.LANDING && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 p-6 bg-orange-50 border border-growth-orange rounded-lg"
+        >
+          <h2 className="text-xl font-semibold mb-2">Você tem um diagnóstico em andamento</h2>
+          <p className="mb-4 text-gray-700">Você já começou um diagnóstico anteriormente. Gostaria de continuar de onde parou ou iniciar um novo?</p>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              onClick={continueSavedSession}
+              className="bg-growth-orange hover:bg-orange-600"
+            >
+              Continuar diagnóstico
+            </Button>
+            <Button 
+              onClick={startNewSession}
+              variant="outline"
+              className="border-growth-orange text-growth-orange hover:bg-orange-50"
+            >
+              Iniciar novo diagnóstico
+            </Button>
+          </div>
+        </motion.div>
+      )}
+      
+      {diagnosticState === DiagnosticState.LANDING && !hasExistingSession && (
         <LandingPage onStartDiagnostic={handleStartDiagnostic} />
       )}
       
@@ -334,7 +557,11 @@ const DiagnosticApp: React.FC = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <UserInfoForm onSubmit={handleUserInfoSubmit} isAfterQuestions={true} />
+          <UserInfoForm 
+            onSubmit={handleUserInfoSubmit} 
+            isAfterQuestions={true}
+            initialData={userData}
+          />
         </motion.div>
       )}
       

@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "sonner";
+import { UserInfo } from "@/types/diagnostic";
 
 // Form validation schema
 const formSchema = z.object({
@@ -37,21 +38,22 @@ type FormValues = z.infer<typeof formSchema>;
 interface UserInfoFormProps {
   onSubmit: (data: FormValues) => void;
   isAfterQuestions?: boolean;
+  initialData?: UserInfo | null;
 }
 
-const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions = false }) => {
+const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions = false, initialData = null }) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      company: "",
-      phone: "",
-      utm_source: getUtmParameter("utm_source"),
-      utm_medium: getUtmParameter("utm_medium"),
-      utm_campaign: getUtmParameter("utm_campaign"),
-      utm_term: getUtmParameter("utm_term"),
-      utm_content: getUtmParameter("utm_content"),
+      name: initialData?.name || "",
+      email: initialData?.email || "",
+      company: initialData?.company || "",
+      phone: initialData?.phone || "",
+      utm_source: initialData?.utm_source || getUtmParameter("utm_source"),
+      utm_medium: initialData?.utm_medium || getUtmParameter("utm_medium"),
+      utm_campaign: initialData?.utm_campaign || getUtmParameter("utm_campaign"),
+      utm_term: initialData?.utm_term || getUtmParameter("utm_term"),
+      utm_content: initialData?.utm_content || getUtmParameter("utm_content"),
     },
   });
 
