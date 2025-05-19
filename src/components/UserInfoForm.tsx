@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { UserInfo } from "@/types/diagnostic";
+import { Loader } from "lucide-react";
 
 // Form validation schema
 const formSchema = z.object({
@@ -42,6 +43,8 @@ interface UserInfoFormProps {
 }
 
 const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions = false, initialData = null }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,11 +80,26 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
 
   const handleSubmit = (data: FormValues) => {
     try {
-      // Submit the form data
-      onSubmit(data);
+      // Prevent multiple submissions
+      if (isSubmitting) return;
+      
+      // Set submitting state
+      setIsSubmitting(true);
+      
+      // Submit the form data after a small delay
+      setTimeout(() => {
+        onSubmit(data);
+        
+        // Reset submitting state after a delay
+        setTimeout(() => {
+          setIsSubmitting(false);
+        }, 500);
+      }, 200);
+      
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Erro ao enviar o formulário. Por favor, tente novamente.");
+      setIsSubmitting(false);
     }
   };
 
@@ -106,7 +124,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
               <FormItem>
                 <FormLabel>Nome completo</FormLabel>
                 <FormControl>
-                  <Input placeholder="João Silva" {...field} />
+                  <Input placeholder="João Silva" {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,7 +138,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="joao@empresa.com" {...field} />
+                  <Input placeholder="joao@empresa.com" {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -134,7 +152,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
               <FormItem>
                 <FormLabel>Nome da empresa</FormLabel>
                 <FormControl>
-                  <Input placeholder="Growth Machine" {...field} />
+                  <Input placeholder="Growth Machine" {...field} disabled={isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -155,6 +173,7 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
                       onChange(formatted);
                     }}
                     {...rest}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -171,9 +190,17 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
           
           <Button
             type="submit"
-            className="w-full bg-growth-orange hover:bg-orange-600 h-12 mt-4"
+            className="w-full bg-growth-orange hover:bg-orange-600 h-12 mt-4 relative"
+            disabled={isSubmitting}
           >
-            {isAfterQuestions ? "Ver Resultados" : "Iniciar Diagnóstico"}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center">
+                <Loader className="animate-spin mr-2" size={18} />
+                <span>Processando...</span>
+              </span>
+            ) : (
+              isAfterQuestions ? "Ver Resultados" : "Iniciar Diagnóstico"
+            )}
           </Button>
         </form>
       </Form>

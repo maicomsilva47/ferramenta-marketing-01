@@ -1,8 +1,7 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader } from 'lucide-react';
 import { DiagnosticQuestion as QuestionType, OptionValue } from '@/types/diagnostic';
 import { pillarNames } from '@/data/diagnosticData';
 import { motion } from 'framer-motion';
@@ -34,6 +33,31 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   previousAnswer
 }) => {
   const isMobile = useIsMobile();
+  const [selectedValue, setSelectedValue] = useState<OptionValue | undefined>(previousAnswer);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Handle option selection with debounce
+  const handleOptionSelect = (value: OptionValue) => {
+    // Don't allow selection while submitting
+    if (isSubmitting) return;
+    
+    // Set local state immediately for UI feedback
+    setSelectedValue(value);
+    
+    // Show loading state
+    setIsSubmitting(true);
+    
+    // Delay to ensure state is updated and provide visual feedback
+    setTimeout(() => {
+      // Call the parent handler to record the answer
+      onSelectAnswer(value);
+      
+      // Keep the loading state visible for a short while
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 200);
+    }, 800); // Longer delay to ensure state is updated
+  };
   
   return (
     <div className="flex justify-center items-center min-h-[60vh]">
@@ -63,7 +87,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
           <div className="space-y-3 md:space-y-4 max-h-[55vh] md:max-h-[60vh] overflow-y-auto pr-1 pb-2">
             {question.options.map((option, index) => {
               const optionLetter = String.fromCharCode(65 + index);
-              const isSelected = previousAnswer !== undefined && previousAnswer === option.value;
+              const isSelected = selectedValue !== undefined && selectedValue === option.value;
               
               return (
                 <motion.button
@@ -72,10 +96,11 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
                     ${isSelected 
                       ? 'border-growth-orange bg-orange-50 shadow-md' 
                       : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}
-                  onClick={() => onSelectAnswer(option.value)}
+                  onClick={() => handleOptionSelect(option.value)}
                   aria-label={`Opção ${optionLetter}: ${option.label}`}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
+                  disabled={isSubmitting}
                 >
                   <div className="flex items-start gap-2 md:gap-3">
                     <span className={`font-medium flex items-center justify-center w-5 h-5 md:w-6 md:h-6 rounded-full flex-shrink-0 mt-0.5 ${isSelected ? 'bg-growth-orange text-white' : 'bg-gray-100 text-gray-500'}`} aria-hidden="true">
@@ -90,6 +115,14 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
             })}
           </div>
           
+          {/* Loading indicator */}
+          {isSubmitting && (
+            <div className="mt-4 flex items-center justify-center">
+              <Loader className="animate-spin text-growth-orange mr-2" size={20} />
+              <span className="text-sm text-gray-600">Salvando resposta...</span>
+            </div>
+          )}
+          
           {/* Back button */}
           {onGoBack && (
             <div className="mt-4 md:mt-6 flex justify-start">
@@ -98,6 +131,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
                 onClick={onGoBack}
                 className="text-gray-600 hover:text-growth-orange hover:bg-orange-50 h-8 md:h-10 text-xs md:text-sm"
                 aria-label="Voltar para a pergunta anterior"
+                disabled={isSubmitting}
               >
                 <ArrowLeft size={16} className="mr-2" aria-hidden="true" /> Voltar
               </Button>
