@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -42,10 +43,12 @@ const DiagnosticApp: React.FC = () => {
   const [userData, setUserData] = useState<UserInfo | null>(null);
   const [completedAnswers, setCompletedAnswers] = useState<UserAnswer[]>([]);
   
-  // New state for session persistence
+  // New state for session persistence and processing
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [hasExistingSession, setHasExistingSession] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingAnswer, setIsProcessingAnswer] = useState(false);
+  const [lastAnswerTimestamp, setLastAnswerTimestamp] = useState<number | null>(null);
 
   // Organize questions by pillar
   const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
@@ -103,6 +106,26 @@ const DiagnosticApp: React.FC = () => {
       saveProgressToLocalStorage();
     }
   }, [answers, currentQuestionIndex, diagnosticState, sessionId]);
+
+  // Ensure we don't proceed to the next step too quickly
+  useEffect(() => {
+    if (lastAnswerTimestamp) {
+      const timeSinceLastAnswer = Date.now() - lastAnswerTimestamp;
+      // If it's been less than our minimum processing time, stay in processing mode
+      if (timeSinceLastAnswer < 1200) {
+        setIsProcessingAnswer(true);
+        
+        // Schedule the end of processing after the time difference
+        const timeoutId = setTimeout(() => {
+          setIsProcessingAnswer(false);
+        }, 1200 - timeSinceLastAnswer);
+        
+        return () => clearTimeout(timeoutId);
+      } else {
+        setIsProcessingAnswer(false);
+      }
+    }
+  }, [lastAnswerTimestamp]);
 
   // Check for existing diagnostic session
   const checkForExistingSession = () => {
@@ -313,8 +336,21 @@ const DiagnosticApp: React.FC = () => {
     }
     
     try {
+      // Validate that all questions have been answered
+      if (completedAnswers.length < diagnosticQuestions.length) {
+        // Try to recover by using the current answers state
+        if (answers.length >= diagnosticQuestions.length) {
+          setCompletedAnswers(answers);
+        } else {
+          toast.error("Algumas perguntas não foram respondidas corretamente. Por favor, reinicie o diagnóstico.");
+          setDiagnosticState(DiagnosticState.LANDING);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
       // Now use the completedAnswers to calculate results
-      const calculatedResults = calculateResults(completedAnswers, diagnosticQuestions);
+      const calculatedResults = calculateResults(completedAnswers.length >= diagnosticQuestions.length ? completedAnswers : answers, diagnosticQuestions);
       
       // Add user data to results
       calculatedResults.userData = formData;
@@ -346,8 +382,9 @@ const DiagnosticApp: React.FC = () => {
       toast.error("Houve um erro ao processar seus dados, mas você pode continuar com o diagnóstico.");
       
       // Even if there's an error, try to proceed to results
-      if (completedAnswers.length > 0) {
-        const calculatedResults = calculateResults(completedAnswers, diagnosticQuestions);
+      if (completedAnswers.length > 0 || answers.length > 0) {
+        const answersToUse = completedAnswers.length >= diagnosticQuestions.length ? completedAnswers : answers;
+        const calculatedResults = calculateResults(answersToUse, diagnosticQuestions);
         calculatedResults.userData = formData;
         setResults(calculatedResults);
         setDiagnosticState(DiagnosticState.RESULTS);
@@ -360,6 +397,15 @@ const DiagnosticApp: React.FC = () => {
   };
 
   const handleSelectAnswer = (value: OptionValue) => {
+    // If we're already processing, don't allow another answer
+    if (isProcessingAnswer) {
+      console.log("Ignoring answer selection because we're still processing the previous one");
+      return;
+    }
+    
+    // Start processing mode
+    setIsProcessingAnswer(true);
+    
     const currentQuestion = diagnosticQuestions[currentQuestionIndex];
     
     // Record the answer
@@ -368,6 +414,7 @@ const DiagnosticApp: React.FC = () => {
       selectedOption: value
     };
     
+    // Update answers state
     const updatedAnswers = [...answers];
     const existingAnswerIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
     
@@ -377,18 +424,55 @@ const DiagnosticApp: React.FC = () => {
       updatedAnswers.push(answer);
     }
     
+    // First update the answers state
     setAnswers(updatedAnswers);
     
-    // Automatically advance to the next question after a short delay
+    // Store the timestamp of this answer
+    setLastAnswerTimestamp(Date.now());
+    
+    // Wait a longer period to ensure the state is updated and the user sees visual feedback
     setTimeout(() => {
+      // Verify the answer was saved
+      const savedAnswer = updatedAnswers.find(a => a.questionId === currentQuestion.id);
+      if (!savedAnswer || savedAnswer.selectedOption !== value) {
+        console.error("Answer not properly saved before proceeding", {
+          current: savedAnswer?.selectedOption,
+          expected: value
+        });
+        toast.error("Houve um erro ao salvar sua resposta. Tente novamente.");
+        setIsProcessingAnswer(false);
+        return;
+      }
+      
+      // Now decide whether to advance or complete
       if (currentQuestionIndex < diagnosticQuestions.length - 1) {
+        // Move to next question with a longer delay
         setCurrentQuestionIndex(prev => prev + 1);
+        
+        // Create an artificial delay to ensure the state update propagates
+        setTimeout(() => {
+          setIsProcessingAnswer(false);
+        }, 500);
       } else {
         // Store the completed answers and move to user info collection
+        console.log("Completed all questions, moving to user form", { answersCount: updatedAnswers.length });
         setCompletedAnswers(updatedAnswers);
-        setDiagnosticState(DiagnosticState.USER_INFO);
+        
+        // Ensure we have answers for all questions before proceeding
+        if (updatedAnswers.length < diagnosticQuestions.length) {
+          console.error("Not all questions have answers", {
+            answers: updatedAnswers.length,
+            questions: diagnosticQuestions.length
+          });
+          toast.error("Algumas perguntas não foram respondidas. Por favor, reinicie o diagnóstico.");
+          setDiagnosticState(DiagnosticState.LANDING);
+        } else {
+          setDiagnosticState(DiagnosticState.USER_INFO);
+        }
+        
+        setIsProcessingAnswer(false);
       }
-    }, 400); // Short delay for visual feedback
+    }, 1500); // Much longer delay to ensure smooth transitions
   };
   
   // Function to save results to localStorage - update to store totalPossibleScore
@@ -463,6 +547,9 @@ const DiagnosticApp: React.FC = () => {
   };
 
   const handleGoBack = () => {
+    // Don't allow going back if we're processing
+    if (isProcessingAnswer) return;
+    
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
     }
@@ -484,6 +571,7 @@ const DiagnosticApp: React.FC = () => {
     setResultsId(null);
     setUserData(null);
     setCompletedAnswers([]);
+    setIsProcessingAnswer(false);
     
     // Create a new session
     const newSessionId = generateUniqueId();
@@ -533,6 +621,7 @@ const DiagnosticApp: React.FC = () => {
             <Button 
               onClick={continueSavedSession}
               className="bg-growth-orange hover:bg-orange-600"
+              disabled={isProcessingAnswer}
             >
               Continuar diagnóstico
             </Button>
@@ -540,6 +629,7 @@ const DiagnosticApp: React.FC = () => {
               onClick={startNewSession}
               variant="outline"
               className="border-growth-orange text-growth-orange hover:bg-orange-50"
+              disabled={isProcessingAnswer}
             >
               Iniciar novo diagnóstico
             </Button>
@@ -598,6 +688,7 @@ const DiagnosticApp: React.FC = () => {
               onSelectAnswer={handleSelectAnswer}
               onGoBack={currentQuestionIndex > 0 ? handleGoBack : undefined}
               previousAnswer={getPreviousAnswer()}
+              isProcessing={isProcessingAnswer}
             />
           </div>
         </motion.div>
