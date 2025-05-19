@@ -10,6 +10,8 @@ const Index = () => {
         <title>Diagnóstico - Growth Machine</title>
         <meta property="og:title" content="Diagnóstico - Growth Machine" />
         <meta name="twitter:title" content="Diagnóstico - Growth Machine" />
+        <meta property="og:image" content="/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png" />
+        <meta name="twitter:image" content="/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png" />
       </Helmet>
       
       <main className="w-full">

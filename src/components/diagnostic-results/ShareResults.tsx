@@ -32,6 +32,11 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       const baseUrl = window.location.origin;
       const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
       setShareableLink(generatedLink);
+      
+      // Ensure the meta tags are updated for proper sharing
+      document.querySelector('meta[property="og:title"]')?.setAttribute('content', 'Diagnóstico - Growth Machine');
+      document.querySelector('meta[property="og:image"]')?.setAttribute('content', `${baseUrl}/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png`);
+      document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', `${baseUrl}/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png`);
     }
   }, [resultsId]);
 
