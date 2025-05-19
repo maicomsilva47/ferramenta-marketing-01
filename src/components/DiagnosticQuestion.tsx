@@ -36,13 +36,18 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
   isProcessing = false
 }) => {
   const isMobile = useIsMobile();
-  const [selectedValue, setSelectedValue] = useState<OptionValue | undefined>(previousAnswer);
+  const [selectedValue, setSelectedValue] = useState<OptionValue | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [processingComplete, setProcessingComplete] = useState(false);
   
-  // Reset processing state when question changes
+  // Reset processing state when question changes, but only set selectedValue to previousAnswer if it exists
   useEffect(() => {
-    setSelectedValue(previousAnswer);
+    if (previousAnswer !== undefined) {
+      setSelectedValue(previousAnswer);
+    } else {
+      setSelectedValue(undefined);
+    }
+    
     setIsSubmitting(false);
     setProcessingComplete(false);
   }, [question.id, previousAnswer]);
@@ -70,13 +75,13 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
       // Keep the loading state visible for a short while
       setTimeout(() => {
         setIsSubmitting(false);
-      }, 300);
-    }, 1000); // Longer delay to ensure state is updated and to prevent rapid clicks
+      }, 500); // Extend this slightly for better user feedback
+    }, 1500); // Longer delay to ensure state is updated and to prevent rapid clicks
   };
   
   return (
-    <div className="flex justify-center items-center min-h-[60vh]">
-      <Card className="w-full max-w-4xl mx-auto shadow-lg animate-fade-in border-t-4 border-t-growth-orange overflow-hidden">
+    <div className="flex justify-center items-center min-h-[60vh] px-2">
+      <Card className="w-full max-w-4xl mx-auto shadow-lg animate-fade-in border-t-4 border-t-growth-orange">
         <CardContent className="pt-6 pb-6 px-4 md:pt-8 md:pb-8 md:px-6">
           <div className="mb-4 md:mb-6">
             <div className="flex items-center mb-2 md:mb-3 flex-wrap gap-2">
@@ -99,6 +104,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
             <h2 className="text-base md:text-lg lg:text-xl font-bold text-gray-800 break-words">{question.text}</h2>
           </div>
           
+          {/* Removing overflow-hidden to prevent cut-off during scaling */}
           <div className="space-y-3 md:space-y-4 max-h-[55vh] md:max-h-[60vh] overflow-y-auto pr-1 pb-2">
             {question.options.map((option, index) => {
               const optionLetter = String.fromCharCode(65 + index);
@@ -107,7 +113,7 @@ const DiagnosticQuestion: React.FC<DiagnosticQuestionProps> = ({
               return (
                 <motion.button
                   key={index}
-                  className={`w-full p-3 sm:p-4 md:p-4 text-left border-2 rounded-lg transition-all duration-300 break-words overflow-hidden
+                  className={`w-full p-3 sm:p-4 md:p-4 text-left border-2 rounded-lg transition-all duration-300 break-words
                     ${isSelected 
                       ? 'border-growth-orange bg-orange-50 shadow-md' 
                       : 'hover:border-growth-orange hover:bg-orange-50 border-gray-200'}`}

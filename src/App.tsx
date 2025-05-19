@@ -8,7 +8,14 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ThankYouPage from "./pages/ThankYouPage";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  }
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,7 +30,6 @@ const App = () => (
             path="/resultados" 
             element={<Navigate to={`/?share_id=${new URLSearchParams(window.location.search).get('id') || ''}`} replace />} 
           />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
