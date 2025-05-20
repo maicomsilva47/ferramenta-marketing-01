@@ -7,7 +7,7 @@ import DiagnosticQuestion from '@/components/DiagnosticQuestion';
 import DiagnosticResults from '@/components/DiagnosticResults';
 import UserInfoForm from '@/components/UserInfoForm';
 import ProgressBar from '@/components/ProgressBar';
-import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue, DiagnosticPillar, UserInfo } from '@/types/diagnostic';
+import { DiagnosticQuestion as QuestionType, UserAnswer, DiagnosticResult, OptionValue, DiagnosticPillar, UserInfo, EvaluationType } from '@/types/diagnostic';
 import { diagnosticQuestions, pillarNames } from '@/data/diagnosticData';
 import { calculateResults } from '@/utils/diagnosticCalculations';
 import { generateUniqueId } from '@/utils/idGenerator';
