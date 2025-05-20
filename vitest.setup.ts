@@ -9,7 +9,7 @@ expect.extend(matchers as any);
 // Add the necessary type definitions for jest-dom
 declare global {
   namespace Vi {
-    interface AsExpected {
+    interface Assertion {
       // Extending with jest-dom matchers
       toBeInTheDocument(): void;
       toHaveClass(...classNames: string[]): void;
