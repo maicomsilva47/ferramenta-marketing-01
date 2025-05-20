@@ -1,4 +1,5 @@
-import { DiagnosticQuestion, DiagnosticResult, DiagnosticPillar, UserAnswer, PillarScore, OptionValue } from '@/types/diagnostic';
+
+import { DiagnosticQuestion, DiagnosticResult, DiagnosticPillar, UserAnswer, PillarScore, OptionValue, EvaluationType } from '@/types/diagnostic';
 import { getEvaluationFromScore } from '@/components/diagnostic-results/utils';
 
 export function calculateResults(answers: UserAnswer[], questions: DiagnosticQuestion[]): DiagnosticResult {

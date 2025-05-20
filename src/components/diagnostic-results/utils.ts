@@ -1,7 +1,8 @@
-import { DiagnosticPillar, OptionValue, PillarScore } from '@/types/diagnostic';
+
+import { DiagnosticPillar, OptionValue, PillarScore, EvaluationType } from '@/types/diagnostic';
 import { Resource } from './ResourcesList';
 
-export const getEvaluationColor = (evaluation: OptionValue): string => {
+export const getEvaluationColor = (evaluation: EvaluationType): string => {
   switch (evaluation) {
     case 'high': return 'text-green-600';
     case 'medium': return 'text-amber-600';
@@ -10,7 +11,7 @@ export const getEvaluationColor = (evaluation: OptionValue): string => {
   }
 };
 
-export const getProgressColor = (evaluation: OptionValue): string => {
+export const getProgressColor = (evaluation: EvaluationType): string => {
   switch (evaluation) {
     case 'high': return 'bg-green-500';
     case 'medium': return 'bg-amber-500';
@@ -98,8 +99,8 @@ export const generateStrategicInsights = (pillarScores: Record<DiagnosticPillar,
   return insights.slice(0, 5);
 };
 
-// New utility function for computing evaluation from score percentage
-export const getEvaluationFromScore = (scorePercentage: number): OptionValue => {
+// Updated utility function for computing evaluation from score percentage
+export const getEvaluationFromScore = (scorePercentage: number): EvaluationType => {
   if (scorePercentage >= 75) {
     return 'high';
   } else if (scorePercentage <= 45) {

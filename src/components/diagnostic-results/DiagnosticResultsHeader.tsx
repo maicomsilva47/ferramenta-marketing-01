@@ -1,17 +1,17 @@
 
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
-import { OptionValue } from '@/types/diagnostic';
+import { EvaluationType } from '@/types/diagnostic';
 import { evaluationLabels } from '@/data/diagnosticData';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 
 interface DiagnosticResultsHeaderProps {
   totalScore: number;
-  overallEvaluation: OptionValue;
+  overallEvaluation: EvaluationType;
 }
 
-const getEvaluationColor = (evaluation: OptionValue): string => {
+const getEvaluationColor = (evaluation: EvaluationType): string => {
   switch (evaluation) {
     case 'high': return 'text-green-600';
     case 'medium': return 'text-amber-600';
@@ -20,7 +20,7 @@ const getEvaluationColor = (evaluation: OptionValue): string => {
   }
 };
 
-const getProgressColor = (evaluation: OptionValue): string => {
+const getProgressColor = (evaluation: EvaluationType): string => {
   switch (evaluation) {
     case 'high': return 'bg-green-500';
     case 'medium': return 'bg-amber-500';

@@ -1,6 +1,9 @@
 
 export type OptionValue = 1 | 2 | 3 | 4 | 'high' | 'medium' | 'low';
 
+// Add a separate type for evaluation results
+export type EvaluationType = 'high' | 'medium' | 'low';
+
 export interface DiagnosticOption {
   label: string;
   value: OptionValue;
@@ -29,14 +32,14 @@ export interface PillarScore {
   pillar: DiagnosticPillar;
   score: number;
   totalQuestions: number;
-  evaluation: 'high' | 'medium' | 'low';
+  evaluation: EvaluationType;
 }
 
 export interface DiagnosticResult {
   pillarScores: Record<DiagnosticPillar, PillarScore>;
   totalScore: number;
   totalPossibleScore: number;
-  overallEvaluation: 'high' | 'medium' | 'low';
+  overallEvaluation: EvaluationType;
   recommendations: string[];
   userData?: UserInfo | null;
 }
