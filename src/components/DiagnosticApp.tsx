@@ -243,7 +243,7 @@ const DiagnosticApp: React.FC = () => {
           pillarScores: {}, // We don't have detailed pillar data in this approach
           totalScore: overallScore,
           totalPossibleScore: 100,
-          overallEvaluation: evaluation as OptionValue,
+          overallEvaluation: evaluation as EvaluationType, // Fix here - cast to EvaluationType instead of using as OptionValue
           recommendations: [
             "Este é um resultado compartilhado com dados limitados. Para um diagnóstico completo, complete o questionário."
           ]
@@ -444,7 +444,7 @@ const DiagnosticApp: React.FC = () => {
             // Make sure we're in the right state
             setDiagnosticState(DiagnosticState.QUESTIONS);
             
-            // Set a small delay to ensure state changes are processed
+            // Set a small delay to ensure state transitions complete
             setTimeout(() => {
               const firstUnanswered = missingQuestions[0];
               if (firstUnanswered >= 0 && firstUnanswered < diagnosticQuestions.length) {
