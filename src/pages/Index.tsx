@@ -12,8 +12,8 @@ const Index = () => {
         <title>Diagnóstico - Growth Machine</title>
         <meta property="og:title" content="Diagnóstico - Growth Machine" />
         <meta name="twitter:title" content="Diagnóstico - Growth Machine" />
-        <meta property="og:image" content="/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png" />
-        <meta name="twitter:image" content="/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png" />
+        <meta property="og:image" content={`${baseUrl}/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png`} />
+        <meta name="twitter:image" content={`${baseUrl}/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png`} />
         <meta property="og:url" content={baseUrl} />
         <meta property="og:description" content="Avalie a maturidade de seu negócio com nosso diagnóstico" />
         <meta name="twitter:description" content="Avalie a maturidade de seu negócio com nosso diagnóstico" />

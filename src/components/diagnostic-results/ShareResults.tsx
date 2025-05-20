@@ -26,13 +26,22 @@ const ShareResults: React.FC<ShareResultsProps> = ({
 }) => {
   const [shareableLink, setShareableLink] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const baseUrl = window.location.origin;
 
   // Generate the shareable link automatically when component mounts or resultsId changes
   useEffect(() => {
     if (resultsId) {
-      const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
-      setShareableLink(generatedLink);
+      setIsGenerating(true);
+      try {
+        const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
+        setShareableLink(generatedLink);
+      } catch (error) {
+        console.error('Error generating share link:', error);
+        toast.error("Erro ao gerar link compartilhável");
+      } finally {
+        setIsGenerating(false);
+      }
     }
   }, [resultsId, baseUrl]);
 
@@ -59,11 +68,11 @@ const ShareResults: React.FC<ShareResultsProps> = ({
         <meta property="og:description" content={`Resultado do diagnóstico: ${evaluation}. Pontuação: ${overallScore}%`} />
         <meta property="og:url" content={shareableLink} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={`${baseUrl}/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png`} />
+        <meta property="og:image" content={`${baseUrl}/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Diagnóstico - Growth Machine" />
         <meta name="twitter:description" content={`Resultado do diagnóstico: ${evaluation}. Pontuação: ${overallScore}%`} />
-        <meta name="twitter:image" content={`${baseUrl}/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png`} />
+        <meta name="twitter:image" content={`${baseUrl}/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png`} />
       </Helmet>
 
       <div className="bg-orange-50 p-6 rounded-lg shadow-sm border border-orange-100 mb-6" role="region" aria-labelledby="share-title">
@@ -74,7 +83,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
           <Input 
             value={shareableLink} 
             readOnly 
-            placeholder={resultsId ? "Gerando link..." : "Link indisponível"}
+            placeholder={isGenerating ? "Gerando link..." : (resultsId ? "Link indisponível" : "Complete o diagnóstico para compartilhar")}
             className="flex-grow min-w-0"
             aria-label="Link compartilhável"
           />
@@ -83,13 +92,15 @@ const ShareResults: React.FC<ShareResultsProps> = ({
             className={`${isCopied ? 'bg-green-600' : 'bg-growth-orange'} hover:${isCopied ? 'bg-green-700' : 'bg-orange-700'} text-white font-bold h-12 w-full sm:w-auto transition-colors`}
             size="sm"
             aria-label="Copiar link para compartilhar"
-            disabled={!shareableLink}
+            disabled={!shareableLink || isGenerating}
           >
             {isCopied ? (
               <>
                 <CheckCircle size={16} className="mr-2" aria-hidden="true" /> 
                 Copiado!
               </>
+            ) : isGenerating ? (
+              "Gerando..."
             ) : (
               <>
                 <Copy size={16} className="mr-2" aria-hidden="true" /> 

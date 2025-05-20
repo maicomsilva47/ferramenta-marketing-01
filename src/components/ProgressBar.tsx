@@ -27,14 +27,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const progressPercentage = (currentQuestion / totalQuestions) * 100;
   
   return (
-    <div className="w-full mx-auto mb-6 sm:mb-8 fixed top-0 left-0 right-0 z-30 bg-white/95 pt-4 pb-2 px-4 shadow-md">
+    <div className="w-full mx-auto mb-6 sm:mb-8 sticky top-0 left-0 right-0 z-30 bg-white/95 pt-4 pb-2 px-4 shadow-md">
       <div className="container max-w-6xl mx-auto">
         {/* Main progress info */}
         <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center mb-2">
-          <div className="flex flex-col sm:flex-row sm:items-center mb-1 sm:mb-0 break-words overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-1 sm:mb-0">
             {/* Overall progress */}
             {pillarStep && totalPillars && (
-              <span className="font-semibold text-gray-700 mb-1 sm:mb-0 sm:mr-3">
+              <span className="font-semibold text-gray-700 mb-1 sm:mb-0 sm:mr-3 whitespace-nowrap">
                 Pilar {pillarStep} de {totalPillars}
               </span>
             )}
@@ -43,7 +43,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             {currentPillar && (
               <>
                 {pillarStep && totalPillars && <span className="hidden sm:inline text-gray-400 mr-3" aria-hidden="true">•</span>}
-                <span className="text-growth-orange font-medium mb-1 sm:mb-0 break-words">
+                <span className="text-growth-orange font-medium mb-1 sm:mb-0 truncate max-w-[200px] sm:max-w-none">
                   {currentPillar}
                   
                   {/* Pillar-specific question counter */}
