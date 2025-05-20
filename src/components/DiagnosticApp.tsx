@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import LandingPage from '@/components/LandingPage';
 import DiagnosticQuestion from '@/components/DiagnosticQuestion';
@@ -29,6 +30,7 @@ const STORAGE_KEY_QUESTION_INDEX = 'diagnostic_question_index';
 const STORAGE_KEY_USER_FORM = 'diagnostic_user_form';
 
 const DiagnosticApp: React.FC = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const shareId = searchParams.get('share_id');
   
@@ -48,6 +50,7 @@ const DiagnosticApp: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingAnswer, setIsProcessingAnswer] = useState(false);
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>([]);
+  const [allQuestionsAnswered, setAllQuestionsAnswered] = useState<boolean>(false);
 
   // Organize questions by pillar
   const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
@@ -106,6 +109,22 @@ const DiagnosticApp: React.FC = () => {
     }
   }, [answers, currentQuestionIndex, diagnosticState, sessionId]);
 
+  // Function to find unanswered questions - improved version
+  const findUnansweredQuestions = (): number[] => {
+    const answeredQuestionIds = new Set(answers.map(a => a.questionId));
+    
+    const unansweredIndexes = diagnosticQuestions
+      .map((q, index) => ({ id: q.id, index }))
+      .filter(q => !answeredQuestionIds.has(q.id))
+      .map(q => q.index);
+    
+    console.log("Unanswered questions:", unansweredIndexes.length, 
+                "Answered:", answeredQuestionIds.size, 
+                "Total:", diagnosticQuestions.length);
+    
+    return unansweredIndexes;
+  };
+  
   // Check for existing diagnostic session
   const checkForExistingSession = () => {
     try {
@@ -223,15 +242,23 @@ const DiagnosticApp: React.FC = () => {
     setDiagnosticState(DiagnosticState.QUESTIONS);
   };
 
-  // Load shared results if a share_id is provided
+  // Enhanced function to load shared results using the share_id
   const loadSharedResults = () => {
     try {
       setIsLoading(true);
+      if (!shareId) {
+        setDiagnosticState(DiagnosticState.LANDING);
+        setIsLoading(false);
+        return;
+      }
+      
+      console.log(`Attempting to load shared results with ID: ${shareId}`);
       const storageKey = `diagnosticShare_${shareId}`;
       const storedData = localStorage.getItem(storageKey);
       
       if (storedData) {
         const data = JSON.parse(storedData);
+        console.log("Found shared diagnostic data:", data);
         
         // Check if data has expired
         if (data.expiresAt && Date.now() > data.expiresAt) {
@@ -242,36 +269,35 @@ const DiagnosticApp: React.FC = () => {
           return;
         }
         
-        // Calculate the total possible score - this was missing before
-        let totalPossibleScoreFromData = 100; // Default fallback
+        // Calculate the total possible score
+        let totalPossibleScoreFromData = 0;
         
         // If we have pillar scores stored, calculate the actual totalPossibleScore
         if (data.pillarScores) {
-          let calculatedPossibleScore = 0;
-          
           Object.values(data.pillarScores).forEach((pillarScore: any) => {
             if (pillarScore.totalQuestions) {
               // Using a 1-4 scale with max of 4 points per question
-              calculatedPossibleScore += pillarScore.totalQuestions * 4;
+              totalPossibleScoreFromData += pillarScore.totalQuestions * 4;
             }
           });
-          
-          if (calculatedPossibleScore > 0) {
-            totalPossibleScoreFromData = calculatedPossibleScore;
-          }
         }
         
-        // Reconstruct the results object from stored data with the correct totalPossibleScore
+        // If calculation failed, use a default
+        if (totalPossibleScoreFromData === 0) {
+          totalPossibleScoreFromData = 100;
+        }
+        
+        // Reconstruct the results object from stored data
         const loadedResults: DiagnosticResult = {
           pillarScores: data.pillarScores || {},
-          totalScore: parseFloat(data.totalScore || data.overall) || 0,
+          totalScore: data.totalScore !== undefined ? data.totalScore : parseFloat(data.overall || "0"),
           totalPossibleScore: data.totalPossibleScore || totalPossibleScoreFromData,
           overallEvaluation: data.evaluation || 'medium',
           recommendations: data.recommendations || [],
           userData: data.userData || null
         };
         
-        console.log('Loaded shared diagnostic with:', { 
+        console.log('Successfully loaded shared diagnostic with:', { 
           totalScore: loadedResults.totalScore,
           totalPossibleScore: loadedResults.totalPossibleScore,
           shareId
@@ -279,7 +305,9 @@ const DiagnosticApp: React.FC = () => {
         
         setResults(loadedResults);
         setResultsId(shareId);
+        setDiagnosticState(DiagnosticState.RESULTS);
       } else {
+        console.error(`No data found for share_id: ${shareId}`);
         toast.error("Não foi possível encontrar os resultados compartilhados.");
         setDiagnosticState(DiagnosticState.LANDING);
       }
@@ -301,24 +329,11 @@ const DiagnosticApp: React.FC = () => {
     // Otherwise start a new diagnostic session
     startNewSession();
   };
-
-  // Function to find unanswered questions
-  const findUnansweredQuestions = (): number[] => {
-    const answeredQuestionIds = answers.map(a => a.questionId);
-    const allQuestions = diagnosticQuestions.map((q, index) => ({
-      id: q.id,
-      index
-    }));
-    
-    // Find which questions are unanswered by index
-    return allQuestions
-      .filter(q => !answeredQuestionIds.includes(q.id))
-      .map(q => q.index);
-  };
   
-  // Modified function to validate if all questions have been answered
+  // Improved validation function
   const validateAllQuestionsAnswered = (): boolean => {
     const unanswered = findUnansweredQuestions();
+    setAllQuestionsAnswered(unanswered.length === 0);
     
     if (unanswered.length > 0) {
       setUnansweredQuestions(unanswered);
@@ -328,10 +343,33 @@ const DiagnosticApp: React.FC = () => {
     return true;
   };
 
+  // Improved function to go to first unanswered question
+  const goToUnansweredQuestion = () => {
+    const unanswered = findUnansweredQuestions();
+    
+    if (unanswered.length > 0) {
+      // Set the diagnostic state first
+      setDiagnosticState(DiagnosticState.QUESTIONS);
+      
+      // Use a timeout to ensure state change completes
+      setTimeout(() => {
+        const firstUnanswered = unanswered[0];
+        setCurrentQuestionIndex(firstUnanswered);
+        
+        // Find the question for better error messaging
+        const questionText = diagnosticQuestions[firstUnanswered]?.text || "uma pergunta";
+        toast.error(`Por favor, responda: ${questionText}`);
+      }, 100);
+    } else {
+      // All questions are answered
+      setAllQuestionsAnswered(true);
+    }
+  };
+
+  // Improved user info form submission
   const handleUserInfoSubmit = async (formData: UserFormData) => {
     // Validate all questions are answered before proceeding
     if (!validateAllQuestionsAnswered()) {
-      // If there are unanswered questions, go to the first one
       toast.error(`Você precisa responder todas as perguntas antes de continuar.`);
       goToUnansweredQuestion();
       return;
@@ -349,11 +387,12 @@ const DiagnosticApp: React.FC = () => {
     }
     
     try {
-      // Validate that all questions have been answered
-      if (answers.length < diagnosticQuestions.length) {
+      // Final check that all questions are answered
+      const unanswered = findUnansweredQuestions();
+      if (unanswered.length > 0) {
         toast.error("Algumas perguntas não foram respondidas corretamente.");
-        goToUnansweredQuestion();
         setIsLoading(false);
+        goToUnansweredQuestion();
         return;
       }
       
@@ -367,19 +406,26 @@ const DiagnosticApp: React.FC = () => {
       const uniqueId = generateUniqueId();
       setResultsId(uniqueId);
       
-      // Save results immediately to localStorage
+      // Save results to localStorage with the unique ID
       saveResultsToLocalStorage(calculatedResults, uniqueId);
       
+      // Set results in state
       setResults(calculatedResults);
       
-      // Send data to HubSpot via webhook
-      const success = await sendToHubspot(formData);
-      
-      if (!success) {
-        console.warn("Failed to send data to HubSpot, but continuing with diagnostic");
+      // Send data to HubSpot via webhook if form integration is enabled
+      try {
+        const success = await sendToHubspot(formData);
+        if (!success) {
+          console.warn("Failed to send data to HubSpot, but continuing with diagnostic");
+        }
+      } catch (error) {
+        console.error("Error sending data to HubSpot:", error);
       }
       
-      // Now proceed to results
+      // Redirect to results with the result ID in the URL for sharing
+      updateUrlWithResultId(uniqueId);
+      
+      // Set state to results
       setDiagnosticState(DiagnosticState.RESULTS);
       
       // Clear the in-progress session as it's now complete
@@ -391,11 +437,16 @@ const DiagnosticApp: React.FC = () => {
       
       // Even if there's an error, try to proceed to results
       if (answers.length > 0) {
-        const calculatedResults = calculateResults(answers, diagnosticQuestions);
-        calculatedResults.userData = formData;
-        setResults(calculatedResults);
-        setDiagnosticState(DiagnosticState.RESULTS);
-        clearSavedSession();
+        try {
+          const calculatedResults = calculateResults(answers, diagnosticQuestions);
+          calculatedResults.userData = formData;
+          setResults(calculatedResults);
+          setDiagnosticState(DiagnosticState.RESULTS);
+          clearSavedSession();
+        } catch (innerError) {
+          console.error("Error calculating results:", innerError);
+          toast.error("Erro ao calcular resultados. Tente novamente.");
+        }
       }
     } finally {
       // End loading state
@@ -403,6 +454,15 @@ const DiagnosticApp: React.FC = () => {
     }
   };
 
+  // Function to update URL with result ID for sharing
+  const updateUrlWithResultId = (id: string) => {
+    // Update the URL with the result ID without reloading the page
+    const url = new URL(window.location.href);
+    url.searchParams.set('share_id', id);
+    navigate(`/?share_id=${id}`, { replace: true });
+  };
+
+  // Improved handle select answer function
   const handleSelectAnswer = (value: OptionValue) => {
     // If we're already processing, don't allow another answer
     if (isProcessingAnswer) {
@@ -420,25 +480,33 @@ const DiagnosticApp: React.FC = () => {
       selectedOption: value
     };
     
-    // Update answers state
-    const updatedAnswers = [...answers];
-    const existingAnswerIndex = answers.findIndex(a => a.questionId === currentQuestion.id);
+    // Create a new answer array to avoid mutation issues
+    let updatedAnswers = [...answers];
+    const existingAnswerIndex = updatedAnswers.findIndex(a => a.questionId === currentQuestion.id);
     
     if (existingAnswerIndex !== -1) {
+      // Replace existing answer
       updatedAnswers[existingAnswerIndex] = answer;
     } else {
+      // Add new answer
       updatedAnswers.push(answer);
     }
     
-    // Update the answers state
+    // Update the answers state synchronously
     setAnswers(updatedAnswers);
     
     // Short delay for visual feedback, then move to the next question
     setTimeout(() => {
-      // Verify the answer was saved
-      const savedAnswer = updatedAnswers.find(a => a.questionId === currentQuestion.id);
+      // Verify the answer was saved properly
+      const verifyAnswers = [...updatedAnswers];
+      const savedAnswer = verifyAnswers.find(a => a.questionId === currentQuestion.id);
+      
       if (!savedAnswer || savedAnswer.selectedOption !== value) {
-        console.error("Answer not properly saved before proceeding");
+        console.error("Answer not properly saved before proceeding", {
+          expected: value,
+          actual: savedAnswer?.selectedOption,
+          answers: verifyAnswers
+        });
         toast.error("Houve um erro ao salvar sua resposta. Tente novamente.");
         setIsProcessingAnswer(false);
         return;
@@ -452,37 +520,41 @@ const DiagnosticApp: React.FC = () => {
         // Move to next question
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
-        // Check if all questions have been answered
-        const missingQuestions = findUnansweredQuestions();
-        if (missingQuestions.length === 0) {
+        // Final check for unanswered questions using the updated answers array
+        const missing = diagnosticQuestions.filter(q => 
+          !verifyAnswers.some(a => a.questionId === q.id)
+        ).map((q, i) => diagnosticQuestions.findIndex(dq => dq.id === q.id));
+        
+        if (missing.length === 0) {
           // All done, move to user form
-          setCompletedAnswers(updatedAnswers);
+          setCompletedAnswers(verifyAnswers);
           setDiagnosticState(DiagnosticState.USER_INFO);
         } else {
           // There are unanswered questions, go to the first one
           toast.error("Algumas perguntas não foram respondidas. Vamos para a primeira não respondida.");
-          // Make sure we're in the right state
-          setDiagnosticState(DiagnosticState.QUESTIONS);
-          // Set a small delay to ensure state changes are processed
+          
+          // Small delay to ensure state changes are processed
           setTimeout(() => {
-            const firstUnanswered = missingQuestions[0];
+            const firstUnanswered = missing[0];
             if (firstUnanswered >= 0 && firstUnanswered < diagnosticQuestions.length) {
               setCurrentQuestionIndex(firstUnanswered);
             }
-          }, 50);
+          }, 100);
         }
       }
     }, 400); // Short delay for visual feedback only
   };
   
-  // Function to save results to localStorage
+  // Save results to localStorage - improved function
   const saveResultsToLocalStorage = (diagnosticResults: DiagnosticResult, id: string) => {
     try {
+      console.log(`Saving diagnostic results with ID: ${id}`);
+      
       // Clean up expired data first
       cleanupExpiredData();
       
-      // Set expiration date (48 hours from now)
-      const EXPIRATION_TIME = 48 * 60 * 60 * 1000;
+      // Set expiration date (7 days from now for better sharing)
+      const EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 7 days
       const expiresAt = Date.now() + EXPIRATION_TIME;
       
       // Create a simplified version of pillar scores to reduce storage size
@@ -496,24 +568,32 @@ const DiagnosticApp: React.FC = () => {
         };
       });
       
+      // Data structure for sharing
       const shareData = {
-        overall: diagnosticResults.totalScore.toFixed(0),
+        // Essential values
         totalScore: diagnosticResults.totalScore,
         totalPossibleScore: diagnosticResults.totalPossibleScore,
         evaluation: diagnosticResults.overallEvaluation,
         date: new Date().toISOString().split('T')[0],
-        insights: [], // These will be generated in the Results component
         pillarScores: simplifiedPillarScores,
         recommendations: diagnosticResults.recommendations.slice(0, 5),
         expiresAt: expiresAt,
-        userData: userData, // Store user information with the results
+        userData: diagnosticResults.userData,
+        
+        // Flags and metadata
+        isPublic: true,
+        sharedAt: new Date().toISOString(),
+        version: '1.1' // Version tracking for future compatibility
       };
       
-      // Save in localStorage
-      localStorage.setItem(`diagnosticShare_${id}`, JSON.stringify(shareData));
+      // Save in localStorage with the unique ID
+      const storageKey = `diagnosticShare_${id}`;
+      localStorage.setItem(storageKey, JSON.stringify(shareData));
+      console.log(`Results saved with ID ${id}, expires: ${new Date(expiresAt).toLocaleString()}`);
       
     } catch (error) {
       console.error("Error storing diagnostic data:", error);
+      toast.error("Erro ao salvar resultados para compartilhamento.");
     }
   };
 
@@ -565,7 +645,7 @@ const DiagnosticApp: React.FC = () => {
     // Clear URL params by replacing the current URL without the parameters
     const url = new URL(window.location.href);
     url.searchParams.delete('share_id');
-    window.history.replaceState({}, '', url);
+    navigate('/', { replace: true });
     
     // Clear any existing session
     clearSavedSession();
@@ -594,28 +674,6 @@ const DiagnosticApp: React.FC = () => {
     
     const previousAnswer = answers.find(a => a.questionId === currentQuestion.id);
     return previousAnswer?.selectedOption;
-  };
-
-  const goToUnansweredQuestion = () => {
-    const unansweredQuestions = findUnansweredQuestions();
-    
-    if (unansweredQuestions.length > 0) {
-      // Make sure we're in question state before setting the index
-      setDiagnosticState(DiagnosticState.QUESTIONS);
-      
-      // Brief delay to ensure state is updated
-      setTimeout(() => {
-        // Verify the question index is valid
-        const firstUnanswered = unansweredQuestions[0]; 
-        if (firstUnanswered >= 0 && firstUnanswered < diagnosticQuestions.length) {
-          setCurrentQuestionIndex(firstUnanswered);
-        } else {
-          // Fallback to first question if something went wrong
-          setCurrentQuestionIndex(0);
-          console.error("Invalid question index", firstUnanswered);
-        }
-      }, 50);
-    }
   };
 
   const progressPercentage = ((currentQuestionIndex + 1) / diagnosticQuestions.length) * 100;

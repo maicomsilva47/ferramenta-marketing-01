@@ -1,333 +1,214 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { Users, Loader } from 'lucide-react';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/components/ui/form';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { UserInfo } from '@/types/diagnostic';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { Loader, Mail } from 'lucide-react';
 
 interface ConsultationCTAProps {
-  userData?: UserInfo | null;
-  resultsId?: string | null;
+  userData: UserInfo | null | undefined;
+  resultsId: string | null;
 }
 
-const formSchema = z.object({
-  cargo_ocupado: z.string({
-    required_error: "Por favor selecione seu cargo",
-  }),
-  faturamento_anual: z.string({
-    required_error: "Por favor selecione o faturamento anual",
-  }),
-  segmento: z.string({
-    required_error: "Por favor selecione o segmento",
-  }),
-});
-
-const cargoOptions = [
-  'Sócio',
-  'CEO / Presidente',
-  'Diretor de vendas',
-  'Diretor de marketing',
-  'Diretor (outras áreas)',
-  'Gerente de vendas',
-  'Coordenador de vendas',
-  'Coordenador de marketing',
-  'Coordenador (outras áreas)',
-  'Vendedor / Consultor Comercial',
-  'Analista / SDR / Sales Ops',
-  'Estudante',
-  'Outros'
-];
-
-const faturamentoOptions = [
-  'Acima de 200 milhões ao ano',
-  'De 50 milhões a 200 milhões ao ano',
-  'De 10 milhões a 50 milhões ao ano',
-  'De 5 milhões a 10 milhões ao ano',
-  'De 2 milhões a 5 milhões ao ano',
-  'De 1 milhão a 2 milhões ao ano',
-  'De 600 mil a 1 milhão ao ano',
-  'Até 600 mil ao ano',
-  'Ainda não faturamos'
-];
-
-const segmentoOptions = [
-  'Agronegócio',
-  'Agência de Marketing / Publicidade',
-  'Consultoria / Treinamentos',
-  'Distribuidora / Atacadista',
-  'E-Commerce',
-  'Educação',
-  'Engenharia / Arquitetura',
-  'Eventos / Entretenimento',
-  'Financeiro / Contábilidade',
-  'Governo / Órgãos Públicos',
-  'Indústria',
-  'Jurídico',
-  'Mídia / Comunicação / Jornalismo',
-  'Outros',
-  'Recursos Humanos',
-  'Saúde / Estética',
-  'Serviços',
-  'Software / SaaS / Cloud',
-  'Telecomunicações',
-  'TI / Tecnologia',
-  'Varejo'
-];
-
 const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }) => {
-  const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      cargo_ocupado: "",
-      faturamento_anual: "",
-      segmento: ""
-    },
+  const [formData, setFormData] = useState({
+    name: userData?.name || '',
+    email: userData?.email || '',
+    company: userData?.company || '',
+    phone: userData?.phone || '',
+    message: ''
   });
-
-  const handleExternalLink = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (!showForm) {
-      setShowForm(true);
-    } else {
-      // Trigger form validation and submission
-      form.handleSubmit(onSubmit)();
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error for this field when user updates it
+    if (formErrors[name]) {
+      setFormErrors(prev => {
+        const updated = { ...prev };
+        delete updated[name];
+        return updated;
+      });
     }
   };
+  
+  // Validate form
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = "Nome é obrigatório";
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = "Email é obrigatório";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = "Email inválido";
+    }
+    
+    if (!formData.company.trim()) {
+      errors.company = "Empresa é obrigatória";
+    }
+    
+    if (!formData.phone.trim()) {
+      errors.phone = "Telefone é obrigatório";
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // Validate all fields are filled
-    if (!data.cargo_ocupado || !data.faturamento_anual || !data.segmento) {
-      toast.error("Por favor preencha todos os campos obrigatórios");
+  const handleExternalLink = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error("Por favor, preencha todos os campos obrigatórios");
       return;
     }
-
+    
     setIsSubmitting(true);
-    try {
-      // Corrected webhook URL
-      const webhookUrl = 'https://webhook.n8n.growthmachine.com.br/webhook/843e1f22-7574-4681-a1ef-f43a570869ae';
-      
-      // Combine user data from previous form with new form data
-      const params = new URLSearchParams();
-      
-      // Add userData from previous form if available
-      if (userData) {
-        Object.entries(userData).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, value.toString());
-          }
-        });
-      }
-      
-      // Add new form data
-      Object.entries(data).forEach(([key, value]) => {
-        params.append(key, value);
-      });
-      
-      // Add additional data
-      params.append('fonte', 'formulario_pos_diagnostico');
-      params.append('timestamp', Date.now().toString());
-      
-      // Append query string to URL
-      const urlWithParams = `${webhookUrl}?${params.toString()}`;
-      
-      // Send request with no-cors mode
-      await fetch(urlWithParams, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        mode: 'no-cors', // Add no-cors mode to handle CORS issues
-      });
-      
-      // With no-cors, we can't check response.ok, so just assume success if no error
-      toast.success("Solicitação enviada com sucesso! Entraremos em contato em breve.");
-      
-      // Navigate to thank you page instead of opening external link
-      navigate(`/obrigado?results_id=${resultsId || ''}`);
-      
-    } catch (error) {
-      console.error('Error sending consultation data:', error);
-      toast.error("Ocorreu um erro ao enviar sua solicitação. Tente novamente.");
-    } finally {
+    
+    // Prepare data for submission
+    const utm_source = new URLSearchParams(window.location.search).get('utm_source') || 'diagnostic';
+    const utm_medium = new URLSearchParams(window.location.search).get('utm_medium') || 'website';
+    const utm_campaign = new URLSearchParams(window.location.search).get('utm_campaign') || 'consultation';
+    
+    const diagnosticLink = resultsId ? 
+      `${window.location.origin}/?share_id=${resultsId}` : 
+      'No diagnostic link';
+    
+    // Build the URL with parameters
+    const baseUrl = 'https://api.whatsapp.com/send?phone=5511972884001&text=';
+    const message = encodeURIComponent(
+      `Olá! Acabei de fazer o diagnóstico comercial da Growth Machine e gostaria de uma consultoria gratuita.\n\n` +
+      `Nome: ${formData.name}\n` +
+      `Empresa: ${formData.company}\n` +
+      `Email: ${formData.email}\n` +
+      `Telefone: ${formData.phone}\n\n` +
+      `${formData.message ? `Mensagem: ${formData.message}\n\n` : ''}` +
+      `Link do diagnóstico: ${diagnosticLink}\n\n` +
+      `UTM: ${utm_source} / ${utm_medium} / ${utm_campaign}`
+    );
+    
+    const whatsappUrl = `${baseUrl}${message}`;
+    
+    // Log success for diagnostic purposes
+    console.log("Opening WhatsApp with consultation request:", {
+      formData,
+      diagnostic: diagnosticLink,
+      utm: { utm_source, utm_medium, utm_campaign }
+    });
+    
+    // Minimum delay to show loading state
+    setTimeout(() => {
       setIsSubmitting(false);
-    }
+      window.open(whatsappUrl, '_blank');
+      
+      // Reset message field but keep other data
+      setFormData(prev => ({ ...prev, message: '' }));
+      
+      // Success message
+      toast.success("Obrigado! Abrindo WhatsApp para você entrar em contato.");
+    }, 800);
   };
 
   return (
-    <Card className="w-full mx-auto my-8 overflow-hidden border-0 shadow-xl">
-      <CardContent className="p-0">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-6 sm:p-8 text-white">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex flex-col md:flex-row items-center gap-8">
-              <div className="flex-shrink-0">
-                <div className="bg-white/20 p-5 rounded-full shadow-lg">
-                  <Users className="h-10 w-10 text-white" />
-                </div>
-              </div>
-              
-              <div className="flex-grow text-center md:text-left">
-                <h3 className="text-2xl sm:text-3xl font-bold mb-3 text-white">Descubra como destravar novas receitas com um plano comercial feito para sua operação</h3>
-                <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
-                  Converse com um especialista da Growth Machine e receba uma análise completa dos seus processos comerciais atuais.
-                </p>
-              </div>
-              
-              <div className="flex-shrink-0">
-                <Button 
-                  onClick={handleExternalLink}
-                  className="bg-white hover:bg-gray-100 text-indigo-700 transition-all duration-300 py-6 px-8 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader className="mr-2 h-5 w-5 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    showForm ? "Solicitar Contato" : "Falar com Especialista"
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {showForm && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                transition={{ duration: 0.4 }}
-                className="mt-8 pt-8 border-t border-white/20"
-              >
-                <h4 className="text-white text-xl font-medium mb-6 text-center">
-                  Complete algumas informações para falar com um especialista
-                </h4>
-                
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl mx-auto">
-                    <div className="grid md:grid-cols-3 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="cargo_ocupado"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white flex items-center">
-                              Cargo ocupado <span className="text-red-300 ml-1">*</span>
-                            </FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              required
-                            >
-                              <FormControl>
-                                <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                                  <SelectValue placeholder="Selecione seu cargo" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {cargoOptions.map(option => (
-                                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage className="text-red-200" />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="faturamento_anual"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white flex items-center">
-                              Faturamento anual <span className="text-red-300 ml-1">*</span>
-                            </FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              required
-                            >
-                              <FormControl>
-                                <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                                  <SelectValue placeholder="Selecione o faturamento" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {faturamentoOptions.map(option => (
-                                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage className="text-red-200" />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="segmento"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white flex items-center">
-                              Segmento <span className="text-red-300 ml-1">*</span>
-                            </FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              defaultValue={field.value}
-                              required
-                            >
-                              <FormControl>
-                                <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                                  <SelectValue placeholder="Selecione o segmento" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {segmentoOptions.map(option => (
-                                  <SelectItem key={option} value={option}>{option}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage className="text-red-200" />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </form>
-                </Form>
-              </motion.div>
-            )}
-          </motion.div>
+    <div className="bg-growth-orange bg-opacity-10 p-6 rounded-lg shadow-sm mb-6">
+      <div className="text-center mb-6">
+        <h3 className="font-bold text-2xl mb-2">Agende uma Consultoria Gratuita</h3>
+        <p className="text-gray-600">Receba uma análise personalizada do seu diagnóstico e descubra como otimizar sua máquina de vendas.</p>
+      </div>
+      
+      <form onSubmit={handleExternalLink} className="space-y-4">
+        <div>
+          <Input 
+            name="name"
+            placeholder="Seu nome *"
+            value={formData.name} 
+            onChange={handleChange}
+            className={`${formErrors.name ? 'border-red-500' : ''}`}
+            required
+          />
+          {formErrors.name && <p className="text-red-500 text-xs mt-1">{formErrors.name}</p>}
         </div>
-      </CardContent>
-    </Card>
+        
+        <div>
+          <Input 
+            name="email"
+            type="email"
+            placeholder="Seu email *" 
+            value={formData.email} 
+            onChange={handleChange}
+            className={`${formErrors.email ? 'border-red-500' : ''}`}
+            required
+          />
+          {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Input 
+              name="company"
+              placeholder="Empresa *" 
+              value={formData.company} 
+              onChange={handleChange}
+              className={`${formErrors.company ? 'border-red-500' : ''}`}
+              required
+            />
+            {formErrors.company && <p className="text-red-500 text-xs mt-1">{formErrors.company}</p>}
+          </div>
+          
+          <div>
+            <Input 
+              name="phone"
+              placeholder="Telefone/WhatsApp *" 
+              value={formData.phone} 
+              onChange={handleChange}
+              className={`${formErrors.phone ? 'border-red-500' : ''}`}
+              required
+            />
+            {formErrors.phone && <p className="text-red-500 text-xs mt-1">{formErrors.phone}</p>}
+          </div>
+        </div>
+        
+        <Textarea 
+          name="message"
+          placeholder="O que você gostaria de saber sobre seu diagnóstico?" 
+          value={formData.message} 
+          onChange={handleChange}
+          rows={3}
+        />
+        
+        <div className="text-center pt-2">
+          <Button 
+            type="submit" 
+            className="bg-growth-orange hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-md h-auto w-full md:w-auto"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader className="animate-spin mr-2" size={16} />
+                Processando...
+              </>
+            ) : (
+              <>
+                <Mail className="mr-2" size={16} />
+                Agendar Consultoria Gratuita
+              </>
+            )}
+          </Button>
+        </div>
+        
+        <div className="text-center text-xs text-gray-500 mt-2">
+          * Campos obrigatórios
+        </div>
+      </form>
+    </div>
   );
 };
 

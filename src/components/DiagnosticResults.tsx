@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,8 +32,8 @@ interface DiagnosticResultsProps {
 const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset, resultsId }) => {
   const [expandedPillar, setExpandedPillar] = useState<DiagnosticPillar | null>(null);
   
-  // Calculate total score properly - out of max possible score
-  const totalScorePercentage = getTotalScore(results.totalScore, results.totalPossibleScore);
+  // Calculate total score as percentage
+  const totalScorePercentage = results.totalScore; // This is already a percentage value from calculation
   
   // Generate strategic insights
   const strategicInsights = generateStrategicInsights(results.pillarScores, totalScorePercentage);
@@ -42,17 +43,23 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
     setExpandedPillar(expandedPillar === pillar ? null : pillar);
   };
   
-  // Log for debugging
+  // Debug logs for verification
   useEffect(() => {
     console.log("DiagnosticResults rendered with:", {
       pillarScores: results.pillarScores,
-      rawTotalScore: results.totalScore,
+      totalScore: results.totalScore,
       totalPossibleScore: results.totalPossibleScore,
-      calculatedPercentage: totalScorePercentage,
-      resultsId,
-      userData: results.userData
+      overallEvaluation: results.overallEvaluation,
+      resultsId
     });
-  }, [results, totalScorePercentage, resultsId]);
+    
+    // Calculate and log each pillar's percentage
+    Object.entries(results.pillarScores).forEach(([pillar, data]) => {
+      const maxScore = data.totalQuestions * 4;
+      const percentage = (data.score / maxScore) * 100;
+      console.log(`Pillar ${pillar}: ${data.score}/${maxScore} = ${percentage.toFixed(1)}% (${data.evaluation})`);
+    });
+  }, [results, resultsId]);
 
   // Count evaluations
   const evaluationCounts = {
@@ -172,14 +179,11 @@ const DiagnosticResults: React.FC<DiagnosticResultsProps> = ({ results, onReset,
 
             <Separator className="my-8" />
 
-            {/* Consultation CTA - Updated to pass resultsId */}
+            {/* Consultation CTA with required fields */}
             <ConsultationCTA userData={results.userData} resultsId={resultsId} />
             
             <Separator className="my-8" />
             
-            {/* Remove CoursesSection */}
-            
-
             {/* Growthcast Section */}
             <GrowthcastSection />
             

@@ -43,12 +43,14 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
     
     // Calculate evaluation based on percentage
     const percentageScore = (pillarScore / possibleScore) * 100;
+    console.log(`Pillar ${pillarKey}: Raw score ${pillarScore}, Possible ${possibleScore}, Percentage ${percentageScore}%`);
+    
     let evaluation: 'high' | 'medium' | 'low'; 
     
-    // Adjust evaluation thresholds to match UI expectations
+    // Adjust evaluation thresholds
     if (percentageScore >= 75) {
       evaluation = 'high';
-    } else if (percentageScore <= 45) { // Lowered threshold to better match UI representation
+    } else if (percentageScore <= 45) { 
       evaluation = 'low';
     } else {
       evaluation = 'medium';
@@ -62,14 +64,16 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
     };
   });
 
-  // Calculate overall evaluation
+  // Calculate overall score as a percentage rather than raw score
   const overallPercentage = totalPossibleScore > 0 ? (totalScore / totalPossibleScore) * 100 : 0;
+  console.log(`Overall: Raw score ${totalScore}, Possible ${totalPossibleScore}, Percentage ${overallPercentage}%`);
+  
   let overallEvaluation: 'high' | 'medium' | 'low';
   
-  // Adjust overall evaluation thresholds to match UI expectations
+  // Adjust overall evaluation thresholds
   if (overallPercentage >= 75) {
     overallEvaluation = 'high';
-  } else if (overallPercentage <= 45) { // Lowered threshold for low evaluation
+  } else if (overallPercentage <= 45) {
     overallEvaluation = 'low';
   } else {
     overallEvaluation = 'medium';
@@ -80,7 +84,7 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
 
   return {
     pillarScores,
-    totalScore: overallPercentage, // Store as percentage score for easier display
+    totalScore: overallPercentage, // Store as percentage for easier display
     totalPossibleScore,
     overallEvaluation,
     recommendations
