@@ -34,7 +34,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
     if (resultsId) {
       setIsGenerating(true);
       
-      // Create the direct shareable link with the results ID in URL parameters
+      // Create the shareable link with the results ID
       const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
       
       // Ensure the data is properly saved to localStorage with public access flag
@@ -44,15 +44,11 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       setTimeout(() => {
         setShareableLink(generatedLink);
         setIsGenerating(false);
-        
-        console.log("Share link generated:", generatedLink);
       }, 500);
-    } else {
-      console.warn("No resultsId available for sharing");
     }
   }, [resultsId, baseUrl]);
 
-  // Enhanced function to ensure the shared results are marked as publicly accessible
+  // Function to ensure the shared results are marked as publicly accessible
   const ensureSharedResultsPublic = (id: string) => {
     try {
       const storageKey = `diagnosticShare_${id}`;
@@ -61,15 +57,12 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       if (storedData) {
         const data = JSON.parse(storedData);
         
-        // Add public access flag and ensure it's set to true
-        data.isPublic = true;
-        data.sharedAt = new Date().toISOString();
-        
-        // Explicitly save encoded data back to storage
-        localStorage.setItem(storageKey, JSON.stringify(data));
-        console.log(`Results ${id} marked as publicly shareable and updated`);
-      } else {
-        console.error(`Cannot find results with ID ${id} in local storage`);
+        // Add public access flag if not already present
+        if (!data.isPublic) {
+          data.isPublic = true;
+          localStorage.setItem(storageKey, JSON.stringify(data));
+          console.log(`Results ${id} marked as publicly shareable`);
+        }
       }
     } catch (error) {
       console.error("Error updating shared results visibility:", error);
@@ -145,7 +138,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
         </div>
         
         <p className="text-xs text-gray-500 mt-3">
-          Nota: Compartilhe este link com quem desejar ver seus resultados.
+          Nota: Os links compartilhados expiram após 48 horas.
         </p>
       </div>
     </>

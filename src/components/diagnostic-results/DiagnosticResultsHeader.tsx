@@ -42,9 +42,6 @@ export const OverallScore: React.FC<DiagnosticResultsHeaderProps> = ({
   // Ensure score is between 0 and 100
   const normalizedScore = Math.min(100, Math.max(0, Math.round(totalScore)));
   
-  // Log score for debugging
-  console.log(`OverallScore component: Raw score ${totalScore}, Normalized ${normalizedScore}%, Evaluation: ${overallEvaluation}`);
-  
   return (
     <div className="mb-8">
       <motion.div 
@@ -66,7 +63,7 @@ export const OverallScore: React.FC<DiagnosticResultsHeaderProps> = ({
                   mask: 'radial-gradient(transparent 55%, black 56%)',
                   WebkitMask: 'radial-gradient(transparent 55%, black 56%)'
               }}></div>
-              <span className="text-2xl sm:text-3xl font-bold">{normalizedScore}</span>
+              <span className="text-2xl sm:text-3xl font-bold">{Math.round(normalizedScore)}</span>
             </div>
           </div>
           <div>

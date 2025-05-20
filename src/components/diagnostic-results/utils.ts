@@ -1,4 +1,3 @@
-
 import { DiagnosticPillar, OptionValue, PillarScore } from '@/types/diagnostic';
 import { Resource } from './ResourcesList';
 
@@ -24,23 +23,13 @@ export const getPillarScore = (pillar: PillarScore): number => {
   // Using a 1-4 scale with max of 4 points per question
   const maxPossibleScore = pillar.totalQuestions * 4;
   if (maxPossibleScore === 0) return 0;
-  
-  // Calculate and log the percentage score
-  const percentScore = Math.min(100, Math.round((pillar.score / maxPossibleScore) * 100));
-  console.log(`getPillarScore: ${pillar.pillar} - Raw: ${pillar.score}, Max: ${maxPossibleScore}, Percentage: ${percentScore}%`);
-  
-  return percentScore;
+  return Math.min(100, Math.round((pillar.score / maxPossibleScore) * 100));
 };
 
 export const getTotalScore = (totalScore: number, totalPossibleScore: number): number => {
   // Prevent division by zero and ensure we return a valid percentage
   if (totalPossibleScore <= 0) return 0;
-  
-  // Calculate and log the percentage score
-  const percentScore = Math.min(100, Math.round((totalScore / totalPossibleScore) * 100));
-  console.log(`getTotalScore: Raw: ${totalScore}, Max: ${totalPossibleScore}, Percentage: ${percentScore}%`);
-  
-  return percentScore;
+  return Math.min(100, Math.round((totalScore / totalPossibleScore) * 100));
 };
 
 // Updated function to ensure consistent mapping between resource IDs and URLs
@@ -65,13 +54,6 @@ export const getResourceUrl = (resourceId: string): string => {
 // Função para gerar insights estratégicos baseados nos resultados
 export const generateStrategicInsights = (pillarScores: Record<DiagnosticPillar, PillarScore>, totalScore: number): string[] => {
   const insights: string[] = [];
-  
-  // Log pillar scores for debugging
-  console.log("Generating insights from pillar scores:", 
-    Object.entries(pillarScores).map(([pillar, score]) => 
-      `${pillar}: ${score.score} pts (${score.evaluation})`
-    )
-  );
   
   // Verifica os pilares problemáticos (low e medium) e gera insights específicos
   if (pillarScores.prospecting?.evaluation === 'low') {
@@ -104,7 +86,7 @@ export const generateStrategicInsights = (pillarScores: Record<DiagnosticPillar,
 
   // Se houver poucos insights, adiciona alguns genéricos
   if (insights.length < 3) {
-    if (totalScore < 60) {
+    if (getTotalScore(totalScore, 100) < 60) {
       insights.push("Sua operação comercial precisa de uma reestruturação profunda para alcançar resultados consistentes e escaláveis.");
     }
     insights.push("A falta de processos claros está limitando seu crescimento. Estruturar a operação comercial é essencial para escalar seu negócio.");

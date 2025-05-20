@@ -26,13 +26,9 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
       const pillarKey = pillar as DiagnosticPillar;
       const pillarName = pillarNames[pillarKey] || pillarKey;
       
-      // Calculate percentage score - Fix here
-      // Calculate raw score percentage based on total possible points
+      // Calculate percentage score from raw scores
       const maxScore = data.totalQuestions * 4; // 4 is max score per question
-      const rawScore = data.score;
-      const percentScore = Math.round((rawScore / maxScore) * 100);
-      
-      console.log(`Pillar ${pillarKey}: Raw score ${rawScore}, Max score ${maxScore}, Percentage ${percentScore}%`);
+      const percentScore = Math.min(100, Math.round((data.score / maxScore) * 100));
 
       return {
         subject: pillarName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),
