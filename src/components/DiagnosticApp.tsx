@@ -47,7 +47,7 @@ const DiagnosticApp: React.FC = () => {
   const [hasExistingSession, setHasExistingSession] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingAnswer, setIsProcessingAnswer] = useState(false);
-  const [lastAnswerTimestamp, setLastAnswerTimestamp] = useState<number | null>(null);
+  const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>([]);
 
   // Organize questions by pillar
   const questionsByPillar = diagnosticQuestions.reduce((acc, question) => {
@@ -105,26 +105,6 @@ const DiagnosticApp: React.FC = () => {
       saveProgressToLocalStorage();
     }
   }, [answers, currentQuestionIndex, diagnosticState, sessionId]);
-
-  // Ensure we don't proceed to the next step too quickly
-  useEffect(() => {
-    if (lastAnswerTimestamp) {
-      const timeSinceLastAnswer = Date.now() - lastAnswerTimestamp;
-      // If it's been less than our minimum processing time, stay in processing mode
-      if (timeSinceLastAnswer < 1200) {
-        setIsProcessingAnswer(true);
-        
-        // Schedule the end of processing after the time difference
-        const timeoutId = setTimeout(() => {
-          setIsProcessingAnswer(false);
-        }, 1200 - timeSinceLastAnswer);
-        
-        return () => clearTimeout(timeoutId);
-      } else {
-        setIsProcessingAnswer(false);
-      }
-    }
-  }, [lastAnswerTimestamp]);
 
   // Check for existing diagnostic session
   const checkForExistingSession = () => {
@@ -322,17 +302,26 @@ const DiagnosticApp: React.FC = () => {
     startNewSession();
   };
 
+  // Function to find unanswered questions
+  const findUnansweredQuestions = (): number[] => {
+    const answeredQuestionIds = answers.map(a => a.questionId);
+    const allQuestions = diagnosticQuestions.map((q, index) => ({
+      id: q.id,
+      index
+    }));
+    
+    // Find which questions are unanswered by index
+    return allQuestions
+      .filter(q => !answeredQuestionIds.includes(q.id))
+      .map(q => q.index);
+  };
+  
   // Modified function to validate if all questions have been answered
   const validateAllQuestionsAnswered = (): boolean => {
-    // Check if we have an answer for each question
-    const answeredQuestionIds = answers.map(a => a.questionId);
-    const allQuestionIds = diagnosticQuestions.map(q => q.id);
+    const unanswered = findUnansweredQuestions();
     
-    // Find which questions are unanswered
-    const unansweredQuestions = allQuestionIds.filter(id => !answeredQuestionIds.includes(id));
-    
-    if (unansweredQuestions.length > 0) {
-      toast.error(`Você precisa responder todas as ${diagnosticQuestions.length} perguntas antes de continuar.`);
+    if (unanswered.length > 0) {
+      setUnansweredQuestions(unanswered);
       return false;
     }
     
@@ -342,7 +331,13 @@ const DiagnosticApp: React.FC = () => {
   const handleUserInfoSubmit = async (formData: UserFormData) => {
     // Validate all questions are answered before proceeding
     if (!validateAllQuestionsAnswered()) {
-      return; // Stop here if validation fails
+      // If there are unanswered questions, go to the first one
+      if (unansweredQuestions.length > 0) {
+        toast.error(`Você precisa responder todas as perguntas antes de continuar. Vamos para a primeira não respondida.`);
+        setCurrentQuestionIndex(unansweredQuestions[0]);
+        setDiagnosticState(DiagnosticState.QUESTIONS);
+      }
+      return;
     }
 
     // Show loading state
@@ -358,20 +353,15 @@ const DiagnosticApp: React.FC = () => {
     
     try {
       // Validate that all questions have been answered
-      if (completedAnswers.length < diagnosticQuestions.length) {
-        // Try to recover by using the current answers state
-        if (answers.length >= diagnosticQuestions.length) {
-          setCompletedAnswers(answers);
-        } else {
-          toast.error("Algumas perguntas não foram respondidas corretamente. Por favor, reinicie o diagnóstico.");
-          setDiagnosticState(DiagnosticState.LANDING);
-          setIsLoading(false);
-          return;
-        }
+      if (answers.length < diagnosticQuestions.length) {
+        toast.error("Algumas perguntas não foram respondidas corretamente. Voltando ao questionário.");
+        setDiagnosticState(DiagnosticState.QUESTIONS);
+        setIsLoading(false);
+        return;
       }
       
-      // Now use the completedAnswers to calculate results
-      const calculatedResults = calculateResults(completedAnswers.length >= diagnosticQuestions.length ? completedAnswers : answers, diagnosticQuestions);
+      // Use the answers to calculate results
+      const calculatedResults = calculateResults(answers, diagnosticQuestions);
       
       // Add user data to results
       calculatedResults.userData = formData;
@@ -403,9 +393,8 @@ const DiagnosticApp: React.FC = () => {
       toast.error("Houve um erro ao processar seus dados, mas você pode continuar com o diagnóstico.");
       
       // Even if there's an error, try to proceed to results
-      if (completedAnswers.length > 0 || answers.length > 0) {
-        const answersToUse = completedAnswers.length >= diagnosticQuestions.length ? completedAnswers : answers;
-        const calculatedResults = calculateResults(answersToUse, diagnosticQuestions);
+      if (answers.length > 0) {
+        const calculatedResults = calculateResults(answers, diagnosticQuestions);
         calculatedResults.userData = formData;
         setResults(calculatedResults);
         setDiagnosticState(DiagnosticState.RESULTS);
@@ -420,7 +409,6 @@ const DiagnosticApp: React.FC = () => {
   const handleSelectAnswer = (value: OptionValue) => {
     // If we're already processing, don't allow another answer
     if (isProcessingAnswer) {
-      console.log("Ignoring answer selection because we're still processing the previous one");
       return;
     }
     
@@ -445,57 +433,43 @@ const DiagnosticApp: React.FC = () => {
       updatedAnswers.push(answer);
     }
     
-    // First update the answers state
+    // Update the answers state
     setAnswers(updatedAnswers);
     
-    // Store the timestamp of this answer
-    setLastAnswerTimestamp(Date.now());
-    
-    // Wait a longer period to ensure the state is updated and the user sees visual feedback
+    // Short delay for visual feedback, then move to the next question
     setTimeout(() => {
       // Verify the answer was saved
       const savedAnswer = updatedAnswers.find(a => a.questionId === currentQuestion.id);
       if (!savedAnswer || savedAnswer.selectedOption !== value) {
-        console.error("Answer not properly saved before proceeding", {
-          current: savedAnswer?.selectedOption,
-          expected: value
-        });
+        console.error("Answer not properly saved before proceeding");
         toast.error("Houve um erro ao salvar sua resposta. Tente novamente.");
         setIsProcessingAnswer(false);
         return;
       }
       
+      // End processing mode
+      setIsProcessingAnswer(false);
+      
       // Now decide whether to advance or complete
       if (currentQuestionIndex < diagnosticQuestions.length - 1) {
-        // Move to next question with a longer delay
+        // Move to next question
         setCurrentQuestionIndex(prev => prev + 1);
-        
-        // Create an artificial delay to ensure the state update propagates
-        setTimeout(() => {
-          setIsProcessingAnswer(false);
-        }, 500);
       } else {
-        // Validate that all questions have been answered before proceeding
+        // Check if all questions have been answered
         if (validateAllQuestionsAnswered()) {
-          console.log("Completed all questions, moving to user form", { answersCount: updatedAnswers.length });
+          // All done, move to user form
           setCompletedAnswers(updatedAnswers);
           setDiagnosticState(DiagnosticState.USER_INFO);
         } else {
-          // If validation fails, stay on the current page
-          console.error("Not all questions answered", { 
-            questionsCount: diagnosticQuestions.length, 
-            answersCount: updatedAnswers.length 
-          });
-          setIsProcessingAnswer(false);
-          return;
+          // There are unanswered questions, go to the first one
+          toast.error("Algumas perguntas não foram respondidas. Vamos para a primeira não respondida.");
+          setCurrentQuestionIndex(unansweredQuestions[0]);
         }
-        
-        setIsProcessingAnswer(false);
       }
-    }, 1500); // Much longer delay to ensure smooth transitions
+    }, 400); // Short delay for visual feedback only
   };
   
-  // Function to save results to localStorage - update to store totalPossibleScore
+  // Function to save results to localStorage
   const saveResultsToLocalStorage = (diagnosticResults: DiagnosticResult, id: string) => {
     try {
       // Clean up expired data first
@@ -528,11 +502,6 @@ const DiagnosticApp: React.FC = () => {
         expiresAt: expiresAt,
         userData: userData, // Store user information with the results
       };
-      
-      console.log('Saving diagnostic data:', {
-        totalScore: diagnosticResults.totalScore,
-        totalPossibleScore: diagnosticResults.totalPossibleScore
-      });
       
       // Save in localStorage
       localStorage.setItem(`diagnosticShare_${id}`, JSON.stringify(shareData));
@@ -575,12 +544,12 @@ const DiagnosticApp: React.FC = () => {
     }
   };
 
-  // Nova função para avançar para a próxima pergunta
+  // Function to advance to the next question
   const handleGoForward = () => {
     // Don't allow going forward if we're processing
     if (isProcessingAnswer) return;
     
-    // Só avança se não for a última pergunta e se a atual já tiver sido respondida
+    // Only advance if not the last question and current has been answered
     if (currentQuestionIndex < diagnosticQuestions.length - 1 && getPreviousAnswer() !== undefined) {
       setCurrentQuestionIndex(prev => prev + 1);
     }

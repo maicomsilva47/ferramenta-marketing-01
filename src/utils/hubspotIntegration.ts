@@ -5,7 +5,7 @@ export type UserFormData = UserInfo;
 
 export async function sendToHubspot(data: UserFormData): Promise<boolean> {
   try {
-    // This is the webhook URL for n8n (corrected)
+    // This is the webhook URL for n8n
     const webhookUrl = 'https://webhook.n8n.growthmachine.com.br/webhook/843e1f22-7574-4681-a1ef-f43a570869ae';
     
     // Create query string from user data
@@ -13,7 +13,7 @@ export async function sendToHubspot(data: UserFormData): Promise<boolean> {
     
     // Add user data to query params
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) { // Only add parameters with values (improved check)
+      if (value !== undefined && value !== null) { // Only add parameters with values
         params.append(key, value.toString());
       }
     });

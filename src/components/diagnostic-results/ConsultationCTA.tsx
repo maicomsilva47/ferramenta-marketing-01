@@ -119,12 +119,6 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
   };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // Check if all fields have been filled out
-    if (!data.cargo_ocupado || !data.faturamento_anual || !data.segmento) {
-      toast.error("Por favor preencha todos os campos");
-      return;
-    }
-    
     setIsSubmitting(true);
     try {
       // Corrected webhook URL
@@ -196,7 +190,7 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
               <div className="flex-grow text-center md:text-left">
                 <h3 className="text-2xl sm:text-3xl font-bold mb-3 text-white">Descubra como destravar novas receitas com um plano comercial feito para sua operação</h3>
                 <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
-                  Converse com um especialista da Growth Machine e receba uma análise completa dos seus processos comerciais atuais, identificando gargalos, oportunidades não exploradas e estratégias de curto e médio prazo para acelerar seu crescimento.
+                  Converse com um especialista da Growth Machine e receba uma análise completa dos seus processos comerciais atuais.
                 </p>
               </div>
               
@@ -309,21 +303,6 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                           </FormItem>
                         )}
                       />
-                    </div>
-
-                    <div className="flex justify-center mt-6">
-                      <Button 
-                        type="submit"
-                        className="bg-white text-indigo-700 hover:bg-gray-100 px-8 py-3 h-auto text-lg"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader className="mr-2 h-5 w-5 animate-spin" />
-                            Enviando...
-                          </>
-                        ) : "Solicitar Contato"}
-                      </Button>
                     </div>
                   </form>
                 </Form>

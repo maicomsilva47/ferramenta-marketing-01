@@ -35,11 +35,11 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       setIsGenerating(true);
       const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
       
-      // Simulate a short delay to ensure data is properly stored
+      // Brief delay to ensure data is properly stored
       setTimeout(() => {
         setShareableLink(generatedLink);
         setIsGenerating(false);
-      }, 1000);
+      }, 500);
     }
   }, [resultsId, baseUrl]);
 
@@ -53,7 +53,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       .then(() => {
         toast.success("Link copiado!");
         setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 3000);
+        setTimeout(() => setIsCopied(false), 2000);
       })
       .catch(() => toast.error("Erro ao copiar link"));
   };
