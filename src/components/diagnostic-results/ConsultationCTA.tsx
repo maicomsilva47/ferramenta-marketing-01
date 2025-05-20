@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Users, Check } from 'lucide-react';
+import { Users, Loader } from 'lucide-react';
 import { 
   Form, 
   FormControl, 
@@ -119,6 +119,12 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
   };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    // Check if all fields have been filled out
+    if (!data.cargo_ocupado || !data.faturamento_anual || !data.segmento) {
+      toast.error("Por favor preencha todos os campos");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       // Corrected webhook URL
@@ -130,7 +136,7 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
       // Add userData from previous form if available
       if (userData) {
         Object.entries(userData).forEach(([key, value]) => {
-          if (value) {
+          if (value !== undefined && value !== null) {
             params.append(key, value.toString());
           }
         });
@@ -192,15 +198,6 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                 <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
                   Converse com um especialista da Growth Machine e receba uma análise completa dos seus processos comerciais atuais, identificando gargalos, oportunidades não exploradas e estratégias de curto e médio prazo para acelerar seu crescimento.
                 </p>
-                <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
-                  Com base em mais de 1.200 empresas atendidas e R$1,8 bilhão em vendas geradas, vamos traçar um plano estratégico sob medida para sua operação, com foco em previsibilidade, escalabilidade e geração real de receita.
-                </p>
-                <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
-                  Você vai entender exatamente o que está travando seu resultado hoje e o que precisa ser ajustado para sua equipe bater meta de forma consistente nos próximos meses.
-                </p>
-                <p className="text-white/90 text-base sm:text-lg mb-6 md:mb-0 max-w-2xl">
-                  Tudo isso em uma conversa direta com quem vive vendas B2B todos os dias e tem método testado para gerar resultado rápido, sem achismo e sem enrolação.
-                </p>
               </div>
               
               <div className="flex-shrink-0">
@@ -209,8 +206,14 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                   className="bg-white hover:bg-gray-100 text-indigo-700 transition-all duration-300 py-6 px-8 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Enviando..." : (showForm ? "Enviar" : "Falar com Especialista")}
-                  {!isSubmitting && !showForm && <Check className="ml-2 h-5 w-5" />}
+                  {isSubmitting ? (
+                    <>
+                      <Loader className="mr-2 h-5 w-5 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    showForm ? "Solicitar Contato" : "Falar com Especialista"
+                  )}
                 </Button>
               </div>
             </div>
@@ -314,7 +317,12 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                         className="bg-white text-indigo-700 hover:bg-gray-100 px-8 py-3 h-auto text-lg"
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? "Enviando..." : "Solicitar Contato"}
+                        {isSubmitting ? (
+                          <>
+                            <Loader className="mr-2 h-5 w-5 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : "Solicitar Contato"}
                       </Button>
                     </div>
                   </form>

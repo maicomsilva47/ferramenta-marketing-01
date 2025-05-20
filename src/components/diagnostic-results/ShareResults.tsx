@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Share2, Copy, CheckCircle } from 'lucide-react';
+import { Share2, Copy, CheckCircle, Loader } from 'lucide-react';
 import { toast } from 'sonner';
 import { DiagnosticPillar, PillarScore } from '@/types/diagnostic';
 import { Helmet } from 'react-helmet';
@@ -26,13 +26,20 @@ const ShareResults: React.FC<ShareResultsProps> = ({
 }) => {
   const [shareableLink, setShareableLink] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const baseUrl = window.location.origin;
 
   // Generate the shareable link automatically when component mounts or resultsId changes
   useEffect(() => {
     if (resultsId) {
+      setIsGenerating(true);
       const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
-      setShareableLink(generatedLink);
+      
+      // Simulate a short delay to ensure data is properly stored
+      setTimeout(() => {
+        setShareableLink(generatedLink);
+        setIsGenerating(false);
+      }, 1000);
     }
   }, [resultsId, baseUrl]);
 
@@ -74,7 +81,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
           <Input 
             value={shareableLink} 
             readOnly 
-            placeholder={resultsId ? "Gerando link..." : "Link indisponível"}
+            placeholder={isGenerating ? "Gerando link..." : (resultsId ? "Link disponível" : "Link indisponível")}
             className="flex-grow min-w-0"
             aria-label="Link compartilhável"
           />
@@ -83,16 +90,21 @@ const ShareResults: React.FC<ShareResultsProps> = ({
             className={`${isCopied ? 'bg-green-600' : 'bg-growth-orange'} hover:${isCopied ? 'bg-green-700' : 'bg-orange-700'} text-white font-bold h-12 w-full sm:w-auto transition-colors`}
             size="sm"
             aria-label="Copiar link para compartilhar"
-            disabled={!shareableLink}
+            disabled={!shareableLink || isGenerating}
           >
-            {isCopied ? (
+            {isGenerating ? (
               <>
-                <CheckCircle size={16} className="mr-2" aria-hidden="true" /> 
+                <Loader size={16} className="mr-2 animate-spin" /> 
+                Gerando...
+              </>
+            ) : isCopied ? (
+              <>
+                <CheckCircle size={16} className="mr-2" /> 
                 Copiado!
               </>
             ) : (
               <>
-                <Copy size={16} className="mr-2" aria-hidden="true" /> 
+                <Copy size={16} className="mr-2" /> 
                 Copiar Link
               </>
             )}
@@ -100,7 +112,7 @@ const ShareResults: React.FC<ShareResultsProps> = ({
         </div>
         
         <p className="text-xs text-gray-500 mt-3">
-          Nota: Os links compartilhados expiram após 48 horas. O link compartilhado mostrará "Diagnóstico - Growth Machine".
+          Nota: Os links compartilhados expiram após 48 horas.
         </p>
       </div>
     </>

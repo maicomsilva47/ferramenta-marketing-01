@@ -83,6 +83,12 @@ const UserInfoForm: React.FC<UserInfoFormProps> = ({ onSubmit, isAfterQuestions 
       // Prevent multiple submissions
       if (isSubmitting) return;
       
+      // Check that all required fields have values
+      if (!data.name || !data.email || !data.company || !data.phone) {
+        toast.error("Por favor preencha todos os campos obrigatórios");
+        return;
+      }
+      
       // Set submitting state
       setIsSubmitting(true);
       

@@ -13,7 +13,7 @@ export async function sendToHubspot(data: UserFormData): Promise<boolean> {
     
     // Add user data to query params
     Object.entries(data).forEach(([key, value]) => {
-      if (value) { // Only add parameters with values
+      if (value !== undefined && value !== null) { // Only add parameters with values (improved check)
         params.append(key, value.toString());
       }
     });
