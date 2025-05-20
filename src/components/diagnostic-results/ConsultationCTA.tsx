@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Users } from 'lucide-react';
+import { Users, Check } from 'lucide-react';
 import { 
   Form, 
   FormControl, 
@@ -32,9 +32,15 @@ interface ConsultationCTAProps {
 }
 
 const formSchema = z.object({
-  cargo_ocupado: z.string().min(1, "Por favor selecione seu cargo"),
-  faturamento_anual: z.string().min(1, "Por favor selecione o faturamento anual"),
-  segmento: z.string().min(1, "Por favor selecione o segmento"),
+  cargo_ocupado: z.string({
+    required_error: "Por favor selecione seu cargo",
+  }),
+  faturamento_anual: z.string({
+    required_error: "Por favor selecione o faturamento anual",
+  }),
+  segmento: z.string({
+    required_error: "Por favor selecione o segmento",
+  }),
 });
 
 const cargoOptions = [
@@ -182,11 +188,18 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
               </div>
               
               <div className="flex-grow text-center md:text-left">
-                <h3 className="text-2xl sm:text-3xl font-bold mb-3 text-white">
-                  Descubra como destravar novas receitas com um plano comercial feito para sua operação
-                </h3>
+                <h3 className="text-2xl sm:text-3xl font-bold mb-3 text-white">Descubra como destravar novas receitas com um plano comercial feito para sua operação</h3>
                 <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
                   Converse com um especialista da Growth Machine e receba uma análise completa dos seus processos comerciais atuais, identificando gargalos, oportunidades não exploradas e estratégias de curto e médio prazo para acelerar seu crescimento.
+                </p>
+                <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
+                  Com base em mais de 1.200 empresas atendidas e R$1,8 bilhão em vendas geradas, vamos traçar um plano estratégico sob medida para sua operação, com foco em previsibilidade, escalabilidade e geração real de receita.
+                </p>
+                <p className="text-white/90 text-base sm:text-lg mb-4 md:mb-0 max-w-2xl">
+                  Você vai entender exatamente o que está travando seu resultado hoje e o que precisa ser ajustado para sua equipe bater meta de forma consistente nos próximos meses.
+                </p>
+                <p className="text-white/90 text-base sm:text-lg mb-6 md:mb-0 max-w-2xl">
+                  Tudo isso em uma conversa direta com quem vive vendas B2B todos os dias e tem método testado para gerar resultado rápido, sem achismo e sem enrolação.
                 </p>
               </div>
               
@@ -196,7 +209,8 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                   className="bg-white hover:bg-gray-100 text-indigo-700 transition-all duration-300 py-6 px-8 h-auto text-lg font-medium rounded-lg shadow-lg hover:shadow-xl"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Enviando..." : (showForm ? "Solicitar Contato" : "Falar com Especialista")}
+                  {isSubmitting ? "Enviando..." : (showForm ? "Enviar" : "Falar com Especialista")}
+                  {!isSubmitting && !showForm && <Check className="ml-2 h-5 w-5" />}
                 </Button>
               </div>
             </div>
