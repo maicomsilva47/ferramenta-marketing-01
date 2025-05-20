@@ -2,12 +2,11 @@
 import '@testing-library/jest-dom';
 import { expect, vi } from 'vitest';
 import { matchers } from '@testing-library/jest-dom/matchers';
-import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
 
 // Extend Vitest's expect with jest-dom matchers
 declare global {
   namespace Vi {
-    interface Assertion<T = any> extends TestingLibraryMatchers<typeof T, void> {}
+    interface Assertion<T = any> extends TestingLibraryMatchers<any, void> {}
     interface AsymmetricMatchersContaining extends TestingLibraryMatchers<any, void> {}
   }
 }
