@@ -1,17 +1,23 @@
 
 import '@testing-library/jest-dom';
-import { expect, vi } from 'vitest';
-import { matchers } from '@testing-library/jest-dom/matchers';
+import { expect } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
 
 // Extend Vitest's expect with jest-dom matchers
+expect.extend(matchers);
+
+// Add the necessary type definitions for jest-dom
 declare global {
   namespace Vi {
-    interface Assertion<T = any> extends TestingLibraryMatchers<any, void> {}
-    interface AsymmetricMatchersContaining extends TestingLibraryMatchers<any, void> {}
+    interface JestAssertion<T = any> {
+      toBeInTheDocument(): T;
+      toHaveClass(...classNames: string[]): T;
+      toBeDisabled(): T;
+      toBeEmptyDOMElement(): T;
+      // Add any other matchers you need
+    }
   }
 }
-
-expect.extend(matchers);
 
 // Setup global test environment
 beforeAll(() => {
@@ -22,8 +28,8 @@ beforeAll(() => {
       matches: false,
       media: query,
       onchange: null,
-      addListener: vi.fn(), // deprecated
-      removeListener: vi.fn(), // deprecated
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
       dispatchEvent: vi.fn(),
