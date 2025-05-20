@@ -1,15 +1,16 @@
 
 import '@testing-library/jest-dom';
+import * as matchers from '@testing-library/jest-dom/matchers';
 import { expect } from 'vitest';
-import matchers from '@testing-library/jest-dom/matchers';
 
 // Extend Vitest's expect with jest-dom matchers
-expect.extend(matchers);
+expect.extend(matchers as any);
 
 // Add the necessary type definitions for jest-dom
 declare global {
   namespace Vi {
-    interface Assertion {
+    interface AsExpected {
+      // Extending with jest-dom matchers
       toBeInTheDocument(): void;
       toHaveClass(...classNames: string[]): void;
       toBeDisabled(): void;
