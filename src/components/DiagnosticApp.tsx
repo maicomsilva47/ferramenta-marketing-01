@@ -332,11 +332,8 @@ const DiagnosticApp: React.FC = () => {
     // Validate all questions are answered before proceeding
     if (!validateAllQuestionsAnswered()) {
       // If there are unanswered questions, go to the first one
-      if (unansweredQuestions.length > 0) {
-        toast.error(`Você precisa responder todas as perguntas antes de continuar. Vamos para a primeira não respondida.`);
-        setCurrentQuestionIndex(unansweredQuestions[0]);
-        setDiagnosticState(DiagnosticState.QUESTIONS);
-      }
+      toast.error(`Você precisa responder todas as perguntas antes de continuar.`);
+      goToUnansweredQuestion();
       return;
     }
 
@@ -354,8 +351,8 @@ const DiagnosticApp: React.FC = () => {
     try {
       // Validate that all questions have been answered
       if (answers.length < diagnosticQuestions.length) {
-        toast.error("Algumas perguntas não foram respondidas corretamente. Voltando ao questionário.");
-        setDiagnosticState(DiagnosticState.QUESTIONS);
+        toast.error("Algumas perguntas não foram respondidas corretamente.");
+        goToUnansweredQuestion();
         setIsLoading(false);
         return;
       }
@@ -456,14 +453,23 @@ const DiagnosticApp: React.FC = () => {
         setCurrentQuestionIndex(prev => prev + 1);
       } else {
         // Check if all questions have been answered
-        if (validateAllQuestionsAnswered()) {
+        const missingQuestions = findUnansweredQuestions();
+        if (missingQuestions.length === 0) {
           // All done, move to user form
           setCompletedAnswers(updatedAnswers);
           setDiagnosticState(DiagnosticState.USER_INFO);
         } else {
           // There are unanswered questions, go to the first one
           toast.error("Algumas perguntas não foram respondidas. Vamos para a primeira não respondida.");
-          setCurrentQuestionIndex(unansweredQuestions[0]);
+          // Make sure we're in the right state
+          setDiagnosticState(DiagnosticState.QUESTIONS);
+          // Set a small delay to ensure state changes are processed
+          setTimeout(() => {
+            const firstUnanswered = missingQuestions[0];
+            if (firstUnanswered >= 0 && firstUnanswered < diagnosticQuestions.length) {
+              setCurrentQuestionIndex(firstUnanswered);
+            }
+          }, 50);
         }
       }
     }, 400); // Short delay for visual feedback only
@@ -588,6 +594,28 @@ const DiagnosticApp: React.FC = () => {
     
     const previousAnswer = answers.find(a => a.questionId === currentQuestion.id);
     return previousAnswer?.selectedOption;
+  };
+
+  const goToUnansweredQuestion = () => {
+    const unansweredQuestions = findUnansweredQuestions();
+    
+    if (unansweredQuestions.length > 0) {
+      // Make sure we're in question state before setting the index
+      setDiagnosticState(DiagnosticState.QUESTIONS);
+      
+      // Brief delay to ensure state is updated
+      setTimeout(() => {
+        // Verify the question index is valid
+        const firstUnanswered = unansweredQuestions[0]; 
+        if (firstUnanswered >= 0 && firstUnanswered < diagnosticQuestions.length) {
+          setCurrentQuestionIndex(firstUnanswered);
+        } else {
+          // Fallback to first question if something went wrong
+          setCurrentQuestionIndex(0);
+          console.error("Invalid question index", firstUnanswered);
+        }
+      }, 50);
+    }
   };
 
   const progressPercentage = ((currentQuestionIndex + 1) / diagnosticQuestions.length) * 100;
