@@ -32,9 +32,17 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/obrigado" element={<ThankYouPage />} />
+          {/* Update the resultados route to use proper URL param format */}
+          <Route 
+            path="/resultados/:id" 
+            element={<Navigate to={(location) => {
+              const id = location.pathname.split('/').pop();
+              return `/?share_id=${id || ''}`;
+            }} replace />} 
+          />
           <Route 
             path="/resultados" 
-            element={<Navigate to={`/?share_id=${new URLSearchParams(window.location.search).get('id') || ''}`} replace />} 
+            element={<Navigate to="/" replace />} 
           />
           <Route path="*" element={<NotFound />} />
         </Routes>

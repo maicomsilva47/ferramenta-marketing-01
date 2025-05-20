@@ -1,5 +1,5 @@
-
 import { DiagnosticQuestion, DiagnosticResult, DiagnosticPillar, UserAnswer, PillarScore, OptionValue } from '@/types/diagnostic';
+import { getEvaluationFromScore } from '@/components/diagnostic-results/utils';
 
 export function calculateResults(answers: UserAnswer[], questions: DiagnosticQuestion[]): DiagnosticResult {
   const pillarScores: Record<DiagnosticPillar, PillarScore> = {} as Record<DiagnosticPillar, PillarScore>;
@@ -43,16 +43,8 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
     
     // Calculate evaluation based on percentage
     const percentageScore = (pillarScore / possibleScore) * 100;
-    let evaluation: 'high' | 'medium' | 'low'; 
-    
-    // Adjust evaluation thresholds to match UI expectations
-    if (percentageScore >= 75) {
-      evaluation = 'high';
-    } else if (percentageScore <= 45) { // Lowered threshold to better match UI representation
-      evaluation = 'low';
-    } else {
-      evaluation = 'medium';
-    }
+    // Use the standardized evaluation function
+    const evaluation = getEvaluationFromScore(percentageScore);
 
     pillarScores[pillarKey] = {
       pillar: pillarKey,
@@ -64,23 +56,15 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
 
   // Calculate overall evaluation
   const overallPercentage = totalPossibleScore > 0 ? (totalScore / totalPossibleScore) * 100 : 0;
-  let overallEvaluation: 'high' | 'medium' | 'low';
-  
-  // Adjust overall evaluation thresholds to match UI expectations
-  if (overallPercentage >= 75) {
-    overallEvaluation = 'high';
-  } else if (overallPercentage <= 45) { // Lowered threshold for low evaluation
-    overallEvaluation = 'low';
-  } else {
-    overallEvaluation = 'medium';
-  }
+  // Use the standardized evaluation function for consistency
+  const overallEvaluation = getEvaluationFromScore(overallPercentage);
 
   // Generate recommendations based on scores
   const recommendations = generateRecommendations(pillarScores);
 
   return {
     pillarScores,
-    totalScore: overallPercentage, // Store as percentage score for easier display
+    totalScore, // Store raw score
     totalPossibleScore,
     overallEvaluation,
     recommendations

@@ -19,6 +19,7 @@ export const getProgressColor = (evaluation: OptionValue): string => {
   }
 };
 
+// Consistent function for calculating pillar scores as percentages
 export const getPillarScore = (pillar: PillarScore): number => {
   // Using a 1-4 scale with max of 4 points per question
   const maxPossibleScore = pillar.totalQuestions * 4;
@@ -26,6 +27,7 @@ export const getPillarScore = (pillar: PillarScore): number => {
   return Math.min(100, Math.round((pillar.score / maxPossibleScore) * 100));
 };
 
+// Consistent function for calculating total score as percentage
 export const getTotalScore = (totalScore: number, totalPossibleScore: number): number => {
   // Prevent division by zero and ensure we return a valid percentage
   if (totalPossibleScore <= 0) return 0;
@@ -94,4 +96,15 @@ export const generateStrategicInsights = (pillarScores: Record<DiagnosticPillar,
   
   // Limita a 5 insights no máximo
   return insights.slice(0, 5);
+};
+
+// New utility function for computing evaluation from score percentage
+export const getEvaluationFromScore = (scorePercentage: number): OptionValue => {
+  if (scorePercentage >= 75) {
+    return 'high';
+  } else if (scorePercentage <= 45) {
+    return 'low';
+  } else {
+    return 'medium';
+  }
 };

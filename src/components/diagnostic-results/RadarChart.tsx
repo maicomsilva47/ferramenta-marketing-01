@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { DiagnosticPillar, PillarScore } from '@/types/diagnostic';
 import { pillarNames } from '@/data/diagnosticData';
+import { getPillarScore } from './utils';
 
 interface RadarChartProps {
   pillarScores: Record<DiagnosticPillar, PillarScore>;
@@ -26,9 +27,8 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
       const pillarKey = pillar as DiagnosticPillar;
       const pillarName = pillarNames[pillarKey] || pillarKey;
       
-      // Calculate percentage score from raw scores
-      const maxScore = data.totalQuestions * 4; // 4 is max score per question
-      const percentScore = Math.min(100, Math.round((data.score / maxScore) * 100));
+      // Use the standardized getPillarScore utility function
+      const percentScore = getPillarScore(data);
 
       return {
         subject: pillarName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),

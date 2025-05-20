@@ -29,10 +29,12 @@ const getProgressColor = (evaluation: OptionValue): string => {
   }
 };
 
+// Improved function to calculate radial progress correctly
 const getRadialProgress = (score: number): string => {
   // Ensure score is between 0 and 100
   const normalizedScore = Math.min(100, Math.max(0, score));
-  return `${Math.min(359, Math.max(0, (normalizedScore * 3.6)))}deg`;
+  // Calculate degrees for the conic gradient (0-359 degrees)
+  return `${Math.round((normalizedScore / 100) * 360)}deg`;
 };
 
 export const OverallScore: React.FC<DiagnosticResultsHeaderProps> = ({
@@ -63,7 +65,7 @@ export const OverallScore: React.FC<DiagnosticResultsHeaderProps> = ({
                   mask: 'radial-gradient(transparent 55%, black 56%)',
                   WebkitMask: 'radial-gradient(transparent 55%, black 56%)'
               }}></div>
-              <span className="text-2xl sm:text-3xl font-bold">{Math.round(normalizedScore)}</span>
+              <span className="text-2xl sm:text-3xl font-bold">{normalizedScore}</span>
             </div>
           </div>
           <div>
