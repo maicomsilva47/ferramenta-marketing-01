@@ -26,13 +26,13 @@ const RadarChart: React.FC<RadarChartProps> = ({ pillarScores }) => {
       const pillarKey = pillar as DiagnosticPillar;
       const pillarName = pillarNames[pillarKey] || pillarKey;
       
-      // Fixed calculation: score is out of max 4 points per question
-      const maxScore = data.totalQuestions * 4;
-      const percentScore = Math.min(100, (data.score / maxScore) * 100);
+      // Calculate percentage score from raw scores
+      const maxScore = data.totalQuestions * 4; // 4 is max score per question
+      const percentScore = Math.min(100, Math.round((data.score / maxScore) * 100));
 
       return {
         subject: pillarName.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),
-        value: Math.round(percentScore),
+        value: percentScore,
         fullMark: 100
       };
     });

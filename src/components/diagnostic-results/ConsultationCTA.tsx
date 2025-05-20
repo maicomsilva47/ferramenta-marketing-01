@@ -114,11 +114,18 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
     if (!showForm) {
       setShowForm(true);
     } else {
+      // Trigger form validation and submission
       form.handleSubmit(onSubmit)();
     }
   };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    // Validate all fields are filled
+    if (!data.cargo_ocupado || !data.faturamento_anual || !data.segmento) {
+      toast.error("Por favor preencha todos os campos obrigatórios");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Corrected webhook URL
@@ -231,10 +238,13 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                         name="cargo_ocupado"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Cargo ocupado</FormLabel>
+                            <FormLabel className="text-white flex items-center">
+                              Cargo ocupado <span className="text-red-300 ml-1">*</span>
+                            </FormLabel>
                             <Select 
                               onValueChange={field.onChange} 
                               defaultValue={field.value}
+                              required
                             >
                               <FormControl>
                                 <SelectTrigger className="bg-white/10 border-white/20 text-white">
@@ -257,10 +267,13 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                         name="faturamento_anual"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Faturamento anual</FormLabel>
+                            <FormLabel className="text-white flex items-center">
+                              Faturamento anual <span className="text-red-300 ml-1">*</span>
+                            </FormLabel>
                             <Select 
                               onValueChange={field.onChange} 
                               defaultValue={field.value}
+                              required
                             >
                               <FormControl>
                                 <SelectTrigger className="bg-white/10 border-white/20 text-white">
@@ -283,10 +296,13 @@ const ConsultationCTA: React.FC<ConsultationCTAProps> = ({ userData, resultsId }
                         name="segmento"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Segmento</FormLabel>
+                            <FormLabel className="text-white flex items-center">
+                              Segmento <span className="text-red-300 ml-1">*</span>
+                            </FormLabel>
                             <Select 
                               onValueChange={field.onChange} 
                               defaultValue={field.value}
+                              required
                             >
                               <FormControl>
                                 <SelectTrigger className="bg-white/10 border-white/20 text-white">

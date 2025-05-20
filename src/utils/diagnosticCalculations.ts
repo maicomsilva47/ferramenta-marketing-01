@@ -43,12 +43,15 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
     
     // Calculate evaluation based on percentage
     const percentageScore = (pillarScore / possibleScore) * 100;
-    let evaluation: 'high' | 'medium' | 'low' = 'medium';
+    let evaluation: 'high' | 'medium' | 'low'; 
     
+    // Adjust evaluation thresholds to match UI expectations
     if (percentageScore >= 75) {
       evaluation = 'high';
-    } else if (percentageScore <= 50) {
+    } else if (percentageScore <= 45) { // Lowered threshold to better match UI representation
       evaluation = 'low';
+    } else {
+      evaluation = 'medium';
     }
 
     pillarScores[pillarKey] = {
@@ -61,12 +64,15 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
 
   // Calculate overall evaluation
   const overallPercentage = totalPossibleScore > 0 ? (totalScore / totalPossibleScore) * 100 : 0;
-  let overallEvaluation: 'high' | 'medium' | 'low' = 'medium';
+  let overallEvaluation: 'high' | 'medium' | 'low';
   
+  // Adjust overall evaluation thresholds to match UI expectations
   if (overallPercentage >= 75) {
     overallEvaluation = 'high';
-  } else if (overallPercentage <= 50) {
+  } else if (overallPercentage <= 45) { // Lowered threshold for low evaluation
     overallEvaluation = 'low';
+  } else {
+    overallEvaluation = 'medium';
   }
 
   // Generate recommendations based on scores
@@ -74,7 +80,7 @@ export function calculateResults(answers: UserAnswer[], questions: DiagnosticQue
 
   return {
     pillarScores,
-    totalScore,
+    totalScore: overallPercentage, // Store as percentage score for easier display
     totalPossibleScore,
     overallEvaluation,
     recommendations

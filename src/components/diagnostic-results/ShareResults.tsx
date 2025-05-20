@@ -33,7 +33,12 @@ const ShareResults: React.FC<ShareResultsProps> = ({
   useEffect(() => {
     if (resultsId) {
       setIsGenerating(true);
+      
+      // Create the shareable link with the results ID
       const generatedLink = `${baseUrl}/?share_id=${resultsId}`;
+      
+      // Ensure the data is properly saved to localStorage with public access flag
+      ensureSharedResultsPublic(resultsId);
       
       // Brief delay to ensure data is properly stored
       setTimeout(() => {
@@ -42,6 +47,27 @@ const ShareResults: React.FC<ShareResultsProps> = ({
       }, 500);
     }
   }, [resultsId, baseUrl]);
+
+  // Function to ensure the shared results are marked as publicly accessible
+  const ensureSharedResultsPublic = (id: string) => {
+    try {
+      const storageKey = `diagnosticShare_${id}`;
+      const storedData = localStorage.getItem(storageKey);
+      
+      if (storedData) {
+        const data = JSON.parse(storedData);
+        
+        // Add public access flag if not already present
+        if (!data.isPublic) {
+          data.isPublic = true;
+          localStorage.setItem(storageKey, JSON.stringify(data));
+          console.log(`Results ${id} marked as publicly shareable`);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating shared results visibility:", error);
+    }
+  };
 
   const handleCopyLink = () => {
     if (!shareableLink) {

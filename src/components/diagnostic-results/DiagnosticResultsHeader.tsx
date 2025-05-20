@@ -40,7 +40,7 @@ export const OverallScore: React.FC<DiagnosticResultsHeaderProps> = ({
   overallEvaluation
 }) => {
   // Ensure score is between 0 and 100
-  const normalizedScore = Math.min(100, Math.max(0, totalScore));
+  const normalizedScore = Math.min(100, Math.max(0, Math.round(totalScore)));
   
   return (
     <div className="mb-8">
