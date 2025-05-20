@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
@@ -323,7 +322,29 @@ const DiagnosticApp: React.FC = () => {
     startNewSession();
   };
 
+  // Modified function to validate if all questions have been answered
+  const validateAllQuestionsAnswered = (): boolean => {
+    // Check if we have an answer for each question
+    const answeredQuestionIds = answers.map(a => a.questionId);
+    const allQuestionIds = diagnosticQuestions.map(q => q.id);
+    
+    // Find which questions are unanswered
+    const unansweredQuestions = allQuestionIds.filter(id => !answeredQuestionIds.includes(id));
+    
+    if (unansweredQuestions.length > 0) {
+      toast.error(`Você precisa responder todas as ${diagnosticQuestions.length} perguntas antes de continuar.`);
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleUserInfoSubmit = async (formData: UserFormData) => {
+    // Validate all questions are answered before proceeding
+    if (!validateAllQuestionsAnswered()) {
+      return; // Stop here if validation fails
+    }
+
     // Show loading state
     setIsLoading(true);
     
@@ -454,20 +475,19 @@ const DiagnosticApp: React.FC = () => {
           setIsProcessingAnswer(false);
         }, 500);
       } else {
-        // Store the completed answers and move to user info collection
-        console.log("Completed all questions, moving to user form", { answersCount: updatedAnswers.length });
-        setCompletedAnswers(updatedAnswers);
-        
-        // Ensure we have answers for all questions before proceeding
-        if (updatedAnswers.length < diagnosticQuestions.length) {
-          console.error("Not all questions have answers", {
-            answers: updatedAnswers.length,
-            questions: diagnosticQuestions.length
-          });
-          toast.error("Algumas perguntas não foram respondidas. Por favor, reinicie o diagnóstico.");
-          setDiagnosticState(DiagnosticState.LANDING);
-        } else {
+        // Validate that all questions have been answered before proceeding
+        if (validateAllQuestionsAnswered()) {
+          console.log("Completed all questions, moving to user form", { answersCount: updatedAnswers.length });
+          setCompletedAnswers(updatedAnswers);
           setDiagnosticState(DiagnosticState.USER_INFO);
+        } else {
+          // If validation fails, stay on the current page
+          console.error("Not all questions answered", { 
+            questionsCount: diagnosticQuestions.length, 
+            answersCount: updatedAnswers.length 
+          });
+          setIsProcessingAnswer(false);
+          return;
         }
         
         setIsProcessingAnswer(false);
