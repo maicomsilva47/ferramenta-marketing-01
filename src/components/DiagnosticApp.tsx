@@ -575,6 +575,17 @@ const DiagnosticApp: React.FC = () => {
     }
   };
 
+  // Nova função para avançar para a próxima pergunta
+  const handleGoForward = () => {
+    // Don't allow going forward if we're processing
+    if (isProcessingAnswer) return;
+    
+    // Só avança se não for a última pergunta e se a atual já tiver sido respondida
+    if (currentQuestionIndex < diagnosticQuestions.length - 1 && getPreviousAnswer() !== undefined) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    }
+  };
+
   const handleResetDiagnostic = () => {
     // Clear URL params by replacing the current URL without the parameters
     const url = new URL(window.location.href);
@@ -707,6 +718,7 @@ const DiagnosticApp: React.FC = () => {
               totalPillars={pillarKeys.length}
               onSelectAnswer={handleSelectAnswer}
               onGoBack={currentQuestionIndex > 0 ? handleGoBack : undefined}
+              onGoForward={currentQuestionIndex < diagnosticQuestions.length - 1 ? handleGoForward : undefined}
               previousAnswer={getPreviousAnswer()}
               isProcessing={isProcessingAnswer}
             />

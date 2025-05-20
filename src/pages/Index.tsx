@@ -12,8 +12,8 @@ const Index = () => {
         <title>Diagnóstico - Growth Machine</title>
         <meta property="og:title" content="Diagnóstico - Growth Machine" />
         <meta name="twitter:title" content="Diagnóstico - Growth Machine" />
-        <meta property="og:image" content={`${baseUrl}/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png`} />
-        <meta name="twitter:image" content={`${baseUrl}/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png`} />
+        <meta property="og:image" content="/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png" />
+        <meta name="twitter:image" content="/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png" />
         <meta property="og:url" content={baseUrl} />
         <meta property="og:description" content="Avalie a maturidade de seu negócio com nosso diagnóstico" />
         <meta name="twitter:description" content="Avalie a maturidade de seu negócio com nosso diagnóstico" />
@@ -26,7 +26,7 @@ const Index = () => {
       <footer className="bg-growth-black text-white py-4 sm:py-6">
         <div className="container max-w-6xl mx-auto px-4 text-center">
           <img 
-            src="/lovable-uploads/186cbcb9-c7a6-4294-90b9-0f7927a6a963.png" 
+            src="/lovable-uploads/29dde6b2-3da6-4448-ab06-c07499e6f530.png" 
             alt="Growth Machine" 
             className="h-6 sm:h-8 max-w-[100px] sm:max-w-[120px] mx-auto mb-2 sm:mb-3 object-contain"
             loading="lazy"
